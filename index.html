@@ -181,6 +181,15 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   #mapUI{top:8px;bottom:auto;max-width:46vw}#mapInfo{font-size:12px;padding:6px 10px}
 }
 [hidden]{display:none!important}
+#toast{cursor:pointer}#toast.mini{padding:7px 14px;border-radius:999px;max-width:80vw}#toast.mini h2{font-size:13.5px;margin:0}#toast.mini h2::after{content:' ›';color:var(--muted)}#toast.mini p{display:none}
+@media (max-width:860px),(orientation:landscape) and (max-height:500px){
+  #flight #read{background:transparent;border-color:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;padding:2px 4px;min-width:0;text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 1px rgba(0,0,0,.9)}
+  #flight #read .row{gap:8px;color:#d7deee}#flight #read .row b{color:#fff}#flight #rowMG,#flight #chip{display:none}#flight #read .eyebrow{color:#bcd3ff}
+  #strip .sl span,#strip .km span{display:none}#strip .sl.cur span{display:block}#strip{width:5px;opacity:.85}
+  #thrWrap{padding:6px;gap:4px;background:rgba(7,11,22,.35)}#thrWrap .gcol>.eyebrow{display:none}#thrPct,#fuelPct{font-size:12px}#thrWrap .mini button{padding:2px 6px;font-size:10px}
+  #ctlC button{padding:6px 10px;font-size:12px}#btnStage{min-width:96px;padding:6px 10px}#btnStage small{font-size:10px}
+  #topR>button{background:rgba(7,11,22,.35)}#warpCtl{background:rgba(7,11,22,.35)}
+}
 #intro{position:fixed;inset:0;z-index:200;background:#02040a;display:flex;align-items:center;justify-content:center;transition:opacity .9s}#intro.out{opacity:0;pointer-events:none}
 #introC{position:absolute;inset:0;width:100%;height:100%}.inBox{position:relative;text-align:center;padding:24px;max-width:560px;animation:rise 1.6s ease-out both}
 #intro h1{font-size:clamp(54px,14vw,112px);letter-spacing:.14em;line-height:1;color:#fff;text-shadow:0 0 40px rgba(255,179,71,.45)}#intro .eyebrow{color:var(--orbit);letter-spacing:.3em}
@@ -243,7 +252,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <div class="eyebrow" id="rLayer">Troposfera</div>
     <div class="big" id="rAlt">0 m</div>
     <div class="row"><span>Velocidade</span><b id="rVel">0 m/s</b></div>
-    <div class="row"><span>Mach · G</span><b id="rMG">—</b></div><div class="row" id="rowT" hidden><span>Casco</span><b id="rTemp"></b></div><div id="blk" hidden>SEM SINAL · PLASMA</div>
+    <div class="row" id="rowMG"><span>Mach · G</span><b id="rMG">—</b></div><div class="row" id="rowT" hidden><span>Casco</span><b id="rTemp"></b></div><div id="blk" hidden>SEM SINAL · PLASMA</div>
     <button id="chip"><span class="eyebrow">Missão</span><br><b id="chipT"></b></button>
   </div>
   <div id="topR"><div id="warpCtl" class="glass"><button id="wDn" aria-label="Tempo mais devagar">◀◀</button><b id="wVal">×1</b><button id="wUp" aria-label="Tempo mais rápido">▶▶</button></div><button id="btnMap" title="Mapa (M)" aria-label="Mapa">◎</button><button id="btnMenu" title="Menu" aria-label="Menu">☰</button></div>
@@ -880,7 +889,8 @@ function leverUI(){const b=$('#btnEng'),on=!!(S&&S.master);b.classList.toggle('o
 $('#btnEng').onclick=engKey;
 let lbTimer,tTimer;
 function layerBanner(i){const L=LAYERS[i];$('#lbAlt').textContent=(L.a/1000)+' a '+(L.b>=1e7?'10.000':L.b/1000)+' km';$('#lbName').textContent=L.n;$('#lbFact').textContent=L.f;$('#layerFact').innerHTML='<b style="color:var(--ink)">'+L.n+'</b> · '+L.f;$('#layerBox').classList.add('on');const rl=$('#rLayer');rl.classList.remove('flash');void rl.offsetWidth;rl.classList.add('flash');clearTimeout(lbTimer);lbTimer=setTimeout(()=>$('#layerBox').classList.remove('on'),mobile()?3500:7000);}
-function toast(t,b){$('#tTitle').textContent=t;$('#tBody').textContent=b;$('#toast').classList.add('on');clearTimeout(tTimer);tTimer=setTimeout(()=>$('#toast').classList.remove('on'),mobile()?4500:8000);}
+function toast(t,b){const el=$('#toast');$('#tTitle').textContent=t;$('#tBody').textContent=b;el.classList.add('on');el.classList.toggle('mini',mobile()||landM());clearTimeout(tTimer);tTimer=setTimeout(()=>el.classList.remove('on'),mobile()?3500:8000);}
+$('#toast').onclick=()=>{const el=$('#toast');if(el.classList.contains('mini')){el.classList.remove('mini');clearTimeout(tTimer);tTimer=setTimeout(()=>el.classList.remove('on'),9000);}else el.classList.remove('on');};
 function buildMissions(){const cur=MISSIONS.find(m=>!S.done.has(m.id));$('#missions').innerHTML=MISSIONS.map(m=>'<li class="'+(S.done.has(m.id)?'done':'')+(m===cur?' cur':'')+'"><i>'+(S.done.has(m.id)?'✓':'○')+'</i><span><b>'+m.t+'</b><small>'+m.h+'</small></span></li>').join('');
   $('#chipT').textContent=cur?cur.t:'Todas cumpridas';$('#whyTxt').textContent=cur?'Por quê: '+cur.why:'';}
 const STRIP_TOP=150000,spos=a=>Math.sqrt(Math.max(0,Math.min(a,STRIP_TOP))/STRIP_TOP);
@@ -892,7 +902,7 @@ function hud(){const sp=Math.hypot(S.rvx,S.rvy);$('#rLayer').textContent=S.dom.e
   $('#wVal').textContent='×'+warp;
   $('#thrFill').style.height=S.thr*100+'%';$('#thrPct').textContent=Math.round(S.thr*100)+'%';
   const gr=V.groups[0];$('#btnStage').disabled=!gr||S.dead;$('#stNext').textContent=gr?(gr.some(i=>PT(V.parts[i]).t==='sepLat')?'soltar laterais':'soltar estágio'):'sem estágios';
-  const cb=$('#btnChute');cb.hidden=!V.para;cb.className=V.chute>0?'open':V.armed?'armed':'';cb.textContent='Paraquedas: '+(V.chute>0?(V.chStg===2?'principal':'freio'):V.armed?'armado':'abrir');
+  const vr=(V.x*V.vx+V.y*V.vy)/Math.hypot(V.x,V.y),cb=$('#btnChute');cb.hidden=!V.para||!(V.chute>0||V.armed||(S.dom.earth&&S.altE<80000&&vr<-5&&!V.firing.length));$('#btnAim').hidden=V.clamped||!V.aim&&S.dom.earth&&S.altE<20000;cb.className=V.chute>0?'open':V.armed?'armed':'';cb.textContent='Paraquedas: '+(V.chute>0?(V.chStg===2?'principal':'freio'):V.armed?'armado':'abrir');
   $('#strip').hidden=view2==='map'||!S.dom.earth;$('#mark').style.bottom='calc('+spos(S.altE)*100+'% - 1px)';document.querySelectorAll('#strip .sl').forEach((el,i)=>el.classList.toggle('cur',i===layerAt(S.altE)));
   $('#mapUI').classList.toggle('on',view2==='map');$('#flight').classList.toggle('map',view2==='map');$('#layerBox').hidden=view2==='map';$('#mMap').textContent=view2==='map'?'Voltar ao voo':'Abrir mapa';
   if(view2==='map'){const e=S.el,body=S.dom.de,ci=capInfo(),tryO=!!(S.dom.earth&&e&&e.bound&&e.pe<SPACE&&S.altE>15000&&!V.ground&&!V.clamped);
