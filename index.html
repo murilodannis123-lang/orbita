@@ -181,6 +181,11 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   #mapUI{top:8px;bottom:auto;max-width:46vw}#mapInfo{font-size:12px;padding:6px 10px}
 }
 [hidden]{display:none!important}
+#intro{position:fixed;inset:0;z-index:200;background:#02040a;display:flex;align-items:center;justify-content:center;transition:opacity .9s}#intro.out{opacity:0;pointer-events:none}
+#introC{position:absolute;inset:0;width:100%;height:100%}.inBox{position:relative;text-align:center;padding:24px;max-width:560px;animation:rise 1.6s ease-out both}
+#intro h1{font-size:clamp(54px,14vw,112px);letter-spacing:.14em;line-height:1;color:#fff;text-shadow:0 0 40px rgba(255,179,71,.45)}#intro .eyebrow{color:var(--orbit);letter-spacing:.3em}
+#intro .sub{color:#c9d1e6;font-size:clamp(14px,3.6vw,17px);margin:14px auto 26px;max-width:440px}#btnStart{padding:14px 44px;font-size:19px;border-radius:999px;box-shadow:0 0 30px rgba(255,179,71,.35)}#intro .hint{color:var(--muted);font-size:12px;margin-top:14px}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 #blk{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff9ad5;animation:blink 1s infinite}@keyframes blink{50%{opacity:.35}}#rTemp.hot{color:var(--bad)}#rTemp.warm{color:var(--accent)}
 #saves{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:84vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
 #saves .svrow{display:flex;gap:8px}#svName{flex:1;min-width:0;font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}#svName:focus-visible{outline:2px solid var(--orbit)}
@@ -204,6 +209,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <button id="btnP2">Com laterais</button>
     <button id="btnClear">Limpar</button>
     <button id="btnSaves">Salvos</button>
+    <button id="btnMus" aria-pressed="true">♪ Música</button>
     <button id="btnFs" title="Tela cheia / celular deitado">⛶ Tela cheia</button>
     <button id="btnSheet" class="mOnly">Ficha <span id="sumTxt"></span></button>
   </div>
@@ -229,6 +235,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><p class="hint">Fone de ouvido recomendado</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -374,6 +381,7 @@ function validate(ps){const errs=[],warns=[],bad=new Set();
   if(!act.length)errs.push('Nenhum motor com a saída livre para decolar');
   else if(twr<1)errs.push('Empuxo ÷ peso = '+twr.toFixed(2)+': pesado demais para sair do chão');else if(twr<1.2)warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+': vai subir devagar e gastar muito');
   if(!ps.some(p=>PT(p).t==='para'))warns.push('Sem paraquedas: dá para subir, mas não para voltar');
+  if(ci>=0&&ps.some(q=>below(ps[ci],q)&&PT(q).t!=='sep'))warns.push('Ponha um separador logo embaixo da cápsula: na volta o paraquedas solta o resto e desce só ela');
   if(act.length){const tx=act.reduce((s,i)=>s+ps[i].x*PT(ps[i]).thrust,0)/act.reduce((s,i)=>s+PT(ps[i]).thrust,0);if(Math.abs(tx-c.x)>0.06)warns.push('Empuxo fora do centro de massa: o foguete vai girar sozinho');}
   if(ci>=0&&centerOfPressure(ps).y<c.y)warns.push('Instável: o centro de pressão está acima do centro de massa. Ponha aletas embaixo');
   return{errs:[...new Set(errs)],warns,bad};}
@@ -436,7 +444,7 @@ let parts=[],hist=[],sym=false,drag=null,gest=null,uidN=1,view={u:40,ox:0,oy:0},
 const CATS=[['Comando',['capPingo','capDupla','para']],['Tanques',['tankP','tankM','tankG']],['Motores',['engJabuti','engVaga','engBeija','srb','liqb']],['Estrutura',['sep','sepLat','aleta','cone']]];
 const mk=(type,x,y)=>({uid:uidN++,type,x,y});
 function stackUp(list,x,bottom){let y=bottom;return list.slice().reverse().map(t=>{const h=PARTS[t].h;y-=h;return mk(t,x,y+h/2);});}
-function presetTwo(){const core=stackUp(['para','capPingo','tankM','engVaga','sep','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;return[...core,a,b];}
+function presetTwo(){const core=stackUp(['para','capPingo','sep','tankM','engVaga','sep','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;return[...core,a,b];}
 function presetSides(){const ps=presetTwo(),low=ps.find(p=>p.type==='tankG'&&box(p).b>-2.2),out=[...ps],add={};
   for(const s of[-1,1]){const sx=s*(.9+.45);add[s]=[mk('sepLat',s*(.65+.125),low.y),mk('srb',sx,-1.7),mk('cone',sx,-3.9)];out.push(...add[s]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
@@ -652,6 +660,21 @@ function sfx(type){if(!snd.ac)return;const ac=snd.ac,t=ac.currentTime,out=snd.ma
   else if(type==='chute'){for(let k=0;k<8;k++)burst(.12,700+k*90,300,.35*(1-k/9),'bandpass',out,k*.09);burst(1.2,2400,400,.25,'bandpass');}
   else if(type==='sonic'){burst(.04,7000,1800,1.1,'highpass');tone(95,35,.35,.8);burst(.04,7000,1800,.9,'highpass',out,.14);tone(95,35,.3,.6,.14);}
   else if(type==='boom'){burst(.05,8000,2000,1.3,'highpass');burst(3.4,1800,30,1.3);tone(70,22,1.8,1);burst(1.5,4000,600,.4,'bandpass',out,.2);}}
+// ================= MÚSICA (ambiente espacial, gerada na hora) =================
+// Lá menor: Am9 · Fmaj7 · Cmaj7 · G6, 72 bpm; pad suave + arpejo de sino + grave
+const mus={on:lsGet('orbita.music')!==false,playing:false,timer:null};
+const MCH=[[45,[57,60,64,71]],[41,[53,57,60,64]],[48,[55,60,64,71]],[43,[55,59,62,64]]],MEIGHTH=60/72/2,mf=n=>440*Math.pow(2,(n-69)/12);
+function musVoice(t,f,type,g0,att,dur,dest,det=0){const ac=snd.ac,o=ac.createOscillator(),gn=ac.createGain();o.type=type;o.frequency.value=f;o.detune.value=det;gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(g0,t+att);gn.gain.setTargetAtTime(0,t+dur,dur*.35);o.connect(gn).connect(dest);o.start(t);o.stop(t+dur*2.6);}
+function musStep(st,t){const[b,ch]=MCH[Math.floor(st/16)%4],L=16*MEIGHTH;
+  if(st%16===0){for(const n of ch){musVoice(t,mf(n),'sawtooth',.016,1.8,L,mus.pad,-7);musVoice(t,mf(n),'sawtooth',.016,1.8,L,mus.pad,7);}musVoice(t,mf(b),'sine',.12,.4,L*.9,mus.out);}
+  const pat=[0,1,2,3,2,1,3,2];if(Math.random()<.82){const n=ch[pat[st%8]]+12+(st%32>=24&&st%2?12:0);musVoice(t,mf(n),'sine',.05,.008,.5,mus.out);musVoice(t,mf(n)*2,'triangle',.012,.008,.25,mus.out);}
+  if(st%64===60)musVoice(t,mf(ch[3]+24),'sine',.03,.02,2.5,mus.out);}
+function musicStart(){audioInit();if(!snd.ac||mus.playing||!mus.on)return;const ac=snd.ac;mus.playing=true;mus.out=ac.createGain();mus.out.gain.value=0;mus.out.connect(snd.master);mus.out.connect(snd.verbIn);
+  mus.pad=ac.createBiquadFilter();mus.pad.type='lowpass';mus.pad.frequency.value=900;mus.pad.Q.value=.4;mus.pad.connect(mus.out);mus.out.gain.setTargetAtTime(.5,ac.currentTime,1.2);mus.next=ac.currentTime+.15;mus.step=0;
+  mus.timer=setInterval(()=>{while(mus.next<snd.ac.currentTime+.35){musStep(mus.step++,mus.next);mus.next+=MEIGHTH;}},90);}
+function musicStop(fast){if(!mus.playing)return;mus.playing=false;clearInterval(mus.timer);const o=mus.out,ac=snd.ac;o.gain.cancelScheduledValues(ac.currentTime);o.gain.setTargetAtTime(0,ac.currentTime,fast?.15:.8);setTimeout(()=>o.disconnect(),fast?1500:5000);}
+function musicSet(on){mus.on=on;lsSet('orbita.music',on);const b=$('#btnMus');b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);if(!on)musicStop(true);else if(!flight.on)musicStart();}
+$('#btnMus').onclick=()=>musicSet(!mus.on);$('#btnMus').classList.toggle('on',mus.on);$('#btnMus').setAttribute('aria-pressed',mus.on);
 // ================= SPRITES E CENÁRIO =================
 function sprite(size,stops){const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d'),gr=x.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);stops.forEach(([o,col])=>gr.addColorStop(o,col));x.fillStyle=gr;x.fillRect(0,0,size,size);return c;}
 function rng(seed){let s=seed>>>0||1;return()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
@@ -684,7 +707,7 @@ const MISSIONS=[
  {id:'moon',t:'Rumo à Lua',h:'Em órbita, abra o mapa. Quando a Lua estiver um pouco à frente, acelere para frente até o apogeu alcançar a órbita da Lua.',why:'A Lua passa a puxar mais que a Terra quando você entra na esfera de influência dela, a uns 6.600 km do centro dela nesta escala.',done:()=>S.dom===MOON_B},
  {id:'home',t:'Voltar para casa',h:'Vire contra o movimento e freie até o perigeu cair abaixo de 40 km. Solte tudo e fique só com a cápsula, escudo térmico para frente (Mira para trás). No ar, toque no paraquedas.',why:'Para descer você freia: menos velocidade baixa o outro lado da órbita até ele tocar o ar, que faz o resto.',done:()=>S.landedEarth},
 ];
-function launch(){audioInit();const ps=parts.map(p=>({...p,fuel:fuelOf(p),on:false}));const c=centerOfMass(ps),bot=Math.max(...ps.map(p=>box(p).b));
+function launch(){audioInit();musicStop(true);const ps=parts.map(p=>({...p,fuel:fuelOf(p),on:false}));const c=centerOfMass(ps),bot=Math.max(...ps.map(p=>box(p).b));
   V=makeVessel(ps,c.x*UNIT,R+(bot-c.y)*UNIT,0,0,Math.PI/2);V.clamped=true;V.main=true;V.hold=Math.PI/2;
   S={t:0,thr:0,count:null,liftT:-1,alt:0,altE:0,rvx:0,rvy:0,spaced:false,landedEarth:false,dead:false,done:new Set(),layer:-1,dom:EARTH_B,el:null,padParts:parts.map(p=>({...p}))};
   debris=[];particles=[];meteors=[];warp=1;view2='flight';snaps=[];snapT=0;$('#btnRewind').hidden=true;zoomUser=1;zs=0;
@@ -710,7 +733,7 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
   if(rho>0&&sp>.1){const vbx=v.vx*pxv[0]+v.vy*pxv[1],vby=v.vx*axv[0]+v.vy*axv[1],sa=vbx/sp,ca=vby/sp,fd=.5*rho*sp*(v.cda*ca*ca+v.sideA*sa*sa);Fx-=fd*v.vx;Fy-=fd*v.vy;
     for(const p of v.parts){const by=-(p.y-v.com.y)*UNIT,lat=vbx-v.om*by,f=-.5*rho*sp*latArea(p)*UNIT*UNIT*lat;tau-=by*f;Fx+=f*pxv[0];Fy+=f*pxv[1];}
     // como na Soyuz/Apollo: paraquedas de freio primeiro (aguenta mais velocidade), depois o principal
-    if(v.para&&v.armed&&!v.chute&&!v.ripped&&altE<9000&&sp<CH_DROGUE){v.chute=.02;v.chStg=1;if(v.main)sfx('chute');}
+    if(v.para&&v.armed&&!v.chute&&!v.ripped&&altE<9000&&sp<CH_DROGUE){v.chute=.02;v.chStg=1;if(v.main){sfx('chute');capOnly();}}
     if(v.chStg===1&&altE<3000&&sp<CH_MAIN){v.chStg=2;v.chute=.05;if(v.main)sfx('chute');}
     if(v.chute>0&&!v.ground){v.chute=Math.min(1,v.chute+dt*(v.chStg===2?.3:.8));const A=(v.chStg===2?450:3)*v.chute*v.chute,fd2=Math.min(.5*rho*sp*1.3*A,v.m*G0*6/sp);Fx-=fd2*v.vx;Fy-=fd2*v.vy;
       const tg=Math.atan2(-v.vy,-v.vx),d=Math.atan2(Math.sin(tg-v.hdg),Math.cos(tg-v.hdg));v.hdg+=d*Math.min(1,dt*1.5*v.chute);v.om*=Math.exp(-6*dt);}}
@@ -734,7 +757,9 @@ function burnUp(v){if(v.main){S.dead=true;sfx('boom');toast('Queimou na reentrad
   for(let i=0;i<(v.main?120:30);i++){const a=Math.random()*7,s2=Math.random()*60;particles.push({type:i%2?'fire':'smoke',fl:'plasma',x:v.x,y:v.y,vx:v.vx*.6+Math.cos(a)*s2,vy:v.vy*.6+Math.sin(a)*s2,life:i%2?1:6,max:i%2?1:6,size:6,grow:6,v:i%4,heat:1});}}
 const CH_DROGUE=420,CH_MAIN=140;
 // abrir o paraquedas na hora (toque nele, na cápsula ou no botão); rápido demais rasgaria
-function deployChute(cx,cy){if(!V.para||S.dead)return;cx=cx??innerWidth/2;cy=cy??innerHeight*.5;const sp=Math.hypot(S.rvx,S.rvy),rho=S.dom.earth?rhoAt(S.altE):0;
+// solta tudo o que está embaixo da cápsula (módulo de serviço), como a Soyuz faz antes da reentrada
+function capOnly(){if(!V.cap||V.clamped)return false;const ci=V.parts.indexOf(V.cap),si=V.parts.findIndex(q=>below(V.cap,q)&&PT(q).t==='sep');if(si<0||V.parts.length<=3)return false;fire([si]);void ci;tip(innerWidth/2,innerHeight*.4,'Cápsula separada do resto ✓');return true;}
+function deployChute(cx,cy){if(!V.para||S.dead)return;capOnly();cx=cx??innerWidth/2;cy=cy??innerHeight*.5;const sp=Math.hypot(S.rvx,S.rvy),rho=S.dom.earth?rhoAt(S.altE):0;
   if(V.chute>0){tip(cx,cy,V.chStg===2?'Paraquedas principal aberto':'Paraquedas de freio aberto');return;}V.armed=true;
   if(rho<1e-3){tip(cx,cy,'Sem ar aqui: armado, abre sozinho na descida');return;}
   if(sp>CH_DROGUE){tip(cx,cy,'Rápido demais ('+Math.round(sp)+' m/s): rasgaria. Armado, abre abaixo de '+CH_DROGUE+' m/s');return;}
@@ -777,9 +802,8 @@ function emit(real){for(const v of[V,...debris]){if(v.dead)continue;const sn=Mat
     for(let k=0;k<n;k++){const sp=60+Math.random()*90,j=(Math.random()-.5)*(10+90*(1-air));particles.push({type:'fire',fl:P.fl,x:ex+ax*nw*(1+Math.random()*3),y:ey+ay*nw*(1+Math.random()*3),vx:v.vx+ax*sp+px*j,vy:v.vy+ay*sp+py*j,life:.22+.1*Math.random(),max:.32,size:nw*(1.3+Math.random()*.6),grow:nw*(3+9*(1-air))});}
     const smokeAir=P.solid?Math.min(1,air*40):air;if(smokeAir>.01&&Math.random()<(P.solid?1:.75)*Math.min(1,smokeAir*4)){const sp=40+Math.random()*50,len=nw*(5+5*f.th);for(let k=0;k<(v.main&&S.altE<300?3:1);k++)
       particles.push({type:'smoke',x:ex+ax*len,y:ey+ay*len,vx:v.vx*.5+ax*sp+px*(Math.random()-.5)*20,vy:v.vy*.5+ay*sp+py*(Math.random()-.5)*20,life:8+Math.random()*10,max:18,size:nw*(1.6+Math.random()),grow:nw*(1.4+Math.random()*1.4)+(P.solid?2:0),v:Math.floor(Math.random()*4),heat:1,flip:Math.random()<.5});}}}
-  for(const v of[V,...debris]){if(v.dead||!(v.plasma>.04))continue;const sp=Math.hypot(v.vx,v.vy),dx=v.vx/sp,dy=v.vy/sp,len=vesselLen(v),n=Math.ceil(real*90*v.plasma*(v.main?1:.4));
-    for(let k=0;k<n;k++){const off=(Math.random()-.5)*len*.5,f=.82+Math.random()*.12;particles.push({type:'fire',fl:'plasma',x:v.x+dx*len*.35-dy*off,y:v.y+dy*len*.35+dx*off,vx:v.vx*f+(Math.random()-.5)*30,vy:v.vy*f+(Math.random()-.5)*30,life:.25+.2*Math.random(),max:.45,size:len*(.25+.2*v.plasma),grow:len*.6});}
-    if(Math.random()<v.plasma*real*25)particles.push({type:'fire',fl:'kero',x:v.x,y:v.y,vx:v.vx*.7+(Math.random()-.5)*60,vy:v.vy*.7+(Math.random()-.5)*60,life:.6,max:.6,size:.6,grow:.2});}
+  for(const v of[V,...debris]){if(v.dead||!(v.plasma>.04))continue;const len=vesselLen(v),n=Math.ceil(real*40*v.plasma*(v.main?1:.4));
+    for(let k=0;k<n;k++){const a=Math.random()*7,sp2=20+Math.random()*60;particles.push({type:'fire',fl:Math.random()<.5?'kero':'plasma',x:v.x+(Math.random()-.5)*len*.4,y:v.y+(Math.random()-.5)*len*.4,vx:v.vx*(.8+Math.random()*.15)+Math.cos(a)*sp2,vy:v.vy*(.8+Math.random()*.15)+Math.sin(a)*sp2,life:.5+Math.random()*.6,max:1.1,size:.35+Math.random()*.5,grow:.1});}}
   // nuvem de exaustão saindo do fosso, para os dois lados da plataforma
   if(V.firing.length&&S.altE<120&&S.dom.earth){for(let k=0;k<4;k++){const s=Math.random()<.5?-1:1;particles.push({type:'smoke',x:s*(14+Math.random()*6),y:R+1,vx:s*(35+Math.random()*60),vy:2+Math.random()*10,life:16+Math.random()*10,max:26,size:8+Math.random()*6,grow:5+Math.random()*4,v:k%4,heat:.6,flip:Math.random()<.5,spread:1});}}
   if(particles.length>1400)particles.splice(0,particles.length-1400);}
@@ -804,7 +828,9 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
   audioUpdate(engineMix());
   predTimer-=real;if(view2==='map'&&predTimer<=0){predTimer=.25;pred=predict();}
-  if(!S.dead)realism(real);draw(real);hud();requestAnimationFrame(loop);}
+  if(!S.dead)realism(real);
+  {const want=!S.dead&&S.liftT>=0&&(S.altE>SPACE||!S.dom.earth)&&!V.firing.length;if(want&&!mus.playing)musicStart();else if(!want&&mus.playing)musicStop(V.firing.length>0);}
+  draw(real);hud();requestAnimationFrame(loop);}
 // detalhes de voo real: Mach (velocidade do som muda com a temperatura do ar), força G, Max Q, barreira do som, perda de sinal no plasma
 function soundAt(h){const T=h<11000?288.15-.0065*h:h<20000?216.65:h<32000?216.65+.001*(h-20000):h<47000?228.65+.0028*(h-32000):h<51000?270.65:h<71000?270.65-.0028*(h-51000):Math.max(186.9,214.65-.002*(h-71000));return 20.05*Math.sqrt(T);}
 function realism(real){const sp=Math.hypot(S.rvx,S.rvy),h=S.altE,inAir=S.dom.earth&&h<85000,M=inAir?sp/soundAt(h):0,cx=innerWidth/2,cy=innerHeight*.36;
@@ -880,7 +906,7 @@ function toggleSas(){sas=!sas;$('#mSas').textContent='Estabilizador: '+(sas?'lig
 $('#mSnd').onclick=()=>{snd.on=!snd.on;$('#mSnd').textContent='Som: '+(snd.on?'ligado':'desligado');$('#mSnd').classList.toggle('on',snd.on);if(snd.master)snd.master.gain.value=snd.on?snd.vol:0;};
 $('#mVol').oninput=e=>{snd.vol=e.target.value/100;if(snd.master&&snd.on)snd.master.gain.value=snd.vol;};
 $('#btnMenu').onclick=()=>$('#drawer').classList.toggle('open');$('#btnClose').onclick=()=>$('#drawer').classList.remove('open');$('#chip').onclick=()=>$('#drawer').classList.add('open');
-$('#mHangar').onclick=()=>{flight.on=false;if(snd.ac)snd.ac.suspend();try{speechSynthesis.cancel();}catch(e){}$('#drawer').classList.remove('open');$('#flight').classList.remove('on');$('#hangar').style.display='';refresh();};
+$('#mHangar').onclick=()=>{flight.on=false;audioUpdate({e:0,kero:0,solid:0,blue:0,air:0,q:0,alt:1e6,rails:true,cam:0});musicStart();try{speechSynthesis.cancel();}catch(e){}$('#drawer').classList.remove('open');$('#flight').classList.remove('on');$('#hangar').style.display='';refresh();};
 $('#mRestart').onclick=()=>{$('#drawer').classList.remove('open');launch();};
 $('#mFs').onclick=()=>{$('#drawer').classList.remove('open');goFull();};$('#mMap').onclick=()=>{toggleMap();$('#drawer').classList.remove('open');};$('#btnMap').onclick=toggleMap;
 function toggleMap(){hidePop();if(view2==='map'){view2='flight';zoomUser=1;zs=0;}else enterMap(Math.min(VW,VH)*.4/(S.dom.r+Math.max(S.alt,S.el&&S.el.bound?Math.min(S.el.ap,MOON.a):0)));}
@@ -909,17 +935,41 @@ const baseZ=()=>VH*.25/Math.max(12,vesselLen(V)+chuteExt())/Math.pow(1+Math.max(
 function frame(ox,oy){g.setTransform(DPR,0,0,DPR,0,0);g.translate(VW/2,camY);g.scale(z,-z);g.rotate(rot);g.translate(ox-camX,oy-camYw);}
 const toScreen=(x,y)=>{const dx=x-camX,dy=y-camYw,c=Math.cos(rot),s=Math.sin(rot);return[VW/2+(dx*c-dy*s)*z,camY-(dx*s+dy*c)*z];};
 function txt(s,x,y,size,col){g.save();g.translate(x,y);g.scale(1,-1);g.font='700 '+size+'px Chakra Petch, system-ui, sans-serif';g.fillStyle=col;g.textAlign='center';g.fillText(s,0,0);g.restore();}
-function drawBase(t){const lift=S.liftT<0?0:Math.min(1,(S.t-S.liftT)/2.5),pp=S.padParts;
-  g.fillStyle='#2c5a3b';g.beginPath();g.moveTo(-9000,-40);for(let x=-9000;x<=9000;x+=150){const ramp=Math.min(1,Math.max(0,(Math.abs(x)-1200)/1500));g.lineTo(x,ramp*(40+25*Math.sin(x/900)+12*Math.sin(x/260+1)));}g.lineTo(9000,-40);g.closePath();g.fill();
-  g.fillStyle='#d6dce4';g.fillRect(-92,0,42,50);g.fillStyle='#1f6fd1';g.fillRect(-92,38,42,5);g.fillStyle='#9aa4b2';g.fillRect(-79,0,16,32);g.strokeStyle='#7d8796';g.lineWidth=.5;for(let y=4;y<32;y+=4){g.beginPath();g.moveTo(-79,y);g.lineTo(-63,y);g.stroke();}txt('ÓRBITA',-71,44.5,4.5,'#ffffff');
-  g.fillStyle='#c4cad3';g.fillRect(95,0,44,10);g.fillStyle='#4fd1ff';for(let x=99;x<136;x+=6)g.fillRect(x,5,3.5,3);
-  g.strokeStyle='#8d97a8';g.lineWidth=1.2;[62,74].forEach(x=>{g.beginPath();g.moveTo(x,0);g.lineTo(68,22);g.stroke();});g.fillStyle='#e6e9ee';g.beginPath();g.arc(68,26,5,0,7);g.fill();g.fillStyle='#1f6fd1';g.fillRect(63,25,10,1.2);
-  g.fillStyle='#8f969f';g.fillRect(-45,-3,90,3);g.fillStyle='#a8aeb6';g.fillRect(-45,-.4,90,.4);const tr=g.createLinearGradient(0,0,0,-3);tr.addColorStop(0,'#2a2d33');tr.addColorStop(1,'#0c0d10');g.fillStyle=tr;g.fillRect(-8,-3,16,3);
+function drawBase(t){frame(0,R);const lift=S.liftT<0?0:Math.min(1,(S.t-S.liftT)/2.5),pp=S.padParts,blink=Math.sin(t*3)>0;
+  // terreno: morros a oeste, praia e mar a leste (como Alcântara e Cabo Canaveral, à beira do oceano)
+  g.fillStyle='#2c5a3b';g.beginPath();g.moveTo(-9000,-40);for(let x=-9000;x<=430;x+=150){const ramp=x<0?Math.min(1,Math.max(0,(-x-1200)/1500)):0;g.lineTo(x,ramp*(40+25*Math.sin(x/900)+12*Math.sin(x/260+1)));}g.lineTo(430,0);g.lineTo(430,-40);g.closePath();g.fill();
+  const sea=g.createLinearGradient(0,0,0,-40);sea.addColorStop(0,'#2a6fb0');sea.addColorStop(1,'#123a6b');g.fillStyle=sea;g.fillRect(420,-40,8600,40);g.strokeStyle='rgba(255,255,255,.35)';g.lineWidth=.4;g.beginPath();for(let x=440;x<9000;x+=37){const o=Math.sin(t*1.5+x*.07)*3;g.moveTo(x+o,-.4);g.lineTo(x+o+9,-.4);}g.stroke();
+  g.fillStyle='#d9c58f';g.beginPath();g.moveTo(360,0);g.lineTo(440,0);g.lineTo(460,-3);g.lineTo(360,-3);g.closePath();g.fill();
+  // caminho do transportador até o prédio de montagem
+  g.fillStyle='#8a8f97';g.fillRect(-640,0,600,.5);g.fillStyle='#a4a9b0';g.fillRect(-640,.5,600,.25);
+  // prédio de montagem vertical (VAB) com a bandeira do Brasil
+  const vb=g.createLinearGradient(-780,0,-620,0);vb.addColorStop(0,'#c9ced6');vb.addColorStop(.5,'#eef1f5');vb.addColorStop(1,'#b8bec8');g.fillStyle=vb;g.fillRect(-780,0,160,150);g.fillStyle='#d8dde4';g.fillRect(-830,0,50,70);
+  g.fillStyle='#9aa3b0';for(const dx of[-760,-680]){g.fillRect(dx,0,26,120);g.strokeStyle='#7f8896';g.lineWidth=.6;g.beginPath();for(let y=8;y<120;y+=8){g.moveTo(dx,y);g.lineTo(dx+26,y);}g.stroke();}
+  g.fillStyle='#1d8c4a';g.fillRect(-722,104,36,24);g.fillStyle='#f2d22b';g.beginPath();g.moveTo(-704,126);g.lineTo(-688,116);g.lineTo(-704,106);g.lineTo(-720,116);g.closePath();g.fill();g.fillStyle='#1f3f95';g.beginPath();g.arc(-704,116,6,0,7);g.fill();g.strokeStyle='#fff';g.lineWidth=.8;g.beginPath();g.arc(-704,111,8,-2.3,-.85);g.stroke();
+  txt('ÓRBITA',-704,136,9,'#1f6fd1');g.fillStyle=blink?'#ff3b30':'#5a1410';g.beginPath();g.arc(-700,151,1.2,0,7);g.fill();
+  // centro de controle
+  g.fillStyle='#c4cad3';g.fillRect(-420,0,80,16);g.fillStyle='#2b3a52';g.fillRect(-418,9,76,4);g.fillStyle='#4fd1ff';for(let x=-416;x<-344;x+=5)g.fillRect(x,10,3,2);g.fillStyle='#e6e9ee';[[-395,16,1.2,9]].forEach(([x,y,w,h])=>g.fillRect(x,y,w,h));g.beginPath();g.arc(-394.4,26,3.5,Math.PI,0);g.fill();
+  // tanques esféricos de oxigênio e hidrogênio líquidos, com tubulação até a plataforma
+  const sph=(x,r,c1,c2)=>{for(const lx of[-.7,0,.7]){g.fillStyle='#6d7480';g.fillRect(x+lx*r-.5,0,1,r*1.1);}const sg=g.createRadialGradient(x-r*.35,r*1.9,r*.1,x,r*1.6,r);sg.addColorStop(0,c1);sg.addColorStop(1,c2);g.fillStyle=sg;g.beginPath();g.arc(x,r*1.6,r,0,7);g.fill();};
+  sph(-150,9,'#ffffff','#9aa3b0');sph(170,7,'#ffffff','#9aa3b0');g.strokeStyle='#b8bec8';g.lineWidth=.7;g.beginPath();g.moveTo(-150,1);g.lineTo(-45,1);g.moveTo(170,1);g.lineTo(45,1);g.stroke();
+  // caixa d'água do sistema de dilúvio (abafa o som e o calor na ignição)
+  g.strokeStyle='#8d97a8';g.lineWidth=1;g.beginPath();g.moveTo(96,0);g.lineTo(104,30);g.moveTo(112,0);g.lineTo(104,30);g.stroke();g.fillStyle='#e6e9ee';g.fillRect(96,30,16,12);g.beginPath();g.ellipse(104,42,8,3,0,0,Math.PI);g.fill();g.fillStyle='#1f6fd1';g.fillRect(96,35,16,1.5);
+  // plataforma elevada com rampa e fosso da chama
+  g.fillStyle='#9ea4ad';g.beginPath();g.moveTo(-70,0);g.lineTo(-48,-3);g.lineTo(48,-3);g.lineTo(70,0);g.closePath();g.fill();
+  g.fillStyle='#8f969f';g.fillRect(-48,-3,96,3);g.fillStyle='#a8aeb6';g.fillRect(-48,-.4,96,.4);const tr=g.createLinearGradient(0,0,0,-3);tr.addColorStop(0,'#2a2d33');tr.addColorStop(1,'#0c0d10');g.fillStyle=tr;g.fillRect(-8,-3,16,3);g.fillStyle='#5b616b';g.beginPath();g.moveTo(-6,-3);g.lineTo(0,-1);g.lineTo(6,-3);g.closePath();g.fill();
+  // cerca
+  g.strokeStyle='rgba(200,205,212,.6)';g.lineWidth=.25;g.beginPath();g.moveTo(-560,2.2);g.lineTo(340,2.2);for(let x=-560;x<=340;x+=8){g.moveTo(x,0);g.lineTo(x,2.4);}g.stroke();
+  // coqueiros
+  for(const[x,h]of[[-230,11],[-262,9],[-300,12],[-505,10],[355,9],[384,11],[402,8]]){g.strokeStyle='#7a5a32';g.lineWidth=.7;g.beginPath();g.moveTo(x,0);g.quadraticCurveTo(x+1.5,h*.6,x+.6,h);g.stroke();g.strokeStyle='#2f7a3c';g.lineWidth=.9;for(const a of[-2.6,-2,-1.2,-.5,.2]){g.beginPath();g.moveTo(x+.6,h);g.quadraticCurveTo(x+.6+Math.cos(a)*3,h+2,x+.6+Math.cos(a)*5,h-1+Math.sin(a)*1.5);g.stroke();}}
   const ptop=Math.min(...pp.map(p=>box(p).t)),bot=Math.max(...pp.map(p=>box(p).b)),lenM=(bot-ptop)*UNIT,minX=Math.min(...pp.map(p=>box(p).l))*UNIT,tx1=minX-5,tx0=tx1-6,th=lenM+8;
   g.strokeStyle='#c43a2a';g.lineWidth=.7;g.beginPath();g.moveTo(tx0,0);g.lineTo(tx0,th);g.moveTo(tx1,0);g.lineTo(tx1,th);for(let y=0;y<th;y+=3.5){g.moveTo(tx0,y);g.lineTo(tx1,y+3.5);g.moveTo(tx1,y);g.lineTo(tx0,y+3.5);g.moveTo(tx0,y);g.lineTo(tx1,y);}g.stroke();
   g.strokeStyle='#d9dde3';g.lineWidth=.5;g.beginPath();g.moveTo((tx0+tx1)/2,th);g.lineTo((tx0+tx1)/2,th+8);g.stroke();g.fillStyle=Math.sin(t*4)>0?'#ff3b30':'#5a1410';g.beginPath();g.arc((tx0+tx1)/2,th+8,.8,0,7);g.fill();
   [lenM*.82,lenM*.45].forEach(y=>{const yu=bot-y/UNIT,hit=pp.filter(p=>{const B=box(p);return B.t<=yu&&B.b>=yu;}),edgeL=(hit.length?Math.min(...hit.map(p=>box(p).l)):0)*UNIT;g.save();g.translate(tx1,y);g.rotate(lift*1.35);g.fillStyle='#9aa1ab';g.fillRect(0,-.6,Math.max(1,edgeL-tx1-.3),1.2);g.restore();});
-  [-38,38].forEach(x=>{g.fillStyle='#4b525e';g.fillRect(x-.4,0,.8,28);g.fillStyle='#fff6d0';g.fillRect(x-2,27,4,1.6);g.globalCompositeOperation='lighter';g.globalAlpha=.25;g.drawImage(SPR.glow,x-12,16,24,24);g.globalAlpha=1;g.globalCompositeOperation='source-over';});}
+  // torres para-raios com os cabos por cima da plataforma
+  const mh=Math.max(th+22,60);g.strokeStyle='#9aa1ab';g.lineWidth=.9;g.beginPath();g.moveTo(-60,0);g.lineTo(-60,mh);g.moveTo(62,0);g.lineTo(62,mh);g.stroke();
+  g.strokeStyle='rgba(60,60,70,.7)';g.lineWidth=.18;g.beginPath();g.moveTo(-60,mh);g.quadraticCurveTo(1,mh-14,62,mh);g.moveTo(-60,mh);g.quadraticCurveTo(-90,mh*.5,-110,0);g.moveTo(62,mh);g.quadraticCurveTo(92,mh*.5,112,0);g.stroke();
+  g.fillStyle=blink?'#ff3b30':'#5a1410';[-60,62].forEach(x=>{g.beginPath();g.arc(x,mh+1,.9,0,7);g.fill();});
+  [-76,76].forEach(x=>{g.fillStyle='#4b525e';g.fillRect(x-.4,0,.8,28);g.fillStyle='#fff6d0';g.fillRect(x-2,27,4,1.6);g.globalCompositeOperation='lighter';g.globalAlpha=.25;g.drawImage(SPR.glow,x-12,16,24,24);g.globalAlpha=1;g.globalCompositeOperation='source-over';});}
 const FL={kero:[[255,248,225],[255,190,80],[245,105,25]],blue:[[245,248,255],[170,190,255],[110,120,255]],solid:[[255,255,245],[255,230,170],[255,150,60]]};
 function drawFlame(px,py,nw,th,air,kind,day){const c=FL[kind]||FL.kero,thin=1-air,L=nw*(5.5+5*th)*(1+1.8*thin),spread=nw*(.5+3.5*thin*thin),rgba=(k,a)=>'rgba('+c[k].join(',')+','+a+')',al=kind==='blue'?.55:1;
   g.globalCompositeOperation='lighter';g.globalAlpha=(.25+.35*thin)*al;g.drawImage(SPR.glow,px-L*.5,py-L*.15,L,L*.9);g.globalAlpha=1;g.globalCompositeOperation=day?'source-over':'lighter';
@@ -930,10 +980,14 @@ function drawFlame(px,py,nw,th,air,kind,day){const c=FL[kind]||FL.kero,thin=1-ai
   g.globalCompositeOperation='source-over';}
 function drawVessel(v,day){const[ox,oy]=bodyToWorld(v,0,0);frame(ox,oy);const sp=Math.hypot(v.vx,v.vy),len=vesselLen(v);
   // onda de choque e brilho do plasma na frente da nave (desenhado no referencial do mundo)
-  if(v.plasma>.02&&sp>1){const dx=v.vx/sp,dy=v.vy/sp,cx=v.x-ox+dx*len*.42,cy=v.y-oy+dy*len*.42,a0=Math.atan2(dy,dx),k=v.plasma,rr=Math.max(3,len*.35);
-    g.globalCompositeOperation='lighter';g.globalAlpha=Math.min(1,.25+.75*k);g.drawImage(SPR.plasma,cx-rr*2.4,cy-rr*2.4,rr*4.8,rr*4.8);
-    for(let i=0;i<3;i++){g.strokeStyle='rgba(255,'+(235-50*i)+','+(200-70*i)+','+(.75*k/(i+1))+')';g.lineWidth=Math.max(.3,rr*(.18-.04*i))*(1+.15*Math.random());g.beginPath();g.arc(cx-dx*rr*(.6+.25*i),cy-dy*rr*(.6+.25*i),rr*(1.1+.35*i),a0-1.15,a0+1.15);g.stroke();}
-    g.globalCompositeOperation='source-over';g.globalAlpha=1;}
+  if(v.plasma>.02&&sp>1){const dx=v.vx/sp,dy=v.vy/sp,nx=-dy,ny=dx,k=v.plasma,wd=Math.max(...v.parts.map(p=>W(p)))*UNIT,mx=v.x-ox,my=v.y-oy,fx=mx+dx*len*.5,fy=my+dy*len*.5,fl=.9+.2*Math.random();
+    g.globalCompositeOperation='lighter';
+    for(const[wf,lf,al]of[[1.7,1,.5],[1.05,.7,.75],[.6,.45,.9]]){const Lw=len*(2.2+7*k)*lf*fl,w=wd*wf*(.8+.7*k)*(.95+.1*Math.random()),tx=fx-dx*Lw,ty=fy-dy*Lw,ax=fx+dx*wd*.45,ay=fy+dy*wd*.45,rx=mx-dx*len*.55,ry=my-dy*len*.55;
+      const gr=g.createLinearGradient(ax,ay,tx,ty);gr.addColorStop(0,'rgba(255,240,210,'+al*k+')');gr.addColorStop(.18,'rgba(255,170,80,'+al*.85*k+')');gr.addColorStop(.5,'rgba(240,70,70,'+al*.45*k+')');gr.addColorStop(1,'rgba(150,30,130,0)');g.fillStyle=gr;g.beginPath();g.moveTo(ax,ay);
+      for(const sd of[1,-1]){g.quadraticCurveTo(fx+nx*w*sd+dx*wd*.35,fy+ny*w*sd+dy*wd*.35,fx+nx*w*sd,fy+ny*w*sd);g.lineTo(rx+nx*w*.8*sd,ry+ny*w*.8*sd);g.quadraticCurveTo((rx+tx)/2+nx*w*.45*sd,(ry+ty)/2+ny*w*.45*sd,tx,ty);if(sd===1)g.moveTo(ax,ay);}
+      g.fill();}
+    const rr=wd*(.8+.6*k),cg=g.createRadialGradient(fx+dx*rr*.35,fy+dy*rr*.35,0,fx,fy,rr*1.7);cg.addColorStop(0,'rgba(255,255,245,'+.95*k+')');cg.addColorStop(.35,'rgba(255,200,120,'+.7*k+')');cg.addColorStop(1,'rgba(255,90,40,0)');g.fillStyle=cg;g.beginPath();g.arc(fx,fy,rr*1.7,0,7);g.fill();
+    g.globalAlpha=.35*k;g.drawImage(SPR.plasma,fx-rr*4,fy-rr*4,rr*8,rr*8);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
   g.rotate(v.hdg-Math.PI/2);g.scale(1,-1);const X=x=>x*UNIT,Y=y=>y*UNIT;
   for(const f of v.firing){const P=PT(f.p);drawFlame(X(f.p.x),Y(f.p.y+P.h/2)-.1,P.w*UNIT*(P.solid||P.lock?.7:.92),f.th,f.air,P.fl,day);}
   drawCraft(g,v.parts,UNIT,X,Y,1);
@@ -963,7 +1017,7 @@ function heatTint(v,X,Y){let l=1e9,r=-1e9,t=1e9,b=-1e9;for(const p of v.parts){c
   drawCraft(x,v.parts,UNIT*pm,xx=>(xx-l)*UNIT*pm+2,yy=>(yy-t)*UNIT*pm+2,1);x.globalCompositeOperation='source-atop';const k=v.heat,vby=v.vx*Math.cos(v.hdg)+v.vy*Math.sin(v.hdg),tail=vby<0;
   const gr=x.createLinearGradient(0,tail?h:0,0,tail?0:h);gr.addColorStop(0,'rgba(255,'+Math.round(90+130*k)+','+Math.round(30+60*k)+','+(.95*k)+')');gr.addColorStop(.35,'rgba(255,'+Math.round(60+80*k)+',20,'+(.7*k)+')');gr.addColorStop(1,'rgba(190,30,10,'+(.3*k)+')');x.fillStyle=gr;x.fillRect(0,0,w,h);
   g.drawImage(c,X(l)-2/pm,Y(t)-2/pm,w/pm,h/pm);g.globalCompositeOperation='lighter';g.globalAlpha=.5*k;const gx=X((l+r)/2),gy=Y(tail?b:t),gs=(r-l)*UNIT*2.2;g.drawImage(SPR.glow,gx-gs/2,gy-gs/2,gs,gs);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
-const landAt=a=>Math.abs(Math.atan2(Math.sin(a-Math.PI/2),Math.cos(a-Math.PI/2)))<.04||fbm(Math.cos(a)*9+5,Math.sin(a)*9+1,3,4)>.53;
+const landAt=a=>{const d=Math.atan2(Math.sin(a-Math.PI/2),Math.cos(a-Math.PI/2));if(d<-.0007&&d>-.05)return false;return Math.abs(d)<.04||fbm(Math.cos(a)*9+5,Math.sin(a)*9+1,3,4)>.53;};
 function drawBodyGround(B,bp){const th=Math.atan2(camYw-bp[1],camX-bp[0]),span=Math.min(Math.PI,(VW+VH)/z/B.r*1.5+.002),depth=Math.min(B.r*.5,(VW+VH)/z*2),N=180,cx=bp[0]-camX,cy=bp[1]-camYw,ang=i=>th-span+2*span*i/N;
   frame(camX,camYw);const ring=(r0,r1,i0,i1)=>{g.beginPath();for(let i=i0;i<=i1;i++){const a=ang(i);g.lineTo(cx+r1*Math.cos(a),cy+r1*Math.sin(a));}for(let i=i1;i>=i0;i--){const a=ang(i);g.lineTo(cx+r0*Math.cos(a),cy+r0*Math.sin(a));}g.closePath();};
   if(B.earth&&S.altE>15000){const at=g.createRadialGradient(cx,cy,B.r,cx,cy,B.r+80000);at.addColorStop(0,'rgba(120,180,255,.6)');at.addColorStop(.3,'rgba(70,120,230,.25)');at.addColorStop(1,'rgba(40,80,200,0)');ring(B.r,B.r+80000,0,N);g.fillStyle=at;g.fill();}
@@ -972,7 +1026,19 @@ function drawBodyGround(B,bp){const th=Math.atan2(camYw-bp[1],camX-bp[0]),span=M
   ring(B.r-depth,B.r,0,N);g.strokeStyle=B.earth?'rgba(150,200,255,.5)':'rgba(255,255,255,.4)';g.lineWidth=2/z;g.stroke();}
 function drawDisc(B,bp){const rr=B.r*z,[sx,sy]=toScreen(bp[0],bp[1]);g.setTransform(DPR,0,0,DPR,0,0);if(B.earth||B===MOON_B)return planetDisc(B,sx,sy,rr);
   const pl=g.createRadialGradient(sx-rr*.35,sy-rr*.35,rr*.1,sx,sy,rr);pl.addColorStop(0,B.col);pl.addColorStop(1,'#15171d');g.fillStyle=pl;g.beginPath();g.arc(sx,sy,rr,0,7);g.fill();}
-function drawClouds(front,viewM){frame(0,R);for(const c of CLOUDS){if(c.front!==front||Math.abs(c.x-V.x)>viewM*2+c.w)continue;g.save();g.translate(c.x,c.y);g.scale(1,-1);g.globalAlpha=front?.75:.85;g.drawImage(CLOUD,-c.w/2,-c.h/2,c.w,c.h);g.restore();}g.globalAlpha=1;}
+// nuvens geradas por trecho do planeta (mesmo lugar sempre), em qualquer ponto da volta e em qualquer zoom
+function drawClouds(front,viewM){const th=Math.atan2(camYw,camX),span=Math.min(Math.PI,(VW+VH)/z/R*.75+.002),tile=viewM>250000?60000:viewM>40000?12000:2500,i0=Math.floor((th-span)*R/tile),i1=Math.ceil((th+span)*R/tile);
+  if(i1-i0>600)return;frame(camX,camYw);const big=tile>2500;
+  for(let i=i0;i<=i1;i++){const r=rng(i*7919+tile),n=r()<(big?.25:.2)?0:(big?1:2)+Math.floor(r()*(big?3:5));
+    for(let k=0;k<n;k++){const a=(i+r())*tile/R,alt=big?2500+r()*5000:1200+r()*8000,w=big?tile*(.35+.6*r()):150+r()*r()*2200,fr=r()<.33;if(fr!==front)continue;const rr=R+alt;
+      g.save();g.translate(rr*Math.cos(a)-camX,rr*Math.sin(a)-camYw);g.rotate(a-Math.PI/2);g.scale(1,-1);g.globalAlpha=front?.75:.85;g.drawImage(CLOUD,-w/2,-w*.22,w,w*(.35+.2*r()));g.restore();}}g.globalAlpha=1;}
+// cidades: prédios com janelas acesas em pontos fixos do planeta
+let CITIES=null;const cityList=()=>CITIES||(CITIES=[.012,.024,.041,.07,.11,-.09,-.16,.22,.31,-.35,.5,.8,1.2,-.7,2,2.6,-1.4,3.1].map((d,i)=>({a:Math.PI/2+d,n:24+(i*13)%30,sp:900+(i*317)%1400,seed:i+11})).filter(c=>landAt(c.a)));
+function drawCities(viewM){if(viewM>140000)return;const th=Math.atan2(camYw,camX),span=(VW+VH)/z/R*.8+.002;frame(camX,camYw);
+  for(const c of cityList()){if(Math.abs(Math.atan2(Math.sin(c.a-th),Math.cos(c.a-th)))>span+c.sp/R)continue;g.save();g.translate(R*Math.cos(c.a)-camX,R*Math.sin(c.a)-camYw);g.rotate(c.a-Math.PI/2);const r=rng(c.seed);
+    for(let k=0;k<c.n;k++){const x=(r()-.5)*c.sp*(.4+.6*Math.abs(r()-.5)*2),h=8+Math.pow(r(),2.2)*110,w=10+r()*28,sh=150+Math.floor(r()*60);g.fillStyle='rgb('+(sh-40)+','+(sh-30)+','+sh+')';g.fillRect(x-w/2,-1,w,h+1);
+      if(viewM<25000){g.fillStyle='rgba(255,226,140,.85)';for(let y=4;y<h-2;y+=5)for(let xx=x-w/2+2;xx<x+w/2-2;xx+=4)if(r()<.35)g.fillRect(xx,y,1.8,2.2);}
+      if(h>70&&viewM<40000){g.fillStyle=Math.sin(S.t*3+k)>0?'#ff3b30':'#5a1410';g.fillRect(x-.6,h,1.2,1.2);}}g.restore();}}
 function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.width!==Math.round(VW*DPR)||cv.height!==Math.round(VH*DPR)){cv.width=VW*DPR;cv.height=VH*DPR;}
   if(view2==='map'){drawMap(real);return;}
   const target=baseZ()*zoomUser;zs=zs?zs*Math.pow(target/zs,Math.min(1,real*3)):target;z=zs;{const ce=chuteExt()*.45,rr=Math.hypot(V.x,V.y);camX=V.x+V.x/rr*ce;camYw=V.y+V.y/rr*ce;}camY=VH*.6;
@@ -981,7 +1047,7 @@ function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.w
   const sa=disc||!earthNear?1:Math.min(1,Math.max(0,(S.altE-18000)/45000));if(sa>0){g.fillStyle='#fff';stars.forEach(s=>{g.globalAlpha=sa*(.3+.7*s[2]);const d=s[2]>.85?2:1;g.fillRect(s[0]*VW,s[1]*VH,d,d);});g.globalAlpha=1;}
   if(earthNear&&S.altE>50000&&S.altE<100000&&Math.random()<real*.8)meteors.push({x:Math.random()*VW,y:Math.random()*VH*.5,a:2.2+Math.random()*.6,life:.8});
   meteors.forEach(m=>{m.life-=real;const l=120*(1-m.life);g.strokeStyle='rgba(255,240,200,'+Math.max(0,m.life)+')';g.lineWidth=1.5;g.beginPath();g.moveTo(m.x+Math.cos(m.a)*l,m.y+Math.sin(m.a)*l);g.lineTo(m.x+Math.cos(m.a)*(l+40),m.y+Math.sin(m.a)*(l+40));g.stroke();});meteors=meteors.filter(m=>m.life>0);
-  if(disc)drawDisc(B,bp);else{drawBodyGround(B,bp);if(lowSky){drawClouds(false,viewM);if(z>.02)drawBase(S.t);}}
+  if(disc)drawDisc(B,bp);else{drawBodyGround(B,bp);if(earthNear)drawClouds(false,viewM);if(lowSky&&z>.02)drawBase(S.t);if(earthNear)drawCities(viewM);}
   if(!B.earth&&z*R>2){const[sx,sy]=toScreen(0,0);g.setTransform(DPR,0,0,DPR,0,0);g.fillStyle='#3a8fd6';g.beginPath();g.arc(sx,sy,Math.max(2,R*z),0,7);g.fill();}
   // fumaça com textura e luz de cima; fica alaranjada perto da chama
   g.setTransform(DPR,0,0,DPR,0,0);for(const p of particles){if(p.type!=='smoke')continue;const[sx,sy]=toScreen(p.x,p.y),s=p.size*z;if(s<.6||sx<-s||sy<-s||sx>VW+s||sy>VH+s)continue;const life=p.life/p.max,a=Math.min(1,(p.max-p.life)/.25)*Math.pow(Math.max(0,life),.6)*.8;
@@ -991,7 +1057,7 @@ function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.w
   g.globalCompositeOperation='lighter';for(const p of particles){if(p.type!=='fire')continue;const[sx,sy]=toScreen(p.x,p.y),s=p.size*z;if(s<.5)continue;const a=Math.atan2(p.vy-V.vy,p.vx-V.vx)+rot,c=Math.cos(a),si=-Math.sin(a),k=p.life/p.max;
     g.setTransform(DPR*c,DPR*si,-DPR*si,DPR*c,DPR*sx,DPR*sy);g.globalAlpha=Math.max(0,k)*(day?.55:.8);g.drawImage(p.fl==='blue'?SPR.blue:p.fl==='plasma'?SPR.plasma:SPR.fire,-s*1.4,-s*.45,s*2.8,s*.9);}g.globalAlpha=1;g.globalCompositeOperation='source-over';
   if(!disc){for(const d of debris)drawVessel(d,day);if(!S.dead)drawVessel(V,day);}else if(!S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.translate(VW/2,camY);g.rotate(-(V.hdg-th));g.fillStyle='#ffb347';g.beginPath();g.moveTo(0,-9);g.lineTo(6,7);g.lineTo(-6,7);g.closePath();g.fill();}
-  if(lowSky)drawClouds(true,viewM);
+  if(earthNear&&!disc)drawClouds(true,viewM);
   if(S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.fillStyle='rgba(255,107,107,.16)';g.fillRect(0,0,VW,VH);}}
 // ================= MAPA ESTELAR =================
 let guideTxt='';
@@ -1039,10 +1105,14 @@ function placeLabels(LB,extra){g.font='12px IBM Plex Sans, system-ui, sans-serif
     const c=cands.map(([x,y])=>[x,y,x+w,y+h]).find(a=>!hit(a));if(!c)continue;boxes.push(c);
     g.fillStyle='rgba(2,4,10,.55)';g.fillRect(c[0]-3,c[1]-1,w+6,h+2);g.fillStyle=L.col;g.fillText(L.t,c[0],c[1]+h-3);}}
 // rota até a Lua: janela de saída (transferência de Hohmann), ponto da queima e onde a Lua vai estar
-function moonGuide(X,Y,ex,ey,lab,dot){const e=S.el,enc=pred.segs.some(sg=>sg.b===MOON_B);
+function closestMoon(X,Y,ex,ey,lab,dot){let best=null;for(const sg of pred.segs){if(sg.b===MOON_B)return null;for(const[px,py,tt]of sg.pts){if(!sg.b.earth)continue;const[mx,my]=moonPos(tt),d=Math.hypot(px-mx,py-my);if(!best||d<best.d)best={d,px,py,tt,mx,my};}}
+  if(!best)return null;const sx=X(ex+best.px),sy=Y(ey+best.py),gx=X(ex+best.mx),gy=Y(ey+best.my),rr=Math.max(MOON.r*map.s,4);
+  g.strokeStyle='rgba(255,179,71,.85)';g.lineWidth=1.5;g.setLineDash([3,4]);g.beginPath();g.moveTo(sx,sy);g.lineTo(gx,gy);g.stroke();g.beginPath();g.arc(gx,gy,rr+2,0,7);g.stroke();g.setLineDash([]);
+  dot(sx,sy,'#ffb347',4);lab('Ponto de encontro: '+fmt(best.d-MOON.r)+' da Lua · em '+fmtT(best.tt-S.t),sx,sy,6,'#ffd9a0',9);lab('Lua nesse momento',gx,gy,rr+2,'#ffd9a0',7);return best;}
+function moonGuide(X,Y,ex,ey,lab,dot){const e=S.el,enc=pred.segs.some(sg=>sg.b===MOON_B),cl=enc?null:closestMoon(X,Y,ex,ey,lab,dot);
   if(S.dom===MOON_B){guideTxt='Você está na gravidade da Lua ✓';return;}if(enc){guideTxt='Encontro com a Lua marcado ✓ · siga a linha';return;}
   if(!S.dom.earth||!e){guideTxt='Volte para a órbita da Terra para planejar a ida';return;}
-  const hh=V.x*V.vy-V.y*V.vx;if(!e.bound||e.pe<0){guideTxt='Primeiro entre em órbita (Pe acima de 100 km)';return;}
+  const hh=V.x*V.vy-V.y*V.vx;if(!e.bound||e.pe<0){guideTxt=(cl?'Ponto de encontro a '+fmt(cl.d-MOON.r)+' da Lua · ':'')+'Para a janela de ida, primeiro entre em órbita (Pe acima de 100 km)';return;}
   if(Math.sign(hh)!==Math.sign(MOON.w)){guideTxt='Sua órbita gira ao contrário da Lua: decole para a direita (leste)';return;}
   const om=Math.atan2(e.ey,e.ex),rAt=th=>e.a*(1-e.e*e.e)/(1+e.e*Math.cos(th-om));
   if(e.ap+R<MOON.a*.8){const th0=Math.atan2(V.y,V.x),[mx,my]=moonPos(S.t),tm=Math.atan2(my,mx),wr=-Math.sqrt(MU/e.a**3),rate=MOON.w-wr;let rb=rAt(th0),dt=0,thb=th0;
@@ -1052,10 +1122,7 @@ function moonGuide(X,Y,ex,ey,lab,dot){const e=S.el,enc=pred.segs.some(sg=>sg.b==
     const bx=X(ex+rb*Math.cos(thb)),by=Y(ey+rb*Math.sin(thb));g.strokeStyle='#5ee2a0';g.lineWidth=2.5;g.beginPath();g.arc(bx,by,7,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Acelere aqui → Lua (+'+Math.round(dv)+' m/s)',bx,by,8,'#5ee2a0',9);
     const[gx,gy]=moonPos(S.t+dt+Tt),rr=Math.max(MOON.r*map.s,4);g.strokeStyle='rgba(94,226,160,.8)';g.setLineDash([3,3]);g.beginPath();g.arc(X(ex+gx),Y(ey+gy),rr+2,0,7);g.stroke();g.setLineDash([]);lab('Encontro com a Lua',X(ex+gx),Y(ey+gy),rr+2,'#5ee2a0',8);
     guideTxt=dt<20?'<b style="color:var(--good)">AGORA:</b> acelere para frente até o Ap chegar perto de '+fmt(MOON.a-R):'Janela para a Lua em <b style="color:var(--good)">'+fmtT(dt)+'</b> · lá, acelere para frente uns '+Math.round(dv)+' m/s';return;}
-  let best=null;for(const[px,py,tt]of pred.segs[0].pts){const r=Math.hypot(px,py);if(!best||r>best[0])best=[r,px,py,tt];}if(!best)return;
-  const[mx,my]=moonPos(best[3]),miss=Math.hypot(best[1]-mx,best[2]-my)-MOON.r,rr=Math.max(MOON.r*map.s,4),qx=X(ex+mx),qy=Y(ey+my);
-  g.strokeStyle='rgba(255,179,71,.85)';g.setLineDash([3,3]);g.beginPath();g.arc(qx,qy,rr+2,0,7);g.stroke();g.setLineDash([]);lab('Lua quando você chegar',qx,qy,rr+2,'#ffd9a0',8);
-  guideTxt='Errando a Lua por '+fmt(miss)+'. Na próxima volta, acelere um pouco antes ou depois do ponto verde';}
+  guideTxt=cl?'Passando a '+fmt(cl.d-MOON.r)+' da Lua no ponto de encontro. Para acertar: acelere um pouco mais ou menos, antes ou depois':'Siga a linha até a Lua';}
 // texturas procedurais da Terra e da Lua (ruído 3D na esfera, luz vinda de cima à esquerda)
 const hash3=(x,y,z)=>{let h=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(z,1274126177))|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;};
 function noise3(x,y,z){const X0=Math.floor(x),Y0=Math.floor(y),Z0=Math.floor(z),fx=x-X0,fy=y-Y0,fz=z-Z0,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy),sz=fz*fz*(3-2*fz),L=(a,b,k)=>a+(b-a)*k;
@@ -1076,12 +1143,23 @@ function planetDisc(B,x,y,rr){if(B.earth){const at=g.createRadialGradient(x,y,rr
   if(rr<3){g.fillStyle=B.col;g.beginPath();g.arc(x,y,Math.max(rr,2),0,7);g.fill();return;}const T=textures();g.drawImage(B.earth?T.earth:T.moon,x-rr,y-rr,2*rr,2*rr);}
 ['contextmenu','selectstart'].forEach(ev=>$('#flight').addEventListener(ev,e=>e.preventDefault()));
 $('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick=()=>$('#panel').classList.add('open');$('#btnSheetClose').onclick=()=>$('#panel').classList.remove('open');
+(function intro(){const el=$('#intro'),c=$('#introC'),x=c.getContext('2d'),st=Array.from({length:260},()=>[Math.random(),Math.random(),Math.random()]);let t0=performance.now(),on=true;
+  const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function fr(ts){if(!on)return;const W=innerWidth,H=innerHeight,d=devicePixelRatio||1;if(c.width!==W*d){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);const t=still?3:(ts-t0)/1000;
+    x.fillStyle='#02040a';x.fillRect(0,0,W,H);for(const s2 of st){x.globalAlpha=.25+.75*s2[2]*(.7+.3*Math.sin(t*2+s2[0]*40));x.fillStyle='#fff';x.fillRect(((s2[0]*W-t*6*s2[2])%W+W)%W,s2[1]*H,s2[2]>.9?2:1,s2[2]>.9?2:1);}x.globalAlpha=1;
+    const Rr=Math.max(W,H)*.8,ey=H*.8,T=textures(),ag=x.createRadialGradient(W/2,ey+Rr,Rr*.98,W/2,ey+Rr,Rr*1.06);ag.addColorStop(0,'rgba(110,175,255,.45)');ag.addColorStop(1,'rgba(90,160,255,0)');x.fillStyle=ag;x.beginPath();x.arc(W/2,ey+Rr,Rr*1.06,0,7);x.fill();
+    x.save();x.beginPath();x.arc(W/2,ey+Rr,Rr,0,7);x.clip();x.translate(W/2,ey+Rr);x.rotate(1.45+t*.008);x.drawImage(T.earth,-Rr,-Rr,2*Rr,2*Rr);x.restore();
+    const k=(t%11)/11,rx=W*(W>700?.78:.82)+Math.sin(k*2.2)*W*.08,ry=ey-k*(ey+120),ang=Math.cos(k*2.2)*.35,u=Math.max(7,Math.min(W,H)/70);x.save();x.translate(rx,ry);x.rotate(ang);
+    const fl=x.createLinearGradient(0,u*2.4,0,u*2.4+u*7);fl.addColorStop(0,'rgba(255,245,215,1)');fl.addColorStop(.3,'rgba(255,170,70,.85)');fl.addColorStop(1,'rgba(255,90,30,0)');x.fillStyle=fl;x.beginPath();x.moveTo(-u*.32,u*2.4);x.quadraticCurveTo(0,u*(9+Math.random()),u*.32,u*2.4);x.fill();
+    let yy=-u*2.4;for(const tp of['capPingo','tankM','engVaga']){const P=PARTS[tp];drawPart(x,tp,0,yy+P.h*u/2,u,tp==='tankM'?1:null);yy+=P.h*u;}x.restore();if(!still)requestAnimationFrame(fr);}
+  requestAnimationFrame(fr);
+  $('#btnStart').onclick=()=>{audioInit();musicStart();el.classList.add('out');setTimeout(()=>{on=false;el.hidden=true;},950);};})();
 buildCatalog();{const c=lsGet('orbita.cur');if(Array.isArray(c)&&c.length)loadParts(c);else parts=presetTwo();}fitView();refresh();
 
 // ================= AUTO-TESTE DA FÍSICA =================
 (function(){const A=(c,m)=>console.assert(c,m);
   const o=elements(R+80000,0,0,Math.sqrt(MU/(R+80000)),MU,R);A(Math.abs(o.ap-80000)<1&&Math.abs(o.pe-80000)<1,'órbita circular');
-  const p2=presetTwo(),v2=validate(p2);A(!v2.errs.length,'modelo 2 estágios válido '+v2.errs);const ph=plan(p2);A(ph.length===2&&ph[0].dv>2500&&ph[1].dv>3000,'Δv por fase');
+  const p2=presetTwo(),v2=validate(p2);A(!v2.errs.length,'modelo 2 estágios válido '+v2.errs);const ph=plan(p2);A(ph.length>=2&&ph[0].dv>2500&&ph[1].dv>3000,'Δv por fase');
   const ps=presetSides(),vs=validate(ps);A(!vs.errs.length,'modelo laterais válido '+vs.errs);const gr=stageGroups(ps,graph(ps));A(gr[0].every(i=>ps[i].type==='sepLat'),'laterais soltam primeiro');
   const d=detach(ps,gr[0]);A(d.drop.length===2&&d.keep.length===p2.length,'soltar laterais');A(activeEng(p2).length===2,'motor de cima tapado pelo interestágio');
   const up=detach(p2,stageGroups(p2,graph(p2))[0]).keep;A(activeEng(up).length===1&&PT(up[activeEng(up)[0]]).n==='Motor Vaga-lume','motor de cima acende depois');
