@@ -450,7 +450,7 @@ const skinOf=(type,sk)=>sk||DEF_SKIN[type]||{c:'branco',p:'liso'};
 const isMetal=c=>c==='prata'||c==='dourado'||c==='cobre';
 const dark2=c=>['preto','grafite','azul','vermelho','verde','cobre'].includes(c)?'branco':'preto';
 let GRAIN=null;function grain(){if(GRAIN)return GRAIN;const c=document.createElement('canvas');c.width=c.height=96;const x=c.getContext('2d'),img=x.createImageData(96,96),r=rng(5);for(let i=0;i<96*96;i++){const v=r()*255;img.data[i*4]=img.data[i*4+1]=img.data[i*4+2]=v;img.data[i*4+3]=r()<.5?14:0;}x.putImageData(img,0,0);return GRAIN=c;}
-function shade(ctx,x,y0,w,h){const g2=ctx.createLinearGradient(0,y0,0,y0+h);g2.addColorStop(0,'rgba(0,0,0,.22)');g2.addColorStop(Math.min(.5,.05*Math.max(1,h/w)),'rgba(0,0,0,0)');g2.addColorStop(Math.max(PXS*.5,1-.06*Math.max(1,h/w)),'rgba(0,0,0,0)');g2.addColorStop(1,'rgba(0,0,0,.28)');ctx.fillStyle=g2;ctx.fillRect(x,y0,w,h);
+function shade(ctx,x,y0,w,h){const g2=ctx.createLinearGradient(0,y0,0,y0+h);g2.addColorStop(0,'rgba(0,0,0,.22)');g2.addColorStop(Math.min(.5,.05*Math.max(1,h/w)),'rgba(0,0,0,0)');g2.addColorStop(Math.max(.5,1-.06*Math.max(1,h/w)),'rgba(0,0,0,0)');g2.addColorStop(1,'rgba(0,0,0,.28)');ctx.fillStyle=g2;ctx.fillRect(x,y0,w,h);
   try{const pt=ctx.createPattern(grain(),'repeat'),m=ctx.getTransform(),sc=Math.hypot(m.a,m.b)||1;pt.setTransform(new DOMMatrix().scale(1/sc));ctx.fillStyle=pt;ctx.fillRect(x,y0,w,h);}catch(e){}}
 function seams(ctx,x,y0,w,h,u,riv){ctx.strokeStyle='rgba(20,30,50,.2)';ctx.lineWidth=Math.max(PXS*.5,u*.012);const st=u*.5;for(let y=y0+st;y<y0+h-st*.3;y+=st){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y);ctx.stroke();}
   ctx.beginPath();ctx.moveTo(x+w*.72,y0);ctx.lineTo(x+w*.72,y0+h);ctx.stroke();
@@ -974,10 +974,12 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
   else{stepWorldDead(real);if(snaps.length)$('#btnRewind').hidden=false;}
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
   audioUpdate(engineMix());
-  predTimer-=real;if(view2==='map'&&predTimer<=0){predTimer=.25;pred=predict();}
+  predTimer-=real;if(predTimer<=0&&(view2==='map'||target||warp>5)){predTimer=view2==='map'?.25:1;pred=predict();}
+  if(!S.dead&&pred&&warp>5){const nx=pred.segs.find(q=>q.b!==S.dom&&q.t0>S.t);if(nx&&(nx.t0-S.t)/warp<3){setWarp(-1);if(warp<=50)tip(innerWidth/2,innerHeight*.3,'Tempo desacelerado: chegando na gravidade '+nx.b.de);}}
+  if(!S.dead&&S.dom!==S.domW){if(S.domW&&warp>5){warp=5;}S.domW=S.dom;}
   if(!S.dead)realism(real);
   {const want=mus.want=!S.dead&&S.liftT>=0&&(S.altE>SPACE||!S.dom.earth)&&!V.firing.length;if(want&&!mus.playing)musicStart();else if(!want&&mus.playing)musicStop(V.firing.length>0);}
-  draw(real);hud();requestAnimationFrame(loop);}
+  try{draw(real);hud();}catch(e){console.error(e);}requestAnimationFrame(loop);}
 // detalhes de voo real: Mach (velocidade do som muda com a temperatura do ar), força G, Max Q, barreira do som, perda de sinal no plasma
 function soundAt(h){const T=h<11000?288.15-.0065*h:h<20000?216.65:h<32000?216.65+.001*(h-20000):h<47000?228.65+.0028*(h-32000):h<51000?270.65:h<71000?270.65-.0028*(h-51000):Math.max(186.9,214.65-.002*(h-71000));return 20.05*Math.sqrt(T);}
 function realism(real){const sp=Math.hypot(S.rvx,S.rvy),h=S.altE,inAir=S.dom.earth&&h<85000,M=inAir?sp/soundAt(h):0,cx=innerWidth/2,cy=innerHeight*.36;
@@ -1087,8 +1089,8 @@ function mapInfoSet(kind,pin,html){const now=performance.now();if(kind!==MI.kind
 $('#miBtn').onclick=()=>{MI.man=true;};$('#mapCenter').onclick=()=>{map.ox=map.oy=0;};$('#mapInfo').onclick=()=>{MI.man=false;MI.t=-1e9;};
 function mapTap(cx,cy){const r=cv.getBoundingClientRect(),x=cx-r.left,y=cy-r.top,h=mapHits.filter(m=>Math.hypot(m.x-x,m.y-y)<Math.max(16,m.r+8)).sort((a,b)=>Math.hypot(a.x-x,a.y-y)-Math.hypot(b.x-x,b.y-y))[0];
   if(!h||!h.b){hidePop();return;}const b=h.b,isT=target===b;
-  if(b===MOON_B)showPop(cx,cy,'Lua',isT?'rota marcada no mapa':'mostra a janela de saída e o encontro',isT?'Parar de navegar':'Navegar até a Lua',isT,()=>{target=isT?null:MOON_B;hidePop();});
-  else if(b.planet){const isP=target===b;showPop(cx,cy,b.n,isP?'rota marcada no mapa':'a '+fmt(Math.hypot(...b.pos(S.t).map((c,k)=>c-[V.x,V.y][k]))-b.r)+' daqui',isP?'Parar de navegar':'Navegar até '+b.n,isP,()=>{target=isP?null:b;hidePop();});}
+  if(b===MOON_B)showPop(cx,cy,'Lua',isT?'rota marcada no mapa':'mostra a janela de saída e o encontro',isT?'Parar de navegar':'Navegar até a Lua',isT,()=>{target=isT?null:MOON_B;rdv=null;hidePop();});
+  else if(b.planet){const isP=target===b;showPop(cx,cy,b.n,isP?'rota marcada no mapa':'a '+fmt(Math.hypot(...b.pos(S.t).map((c,k)=>c-[V.x,V.y][k]))-b.r)+' daqui',isP?'Parar de navegar':'Navegar até '+b.n,isP,()=>{target=isP?null:b;rdv=null;hidePop();});}
   else showPop(cx,cy,b.n,b.earth?'seu planeta':b.sun?'a estrela do sistema':'a '+fmt(Math.hypot(...b.pos(S.t).map((c,k)=>c-[V.x,V.y][k]))-b.r)+' daqui','Navegação só até a Lua por enquanto',true,null);}
 
 // ================= DESENHO DO VOO =================
@@ -1217,14 +1219,15 @@ function drawCities(viewM){if(viewM>140000)return;const th=Math.atan2(camYw,camX
       if(h>70&&viewM<40000){g.fillStyle=Math.sin(S.t*3+k)>0?'#ff3b30':'#5a1410';g.fillRect(x-.6,h,1.2,1.2);}}g.restore();}}
 function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.width!==Math.round(VW*DPR)||cv.height!==Math.round(VH*DPR)){cv.width=VW*DPR;cv.height=VH*DPR;}
   if(view2==='map'){drawMap(real);return;}
-  const target=baseZ()*zoomUser;zs=zs?zs*Math.pow(target/zs,Math.min(1,real*3)):target;z=zs;{const ce=chuteExt()*.45,rr=Math.hypot(V.x,V.y);camX=V.x+V.x/rr*ce;camYw=V.y+V.y/rr*ce;}camY=VH*.6;
+  const zT=baseZ()*zoomUser;zs=zs?zs*Math.pow(zT/zs,Math.min(1,real*3)):zT;z=zs;{const ce=chuteExt()*.45,rr=Math.hypot(V.x,V.y);camX=V.x+V.x/rr*ce;camYw=V.y+V.y/rr*ce;}camY=VH*.6;
   const B=S.dom,bp=B.pos(S.t),th=Math.atan2(V.y-bp[1],V.x-bp[0]);rot=Math.PI/2-th;const disc=B.r*z<1500,viewM=VH/z,earthNear=B.earth,day=earthNear&&S.altE<45000,lowSky=earthNear&&!disc&&Math.abs(V.x)<60000&&S.altE<60000;
   g.setTransform(DPR,0,0,DPR,0,0);if(earthNear&&!disc){const sk=g.createLinearGradient(0,0,0,VH);sk.addColorStop(0,skyAt(S.altE+viewM*.6));sk.addColorStop(1,skyAt(S.altE-viewM*.4));g.fillStyle=sk;}else g.fillStyle='#03050c';g.fillRect(0,0,VW,VH);
   const sa=disc||!earthNear?1:Math.min(1,Math.max(0,(S.altE-18000)/45000));if(sa>0){g.fillStyle='#fff';stars.forEach(s=>{g.globalAlpha=sa*(.3+.7*s[2]);const d=s[2]>.85?2:1;g.fillRect(s[0]*VW,s[1]*VH,d,d);});g.globalAlpha=1;}
   if(earthNear&&S.altE>50000&&S.altE<100000&&Math.random()<real*.8)meteors.push({x:Math.random()*VW,y:Math.random()*VH*.5,a:2.2+Math.random()*.6,life:.8});
   meteors.forEach(m=>{m.life-=real;const l=120*(1-m.life);g.strokeStyle='rgba(255,240,200,'+Math.max(0,m.life)+')';g.lineWidth=1.5;g.beginPath();g.moveTo(m.x+Math.cos(m.a)*l,m.y+Math.sin(m.a)*l);g.lineTo(m.x+Math.cos(m.a)*(l+40),m.y+Math.sin(m.a)*(l+40));g.stroke();});meteors=meteors.filter(m=>m.life>0);
   if(disc)drawDisc(B,bp);else{drawBodyGround(B,bp);if(earthNear)drawClouds(false,viewM);if(lowSky&&z>.02)drawBase(S.t);if(earthNear)drawCities(viewM);}
-  if(!B.earth&&z*R>2){const[sx,sy]=toScreen(0,0);g.setTransform(DPR,0,0,DPR,0,0);g.fillStyle='#3a8fd6';g.beginPath();g.arc(sx,sy,Math.max(2,R*z),0,7);g.fill();}
+  // os outros corpos próximos (Lua vista da Terra, Terra vista da Lua) aparecem quando cabem na tela
+  for(const ob of[EARTH_B,MOON_B]){if(ob===B)continue;const op=ob.pos(S.t),[sx,sy]=toScreen(op[0],op[1]),rr=Math.max(2.5,ob.r*z);if(sx<-rr||sy<-rr||sx>VW+rr||sy>VH+rr)continue;g.setTransform(DPR,0,0,DPR,0,0);planetDisc(ob,sx,sy,rr,Math.PI/2);if(rr<30){g.font='12px IBM Plex Sans, system-ui, sans-serif';g.fillStyle='rgba(233,237,247,.8)';g.textAlign='left';g.fillText(ob.n,sx+rr+5,sy+4);}}
   // fumaça com textura e luz de cima; fica alaranjada perto da chama
   g.setTransform(DPR,0,0,DPR,0,0);for(const p of particles){if(p.type!=='smoke')continue;const[sx,sy]=toScreen(p.x,p.y),s=p.size*z;if(s<.6||sx<-s||sy<-s||sx>VW+s||sy>VH+s)continue;const life=p.life/p.max,a=Math.min(1,(p.max-p.life)/.25)*Math.pow(Math.max(0,life),.6)*.8;
     g.globalAlpha=a;if(p.flip){g.save();g.translate(sx,sy);g.scale(-1,1);g.drawImage(SPR.smoke[p.v||0],-s/2,-s/2,s,s);g.restore();}else g.drawImage(SPR.smoke[p.v||0],sx-s/2,sy-s/2,s,s);
@@ -1234,13 +1237,16 @@ function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.w
     g.setTransform(DPR*c,DPR*si,-DPR*si,DPR*c,DPR*sx,DPR*sy);g.globalAlpha=Math.max(0,k)*(day?.55:.8);g.drawImage(p.fl==='blue'?SPR.blue:p.fl==='plasma'?SPR.plasma:SPR.fire,-s*1.4,-s*.45,s*2.8,s*.9);}g.globalAlpha=1;g.globalCompositeOperation='source-over';
   if(!disc){for(const d of debris)drawVessel(d,day);if(!S.dead)drawVessel(V,day);}else if(!S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.translate(VW/2,camY);g.rotate(-(V.hdg-th));g.fillStyle='#ffb347';g.beginPath();g.moveTo(0,-9);g.lineTo(6,7);g.lineTo(-6,7);g.closePath();g.fill();}
   if(earthNear&&!disc)drawClouds(true,viewM);
+  if(target&&!S.dead){const tp=target.pos(S.t),[sx,sy]=toScreen(tp[0],tp[1]),rr=target.r*z,on=sx>-rr&&sy>-rr&&sx<VW+rr&&sy<VH+rr&&rr>3;g.setTransform(DPR,0,0,DPR,0,0);
+    const d=Math.hypot(V.x-tp[0],V.y-tp[1])-target.r,ap=pred&&(target===MOON_B||target.planet)?(pred.segs.find(q=>q.b===target)):null,eta=ap?' · chega em '+fmtT(ap.t0-S.t):'';
+    if(!on){const cx2=VW/2,cy2=VH*.5,a=Math.atan2(sy-cy2,sx-cx2),m=56,ex2=Math.max(m,Math.min(VW-m,cx2+Math.cos(a)*VW)),ey2=Math.max(m+60,Math.min(VH-m-120,cy2+Math.sin(a)*VH));
+      g.save();g.translate(ex2,ey2);g.rotate(a);g.fillStyle='#5ee2a0';g.beginPath();g.moveTo(14,0);g.lineTo(-6,-9);g.lineTo(-2,0);g.lineTo(-6,9);g.closePath();g.fill();g.restore();
+      g.font='600 12px IBM Plex Sans, system-ui, sans-serif';g.textAlign=ex2>VW/2?'right':'left';g.fillStyle='rgba(2,4,10,.55)';const tx2=ex2+(ex2>VW/2?-18:18),txt2=target.n+' · '+fmt(d)+eta,tw=g.measureText(txt2).width;g.fillRect(ex2>VW/2?tx2-tw-4:tx2-4,ey2-10,tw+8,18);g.fillStyle='#5ee2a0';g.fillText(txt2,tx2,ey2+4);g.textAlign='left';}}
   if(S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.fillStyle='rgba(255,107,107,.16)';g.fillRect(0,0,VW,VH);}}
 // ================= MAPA ESTELAR =================
 let guideTxt='';
-function planetGuide(b,X,Y,ex,ey,lab,dot,toHel){const ap=drawApproach(b,X,Y,ex,ey,lab,dot,toHel),p=b.planet,ae=EARTH_P.a,at=(ae+p.a)/2,Tt=Math.PI*Math.sqrt(at**3/MU_SUN),np=2*Math.PI/p.T,ne=2*Math.PI/EARTH_P.T,
-    need=Math.PI-np*Tt,cur=Math.atan2(...planetPos(p,S.t).slice().reverse())-Math.atan2(...earthH(S.t).slice().reverse()),rate=np-ne,dphi=((need-cur)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI,
-    wait=((dphi/rate)%(2*Math.PI/Math.abs(rate))+2*Math.PI/Math.abs(rate))%(2*Math.PI/Math.abs(rate)),vinf=Math.abs(Math.sqrt(MU_SUN/ae)*(Math.sqrt(2*p.a/(ae+p.a))-1)),r=Math.hypot(V.x,V.y),dv=Math.sqrt(vinf*vinf+2*MU/r)-Math.sqrt(MU/r);
-  guideTxt=(ap?'Encontro a '+fmt(ap.d-b.r)+' '+b.de+' em '+fmtT(ap.tt-S.t)+'<br>':'')+'Janela para '+b.n+' em <b style="color:var(--good)">'+fmtT(wait)+'</b> · da órbita da Terra, acelere uns '+Math.round(dv)+' m/s '+(p.a>ae?'para frente':'para trás')+' no lado '+(p.a>ae?'da noite':'do dia')+' · viagem de '+fmtT(Tt);}
+function segBrake(sg){const P=sg.pts,i=Math.max(1,Math.min(P.length-2,P.findIndex(q=>q[2]>=sg.at[2]))),dt=P[i+1][2]-P[i-1][2]||1,b=sg.b,[bvx,bvy]=b.vel(sg.at[2]),vx=(P[i+1][0]-P[i-1][0])/dt-bvx,vy=(P[i+1][1]-P[i-1][1])/dt-bvy,vrel=Math.hypot(vx,vy),rp=sg.min;
+  return{vrel,dv:Math.max(0,vrel-Math.sqrt(b.mu/rp)),esc:Math.sqrt(2*b.mu/rp),alt:rp-b.r};}
 // passagem por um corpo (Lua, planeta): compara com a velocidade de escape e calcula o freio no Pe
 function capInfo(){const B=S.dom,e=S.el;if(!e||B.earth||B.sun||V.ground)return null;const bp=B.pos(S.t),r=Math.hypot(V.x-bp[0],V.y-bp[1]),v=Math.hypot(S.rvx,S.rvy),esc=Math.sqrt(2*B.mu/r),rp=e.pe+B.r;
   const vpe=e.pe>0?Math.sqrt(v*v+2*B.mu*(1/rp-1/r)):0,vc=e.pe>0?Math.sqrt(B.mu/rp):0;return{v,esc,bound:e.bound,hit:e.pe<0,dv:Math.max(0,vpe-vc),vpe,escPe:e.pe>0?Math.sqrt(2*B.mu/rp):0};}
@@ -1269,11 +1275,11 @@ function drawMap(real){const t=S.t,[ex,ey]=earthH(t);map.cx=ex+V.x+map.ox;map.cy
       if(i>0){const[px,py,tt]=sg.pts[0],q=pt(px,py,tt);dot(q[0],q[1],SEGC[b.n]||'#ff9ad5');lab(b.sun?'Escapa '+pred.segs[i-1].b.de:'Entra na gravidade '+b.de,q[0],q[1],5,SEGC[b.n]||'#ff9ad5',7);}
       if(b!==S.dom&&!b.sun&&!b.earth&&sg.at){const ta=sg.at[2],[gx,gy]=b===MOON_B?(([a,c])=>[ex+a,ey+c])(moonPos(ta)):planetPos(b.planet,ta),rr=Math.max(b.r*s,4);
         g.strokeStyle='rgba(240,240,255,.6)';g.setLineDash([3,3]);g.beginPath();g.arc(X(gx),Y(gy),rr,0,7);g.stroke();g.setLineDash([]);lab(b.n+' na passagem',X(gx),Y(gy),rr,'rgba(240,240,255,.75)',5);}
-      if(i>0&&!b.sun&&sg.at&&pred.hit!==b){const q=pt(...sg.at);dot(q[0],q[1],'#ffb347');lab('Mais perto '+b.de+': '+fmt(sg.min-b.r),q[0],q[1],5,'#ffd9a0',8);}});
+      if(i>0&&!b.sun&&sg.at&&pred.hit!==b){const q=pt(...sg.at);dot(q[0],q[1],'#ffb347');{const br=segBrake(sg);lab('Mais perto '+b.de+': '+fmt(sg.min-b.r)+(br.vrel>br.esc&&b!==S.dom?' · freie '+Math.round(br.dv)+' m/s aqui':''),q[0],q[1],5,'#ffd9a0',8);}}});
     if(pred.hit){const sg=pred.segs[pred.segs.length-1],[px,py,tt]=sg.pts[sg.pts.length-1],[hx,hy]=toHel(sg.b,px,py,tt),x=X(hx),y=Y(hy);g.strokeStyle='#ff6b6b';g.lineWidth=2;g.beginPath();g.moveTo(x-6,y-6);g.lineTo(x+6,y+6);g.moveTo(x+6,y-6);g.lineTo(x-6,y+6);g.stroke();lab('Impacto '+sg.b.em,x,y,8,'#ff9a9a',7);}
     const e=S.el;if(e&&e.e>1e-4&&!V.ground&&(e.bound?Math.abs(e.a):S.dom.r)*s>5){const bp=S.dom.pos(t),en=Math.hypot(e.ex,e.ey),ux=e.ex/en,uy=e.ey/en,rp=e.pe+S.dom.r;if(e.pe>0&&rp*s>24){diamond(X(ex+bp[0]+ux*rp),Y(ey+bp[1]+uy*rp),'Pe '+fmt(e.pe));const ci=capInfo();if(ci&&!ci.bound)lab('Freie aqui: −'+Math.round(ci.dv)+' m/s para ficar em órbita',X(ex+bp[0]+ux*rp),Y(ey+bp[1]+uy*rp)+16,7,'#ff9a9a',9);}
       if(e.bound){const ra=e.ap+S.dom.r;diamond(X(ex+bp[0]-ux*ra),Y(ey+bp[1]-uy*ra),'Ap '+fmt(e.ap));}}
-    if(target===MOON_B)moonGuide(X,Y,ex,ey,lab,dot);else if(target&&target.planet)planetGuide(target,X,Y,ex,ey,lab,dot,toHel);}
+    if(target)planGuide(X,Y,ex,ey,lab,dot);}
   const vx=X(ex+V.x),vy=Y(ey+V.y);g.save();g.translate(vx,vy);g.rotate(-(V.hdg-Math.PI/2));g.fillStyle='#ffb347';g.strokeStyle='#02040a';g.lineWidth=1.5;g.beginPath();g.moveTo(0,-10);g.lineTo(6,7);g.lineTo(-6,7);g.closePath();g.fill();g.stroke();g.restore();lab('Você',vx,vy,9,'#ffb347',10);mapHits.push({f:'foguete',x:vx,y:vy,r:8});
   const scl=[1e3,1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,1e12].find(v=>v*s>60)||1e12,bw=scl*s,f0=$('#ctlL').getBoundingClientRect(),bx=24,by=Math.min(VH-110,f0.top-30);g.strokeStyle='rgba(233,237,247,.6)';g.fillStyle='rgba(233,237,247,.75)';g.lineWidth=1.5;g.beginPath();g.moveTo(bx,by);g.lineTo(bx+bw,by);g.moveTo(bx,by-4);g.lineTo(bx,by+4);g.moveTo(bx+bw,by-4);g.lineTo(bx+bw,by+4);g.stroke();
   g.font='12px IBM Plex Sans, system-ui, sans-serif';g.textAlign='left';g.fillText(fmt(scl)+' · escala 1:10',bx,by-8);placeLabels(LB,[[bx,by-22,bx+130,by+6]]);}
@@ -1300,20 +1306,36 @@ function drawApproach(b,X,Y,ex,ey,lab,dot,toHel){const best=approach(b);if(!best
   g.strokeStyle='rgba(255,179,71,.85)';g.lineWidth=1.5;g.setLineDash([3,4]);g.beginPath();g.moveTo(sx,sy);g.lineTo(gx,gy);g.stroke();g.beginPath();g.arc(gx,gy,rr+2,0,7);g.stroke();g.setLineDash([]);
   dot(sx,sy,'#ffb347',4);lab('Encontro: '+fmt(best.d-b.r)+' '+b.de+' · em '+fmtT(best.tt-S.t),sx,sy,6,'#ffd9a0',9);lab(b.n+' nessa hora',gx,gy,rr+2,'#ffd9a0',7);return best;}
 const closestMoon=(X,Y,ex,ey,lab,dot)=>drawApproach(MOON_B,X,Y,ex,ey,lab,dot,(sb,px,py)=>[ex+px,ey+py]);
-function moonGuide(X,Y,ex,ey,lab,dot){const e=S.el,enc=pred.segs.some(sg=>sg.b===MOON_B),cl=enc?null:closestMoon(X,Y,ex,ey,lab,dot);
-  if(S.dom===MOON_B){guideTxt='Você está na gravidade da Lua ✓';return;}if(enc){guideTxt='Encontro com a Lua marcado ✓ · siga a linha';return;}
-  if(!S.dom.earth||!e){guideTxt='Volte para a órbita da Terra para planejar a ida';return;}
-  const hh=V.x*V.vy-V.y*V.vx;if(!e.bound||e.pe<0){guideTxt=(cl?'Ponto de encontro a '+fmt(cl.d-MOON.r)+' da Lua · ':'')+'Para a janela de ida, primeiro entre em órbita (Pe acima de 100 km)';return;}
-  if(Math.sign(hh)!==Math.sign(MOON.w)){guideTxt='Sua órbita gira ao contrário da Lua: decole para a direita (leste)';return;}
-  const om=Math.atan2(e.ey,e.ex),rAt=th=>e.a*(1-e.e*e.e)/(1+e.e*Math.cos(th-om));
-  if(e.ap+R<MOON.a*.8){const th0=Math.atan2(V.y,V.x),[mx,my]=moonPos(S.t),tm=Math.atan2(my,mx),wr=-Math.sqrt(MU/e.a**3),rate=MOON.w-wr;let rb=rAt(th0),dt=0,thb=th0;
-    for(let k=0;k<3;k++){const Tt=Math.PI*Math.sqrt(((rb+MOON.a)/2)**3/MU),n=((th0+Math.PI-tm-MOON.w*Tt)%(2*Math.PI)+4*Math.PI)%(2*Math.PI);dt=rate>0?n/rate:(n-2*Math.PI)/rate;thb=th0+wr*dt;rb=rAt(thb);}
-    const Tt=Math.PI*Math.sqrt(((rb+MOON.a)/2)**3/MU),dv=Math.sqrt(MU*(2/rb-2/(rb+MOON.a)))-Math.sqrt(MU*(2/rb-1/e.a)),at=(rb+MOON.a)/2,et=(MOON.a-rb)/(MOON.a+rb);
-    g.strokeStyle='rgba(94,226,160,.7)';g.lineWidth=1.5;g.setLineDash([4,6]);g.beginPath();for(let f=0;f<=Math.PI+1e-6;f+=Math.PI/60){const r=at*(1-et*et)/(1+et*Math.cos(f)),a=thb-f;const x=X(ex+r*Math.cos(a)),y=Y(ey+r*Math.sin(a));f?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();g.setLineDash([]);
-    const bx=X(ex+rb*Math.cos(thb)),by=Y(ey+rb*Math.sin(thb));g.strokeStyle='#5ee2a0';g.lineWidth=2.5;g.beginPath();g.arc(bx,by,7,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Acelere aqui → Lua (+'+Math.round(dv)+' m/s)',bx,by,8,'#5ee2a0',9);
-    const[gx,gy]=moonPos(S.t+dt+Tt),rr=Math.max(MOON.r*map.s,4);g.strokeStyle='rgba(94,226,160,.8)';g.setLineDash([3,3]);g.beginPath();g.arc(X(ex+gx),Y(ey+gy),rr+2,0,7);g.stroke();g.setLineDash([]);lab('Encontro com a Lua',X(ex+gx),Y(ey+gy),rr+2,'#5ee2a0',8);
-    guideTxt=dt<20?'<b style="color:var(--good)">AGORA:</b> acelere para frente até o Ap chegar perto de '+fmt(MOON.a-R):'Janela para a Lua em <b style="color:var(--good)">'+fmtT(dt)+'</b> · lá, acelere para frente uns '+Math.round(dv)+' m/s';return;}
-  guideTxt=cl?'Encontro a '+fmt(cl.d-MOON.r)+' da Lua (chega a '+Math.round(cl.vrel)+' m/s dela). A gravidade dela pega abaixo de '+fmt(MOON.soi)+': ajuste com pouco motor, de leve':'Siga a linha até a Lua';}
+// ================= PLANO DE ENCONTRO FIXO =================
+// como uma agência espacial: calcula UMA vez onde o alvo vai estar (ponto fixo no espaço) e quando; a nave é que tem que ir até lá
+let rdv=null;
+function makePlan(b){const t=S.t,e=S.el,inOrb=!!(S.dom.earth&&e&&e.bound&&e.pe>SPACE*.6);
+  if(b===MOON_B){const r0=inOrb?Math.max(R+60000,e.a):R+150000,th0=Math.atan2(V.y,V.x),wr=-Math.sqrt(MU/r0**3),rate=MOON.w-wr,Tt=Math.PI*Math.sqrt(((r0+MOON.a)/2)**3/MU),[mx,my]=moonPos(t),tm=Math.atan2(my,mx);
+    const n=((th0+Math.PI-tm-MOON.w*Tt)%(2*Math.PI)+4*Math.PI)%(2*Math.PI);let dt=rate>0?n/rate:(n-2*Math.PI)/rate;if(dt<(inOrb?30:900))dt+=2*Math.PI/Math.abs(rate);
+    const T=t+dt+Tt;return{b,T,P:moonPos(T),dv:Math.sqrt(MU*(2/r0-2/(r0+MOON.a)))-Math.sqrt(MU/r0),r0,prelim:!inOrb,frame:'terra'};}
+  if(b.planet){const p=b.planet,ae=EARTH_P.a,at=(ae+p.a)/2,Tt=Math.PI*Math.sqrt(at**3/MU_SUN),np=2*Math.PI/p.T,ne=2*Math.PI/EARTH_P.T,syn=2*Math.PI/Math.abs(np-ne),
+      need=Math.PI-np*Tt,cur=Math.atan2(planetPos(p,t)[1],planetPos(p,t)[0])-Math.atan2(earthH(t)[1],earthH(t)[0]),dphi=((need-cur)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI;
+    let wait=((dphi/(np-ne))%syn+syn)%syn;if(wait<3600)wait+=syn;const T=t+wait+Tt,vinf=Math.abs(Math.sqrt(MU_SUN/ae)*(Math.sqrt(2*p.a/(ae+p.a))-1)),r=inOrb?e.a:R+150000;
+    return{b,T,tb:t+wait,P:planetPos(p,T),dv:Math.sqrt(vinf*vinf+2*MU/r)-Math.sqrt(MU/r),prelim:!inOrb,frame:'sol'};}
+  return null;}
+function planGuide(X,Y,ex,ey,lab,dot){const b=target;if(!b)return;const e=S.el,inOrb=!!(S.dom.earth&&e&&e.bound&&e.pe>SPACE*.6);
+  if(!rdv||rdv.b!==b||rdv.T<S.t-60||rdv.prelim&&inOrb)rdv=makePlan(b);if(!rdv)return;
+  const scr=rdv.frame==='terra'?[X(ex+rdv.P[0]),Y(ey+rdv.P[1])]:[X(rdv.P[0]),Y(rdv.P[1])],rr=Math.max(b.r*map.s,5);
+  // ponto fixo: retícula + o alvo fantasma no lugar onde vai estar
+  g.strokeStyle='#ffb347';g.lineWidth=2;g.setLineDash([4,4]);g.beginPath();g.arc(scr[0],scr[1],rr,0,7);g.stroke();g.setLineDash([]);g.beginPath();for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){g.moveTo(scr[0]+dx*(rr+4),scr[1]+dy*(rr+4));g.lineTo(scr[0]+dx*(rr+14),scr[1]+dy*(rr+14));}g.stroke();
+  lab('Ponto de encontro · '+b.n+' chega aqui em '+fmtT(rdv.T-S.t),scr[0],scr[1],rr+14,'#ffb347',10);
+  // ponto de acelerar (só para a Lua): oposto ao encontro, na órbita atual
+  let burnTxt='';const sent=b===MOON_B&&S.dom.earth&&e&&e.ap+R>MOON.a*.8;if(sent){rdv.missed=false;burnTxt='Transferência feita ✓ · agora é só seguir até o ponto laranja (ajuste fino se precisar)';}else if(b===MOON_B){const r=rdv.r0,thb=Math.atan2(rdv.P[1],rdv.P[0])+Math.PI,Tt=Math.PI*Math.sqrt(((r+MOON.a)/2)**3/MU),tb=rdv.T-Tt,bx=X(ex+r*Math.cos(thb)),by=Y(ey+r*Math.sin(thb));
+    {const A=(r+MOON.a)/2,c=A-r,thp=thb+Math.PI,cx=ex+c*Math.cos(thp),cy=ey+c*Math.sin(thp),Bm=Math.sqrt(r*MOON.a);g.save();g.translate(X(cx),Y(cy));g.rotate(-thp);g.strokeStyle='rgba(94,226,160,.45)';g.lineWidth=1.5;g.setLineDash([6,6]);g.beginPath();g.ellipse(0,0,A*map.s,Bm*map.s,0,Math.PI,0,true);g.stroke();g.setLineDash([]);g.restore();}g.strokeStyle='#5ee2a0';g.lineWidth=2.5;g.beginPath();g.arc(bx,by,7,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Acelere aqui ~+'+Math.round(rdv.dv)+' m/s · em '+(tb>S.t?fmtT(tb-S.t):'agora'),bx,by,8,'#5ee2a0',9);
+    if(S.t>tb+600&&!rdv.prelim){rdv=makePlan(b);rdv.missed=true;return;}
+    burnTxt=tb>S.t?'Acelere para frente no ponto verde daqui a <b style="color:var(--good)">'+fmtT(tb-S.t)+'</b> (~'+Math.round(rdv.dv)+' m/s)':'Janela aberta: acelere para frente no ponto verde';}
+  else burnTxt='Janela de saída em <b style="color:var(--good)">'+fmtT(Math.max(0,rdv.tb-S.t))+'</b>: da órbita, acelere ~'+Math.round(rdv.dv)+' m/s '+(b.planet.a>EARTH_P.a?'para frente':'para trás');
+  // como a SUA rota está em relação ao ponto fixo (isso muda; o ponto não)
+  if(pred&&pred.segs.some(q=>q.b===b)){guideTxt=b.n+': encontro garantido ✓ · sua rota entra na gravidade '+b.de;return;}
+  let best=null;if(pred&&(b===MOON_B?sent:!S.dom.earth))for(const sg of pred.segs)for(const[x,y,tt]of sg.pts){const[hx,hy]=rdv.frame==='terra'?[x,y]:(([a,c])=>[a+x,c+y])(earthH(tt)),d=Math.hypot(hx-rdv.P[0],hy-rdv.P[1]);if(!best||d<best.d)best={d,tt,x,y};}
+  let miss='';if(best&&best.d<b.soi*40){const q=rdv.frame==='terra'?[X(ex+best.x),Y(ey+best.y)]:(([a,c])=>[X(a+best.x),Y(c+best.y)])(earthH(best.tt));g.strokeStyle='rgba(255,179,71,.6)';g.setLineDash([2,4]);g.lineWidth=1.2;g.beginPath();g.moveTo(q[0],q[1]);g.lineTo(scr[0],scr[1]);g.stroke();g.setLineDash([]);dot(q[0],q[1],'#ffd9a0',3);
+    const dtm=best.tt-rdv.T;miss='<br>Sua rota passa a <b>'+fmt(best.d)+'</b> do ponto, '+(Math.abs(dtm)<60?'na hora certa':fmtT(Math.abs(dtm))+(dtm<0?' antes':' depois')+' '+(b===MOON_B?'da Lua':'do planeta'));}
+  guideTxt=(rdv.missed?'Janela perdida → novo ponto de encontro calculado<br>':'')+(rdv.prelim?'Plano provisório: fica definitivo quando você entrar em órbita<br>':'')+burnTxt+miss;}
 // texturas procedurais da Terra e da Lua (ruído 3D na esfera, luz vinda de cima à esquerda)
 const hash3=(x,y,z)=>{let h=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(z,1274126177))|0;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967296;};
 function noise3(x,y,z){const X0=Math.floor(x),Y0=Math.floor(y),Z0=Math.floor(z),fx=x-X0,fy=y-Y0,fz=z-Z0,sx=fx*fx*(3-2*fx),sy=fy*fy*(3-2*fy),sz=fz*fz*(3-2*fz),L=(a,b,k)=>a+(b-a)*k;
