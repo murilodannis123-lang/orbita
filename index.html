@@ -1040,17 +1040,22 @@ const landAt=a=>{const d=Math.atan2(Math.sin(a-Math.PI/2),Math.cos(a-Math.PI/2))
 function drawBodyGround(B,bp){const th=Math.atan2(camYw-bp[1],camX-bp[0]),span=Math.min(Math.PI,(VW+VH)/z/B.r*1.5+.002),depth=Math.min(B.r*.5,(VW+VH)/z*2),N=180,cx=bp[0]-camX,cy=bp[1]-camYw,ang=i=>th-span+2*span*i/N;
   frame(camX,camYw);const ring=(r0,r1,i0,i1)=>{g.beginPath();for(let i=i0;i<=i1;i++){const a=ang(i);g.lineTo(cx+r1*Math.cos(a),cy+r1*Math.sin(a));}for(let i=i1;i>=i0;i--){const a=ang(i);g.lineTo(cx+r0*Math.cos(a),cy+r0*Math.sin(a));}g.closePath();};
   if(B.earth&&S.altE>15000){const at=g.createRadialGradient(cx,cy,B.r,cx,cy,B.r+80000);at.addColorStop(0,'rgba(120,180,255,.6)');at.addColorStop(.3,'rgba(70,120,230,.25)');at.addColorStop(1,'rgba(40,80,200,0)');ring(B.r,B.r+80000,0,N);g.fillStyle=at;g.fill();}
-  ring(B.r-depth,B.r,0,N);g.fillStyle=B.earth?(landAt(th)?'#2f6040':'#1a4f8c'):B.col;g.fill();
-  if(B.earth&&span>.004){let i0=0;for(let i=1;i<=N;i++){const l0=landAt(ang(i0)),l1=i<N?landAt(ang(i)):!l0;if(l1!==l0){ring(B.r-depth,B.r,i0,i);g.fillStyle=l0?'#2f6040':'#1a4f8c';g.fill();i0=i;}}}
+  // corte do chão: grama fina em cima, terra e rocha por baixo; o mar é uma camada de água por cima, rasa na praia e mais funda longe dela
+  ring(B.r-depth,B.r,0,N);if(B.earth){const top=Math.max(12,4/z),gr=g.createRadialGradient(cx,cy,B.r-depth,cx,cy,B.r);gr.addColorStop(0,'#1b1611');gr.addColorStop(Math.max(0,1-top*6/depth),'#3d3122');gr.addColorStop(Math.max(0,1-top/depth),'#4b3c27');gr.addColorStop(Math.max(0,1-top*.6/depth),'#2f6040');gr.addColorStop(1,'#3a7048');g.fillStyle=gr;}else g.fillStyle=B.col;g.fill();
+  if(B.earth){const L=[],D=Array(N+1).fill(1e9);for(let i=0;i<=N;i++)L[i]=landAt(ang(i));for(let i=0;i<=N;i++)if(L[i])D[i]=0;else if(i>0)D[i]=D[i-1]+1;for(let i=N-1;i>=0;i--)D[i]=Math.min(D[i],D[i+1]+1);
+    const wd=Math.min(depth*.8,Math.max(300,26/z)),sl=Math.max(1,(2*span*B.r/N)),tap=i=>wd*Math.min(1,(D[i]*sl)/Math.max(wd*25,sl*3));
+    let i=0;while(i<=N){if(L[i]){i++;continue;}const i0=Math.max(0,i-1);while(i<=N&&!L[i])i++;const i1=Math.min(N,i);
+      g.beginPath();for(let k=i0;k<=i1;k++){const a2=ang(k);g.lineTo(cx+B.r*Math.cos(a2),cy+B.r*Math.sin(a2));}for(let k=i1;k>=i0;k--){const a2=ang(k),r=B.r-tap(k);g.lineTo(cx+r*Math.cos(a2),cy+r*Math.sin(a2));}g.closePath();
+      const wg=g.createRadialGradient(cx,cy,B.r-wd,cx,cy,B.r);wg.addColorStop(0,'#0e2f5a');wg.addColorStop(.8,'#1a4f8c');wg.addColorStop(1,'#2f74b8');g.fillStyle=wg;g.fill();}}
   ring(B.r-depth,B.r,0,N);g.strokeStyle=B.earth?'rgba(150,200,255,.5)':'rgba(255,255,255,.4)';g.lineWidth=2/z;g.stroke();}
-function drawDisc(B,bp){const rr=B.r*z,[sx,sy]=toScreen(bp[0],bp[1]);g.setTransform(DPR,0,0,DPR,0,0);if(B.earth||B===MOON_B)return planetDisc(B,sx,sy,rr);
+function drawDisc(B,bp){const rr=B.r*z,[sx,sy]=toScreen(bp[0],bp[1]);g.setTransform(DPR,0,0,DPR,0,0);if(B.earth||B===MOON_B)return planetDisc(B,sx,sy,rr,Math.PI/2);
   const pl=g.createRadialGradient(sx-rr*.35,sy-rr*.35,rr*.1,sx,sy,rr);pl.addColorStop(0,B.col);pl.addColorStop(1,'#15171d');g.fillStyle=pl;g.beginPath();g.arc(sx,sy,rr,0,7);g.fill();}
 // nuvens geradas por trecho do planeta (mesmo lugar sempre), em qualquer ponto da volta e em qualquer zoom
 function drawClouds(front,viewM){const th=Math.atan2(camYw,camX),span=Math.min(Math.PI,(VW+VH)/z/R*.75+.002),tile=viewM>250000?60000:viewM>40000?12000:2500,i0=Math.floor((th-span)*R/tile),i1=Math.ceil((th+span)*R/tile);
   if(i1-i0>600)return;frame(camX,camYw);const big=tile>2500;
   for(let i=i0;i<=i1;i++){const r=rng(i*7919+tile),n=r()<(big?.25:.2)?0:(big?1:2)+Math.floor(r()*(big?3:5));
     for(let k=0;k<n;k++){const a=(i+r())*tile/R,alt=big?2500+r()*5000:1200+r()*8000,w=big?tile*(.35+.6*r()):150+r()*r()*2200,fr=r()<.33;if(fr!==front)continue;const rr=R+alt;
-      g.save();g.translate(rr*Math.cos(a)-camX,rr*Math.sin(a)-camYw);g.rotate(a-Math.PI/2);g.scale(1,-1);g.globalAlpha=front?.75:.85;g.drawImage(CLOUD,-w/2,-w*.22,w,w*(.35+.2*r()));g.restore();}}g.globalAlpha=1;}
+      g.save();g.translate(rr*Math.cos(a)-camX,rr*Math.sin(a)-camYw);g.rotate(a-Math.PI/2);g.scale(1,-1);const hh=w*(big?.09+.06*r():.35+.2*r());g.globalAlpha=(front?.75:.85)*(big?.55:1);g.drawImage(CLOUD,-w/2,-hh*.6,w,hh);g.restore();}}g.globalAlpha=1;}
 // cidades: prédios com janelas acesas em pontos fixos do planeta
 let CITIES=null;const cityList=()=>CITIES||(CITIES=[.012,.024,.041,.07,.11,-.09,-.16,.22,.31,-.35,.5,.8,1.2,-.7,2,2.6,-1.4,3.1].map((d,i)=>({a:Math.PI/2+d,n:24+(i*13)%30,sp:900+(i*317)%1400,seed:i+11})).filter(c=>landAt(c.a)));
 function drawCities(viewM){if(viewM>140000)return;const th=Math.atan2(camYw,camX),span=(VW+VH)/z/R*.8+.002;frame(camX,camYw);
@@ -1061,7 +1066,7 @@ function drawCities(viewM){if(viewM>140000)return;const th=Math.atan2(camYw,camX
 function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.width!==Math.round(VW*DPR)||cv.height!==Math.round(VH*DPR)){cv.width=VW*DPR;cv.height=VH*DPR;}
   if(view2==='map'){drawMap(real);return;}
   const target=baseZ()*zoomUser;zs=zs?zs*Math.pow(target/zs,Math.min(1,real*3)):target;z=zs;{const ce=chuteExt()*.45,rr=Math.hypot(V.x,V.y);camX=V.x+V.x/rr*ce;camYw=V.y+V.y/rr*ce;}camY=VH*.6;
-  const B=S.dom,bp=B.pos(S.t),th=Math.atan2(V.y-bp[1],V.x-bp[0]);rot=Math.PI/2-th;const disc=B.r*z<4000,viewM=VH/z,earthNear=B.earth,day=earthNear&&S.altE<45000,lowSky=earthNear&&!disc&&Math.abs(V.x)<60000&&S.altE<60000;
+  const B=S.dom,bp=B.pos(S.t),th=Math.atan2(V.y-bp[1],V.x-bp[0]);rot=Math.PI/2-th;const disc=B.r*z<1500,viewM=VH/z,earthNear=B.earth,day=earthNear&&S.altE<45000,lowSky=earthNear&&!disc&&Math.abs(V.x)<60000&&S.altE<60000;
   g.setTransform(DPR,0,0,DPR,0,0);if(earthNear&&!disc){const sk=g.createLinearGradient(0,0,0,VH);sk.addColorStop(0,skyAt(S.altE+viewM*.6));sk.addColorStop(1,skyAt(S.altE-viewM*.4));g.fillStyle=sk;}else g.fillStyle='#03050c';g.fillRect(0,0,VW,VH);
   const sa=disc||!earthNear?1:Math.min(1,Math.max(0,(S.altE-18000)/45000));if(sa>0){g.fillStyle='#fff';stars.forEach(s=>{g.globalAlpha=sa*(.3+.7*s[2]);const d=s[2]>.85?2:1;g.fillRect(s[0]*VW,s[1]*VH,d,d);});g.globalAlpha=1;}
   if(earthNear&&S.altE>50000&&S.altE<100000&&Math.random()<real*.8)meteors.push({x:Math.random()*VW,y:Math.random()*VH*.5,a:2.2+Math.random()*.6,life:.8});
@@ -1164,8 +1169,8 @@ function textures(){if(TEX)return TEX;const sm=(a,b,v)=>{const t=Math.max(0,Math
   const cr=(()=>{const r=rng(31);return Array.from({length:46},()=>{const a=r()*7,b=Math.acos(2*r()-1);return[Math.sin(b)*Math.cos(a),Math.cos(b),Math.sin(b)*Math.sin(a),.03+.13*r()*r()];});})();
   const moon=sphereTex(256,(x,y,z)=>{const n=fbm(x*2+3,y*2+8,z*2,5);let c=mix([92,92,98],[176,176,182],sm(.35,.62,n));for(const[a,b,d,rr]of cr){const ang=Math.acos(Math.max(-1,Math.min(1,x*a+y*b+z*d)));if(ang<rr*1.25){const q=ang/rr;c=q<1?mix(c,[78,78,84],.45*(1-q*q)):mix(c,[205,205,210],.5*(1.25-q)/.25);}}return c;},[.1,1.05]);
   return TEX={earth,moon};}
-function planetDisc(B,x,y,rr){if(B.earth){const at=g.createRadialGradient(x,y,rr*.95,x,y,rr*1.2);at.addColorStop(0,'rgba(110,175,255,.55)');at.addColorStop(1,'rgba(90,160,255,0)');g.fillStyle=at;g.beginPath();g.arc(x,y,rr*1.2,0,7);g.fill();}
-  if(rr<3){g.fillStyle=B.col;g.beginPath();g.arc(x,y,Math.max(rr,2),0,7);g.fill();return;}const T=textures();g.drawImage(B.earth?T.earth:T.moon,x-rr,y-rr,2*rr,2*rr);}
+function planetDisc(B,x,y,rr,ang){if(B.earth){const at=g.createRadialGradient(x,y,rr*.95,x,y,rr*1.2);at.addColorStop(0,'rgba(110,175,255,.55)');at.addColorStop(1,'rgba(90,160,255,0)');g.fillStyle=at;g.beginPath();g.arc(x,y,rr*1.2,0,7);g.fill();}
+  if(rr<3){g.fillStyle=B.col;g.beginPath();g.arc(x,y,Math.max(rr,2),0,7);g.fill();return;}const T=textures(),im=B.earth?T.earth:T.moon;if(ang){g.save();g.translate(x,y);g.rotate(ang);g.drawImage(im,-rr,-rr,2*rr,2*rr);g.restore();}else g.drawImage(im,x-rr,y-rr,2*rr,2*rr);}
 ['contextmenu','selectstart'].forEach(ev=>$('#flight').addEventListener(ev,e=>e.preventDefault()));
 $('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick=()=>$('#panel').classList.add('open');$('#btnSheetClose').onclick=()=>$('#panel').classList.remove('open');
 (function intro(){const el=$('#intro'),c=$('#introC'),x=c.getContext('2d'),st=Array.from({length:260},()=>[Math.random(),Math.random(),Math.random()]);let t0=performance.now(),on=true;
