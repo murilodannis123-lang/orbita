@@ -206,8 +206,9 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #intro .sub{color:#c9d1e6;font-size:clamp(14px,3.6vw,17px);margin:14px auto 26px;max-width:440px}#btnStart{padding:14px 44px;font-size:19px;border-radius:999px;box-shadow:0 0 30px rgba(255,179,71,.35)}#intro .hint{color:var(--muted);font-size:12px;margin-top:14px}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 #blk{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff9ad5;animation:blink 1s infinite}@keyframes blink{50%{opacity:.35}}#rTemp.hot{color:var(--bad)}#rTemp.warm{color:var(--accent)}
-#models,#camp,#campWin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,94vw);max-height:86vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
+#models,#camp,#campWin,#brief{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,94vw);max-height:86vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
 .mdGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mdGrid button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;text-align:left}.mdGrid button b{font-size:14px;color:var(--ink)}.mdGrid button small{font-size:12px;color:var(--muted)}
+.brRow{display:flex;gap:10px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}.brRow canvas{flex:0 0 auto;width:48px;height:48px}.brRow b{display:block;font-size:14px}.brRow small{display:block;font-size:12px;color:var(--muted);line-height:1.35}#brList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .cpSub{margin:0;color:var(--muted);font-size:13px}#cpList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}#cpList li{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
 #cpList li .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:rgba(255,255,255,.06);flex:0 0 auto}#cpList li.done .n{background:rgba(94,226,160,.2);color:var(--good)}#cpList li.lock{opacity:.45}#cpList li.cur{border-color:var(--accent)}
 #cpList li div{flex:1;min-width:0}#cpList li b{display:block;font-size:14px}#cpList li small{display:block;color:var(--muted);font-size:12px}#cpList li button{flex:0 0 auto;padding:7px 12px}
@@ -219,6 +220,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #svSave{font-size:14px;padding:8px 12px}#svMsg{margin:0;font-size:12px;color:var(--muted)}
 #svList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}#svList li{display:flex;gap:6px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px}#svList li span{flex:1;min-width:0}#svList small{display:block;color:var(--muted);font-size:11.5px}#svList button{padding:5px 10px;font-size:13px}#svList .del{color:var(--bad)}
 #svGame{border-top:1px solid var(--line);padding-top:10px;font-size:13px;color:var(--muted)}#svGame button{margin-top:6px;width:100%}
+#btnAbort{position:absolute;left:50%;top:44%;transform:translateX(-50%);z-index:13;padding:16px 34px;font-size:20px;font-weight:800;letter-spacing:.06em;background:#ff4d4d;border-color:#ff9a9a;color:#fff;box-shadow:0 0 30px rgba(255,77,77,.6);animation:abBlink .5s infinite alternate}@keyframes abBlink{to{box-shadow:0 0 6px rgba(255,77,77,.3);background:#c62f2f}}
 #deadBox{position:absolute;left:50%;top:40%;transform:translateX(-50%);z-index:12;display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:220px}#deadBox[hidden]{display:none}#deadBox button{padding:12px 22px}#deadBox button[hidden]{display:none}
 #tip{position:absolute;z-index:14;padding:5px 11px;font-size:13px;font-weight:600;color:var(--good);border-color:rgba(94,226,160,.5);pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap}#tip.on{opacity:1}#tip.off{color:var(--muted);border-color:var(--line)}
 #toast p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}#flight #toast.full p,#toast.full p{display:block;-webkit-line-clamp:unset;overflow:visible}#tip{white-space:normal;max-width:min(92vw,420px);text-align:center}
@@ -277,7 +279,11 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <ol id="cpList"></ol>
     <button id="cpFree">Sair da campanha (modo livre)</button>
   </div>
-  <div id="campBar" class="glass" hidden><span id="cbTxt"></span><button id="cbOpen">Missões</button></div>
+  <div id="campBar" class="glass" hidden><span id="cbTxt"></span><button id="cbParts">Peças</button><button id="cbOpen">Missões</button></div>
+  <div id="brief" class="glass dlg" hidden role="dialog" aria-label="Peças da nave">
+    <div class="phead"><b id="brT">Peças da nave</b><button id="brClose" aria-label="Fechar">✕</button></div>
+    <p class="cpSub" id="brSub"></p><ul id="brList"></ul><button class="primary" id="brOk">Entendi</button>
+  </div>
   <div id="saves" class="glass" hidden role="dialog" aria-label="Naves e jogo salvos">
     <div class="phead"><b>Naves salvas</b><button id="svClose" aria-label="Fechar">✕</button></div>
     <div class="svrow"><input id="svName" maxlength="40" placeholder="Nome da nave" aria-label="Nome da nave"><button class="primary" id="svSave">Salvar nave</button></div>
@@ -307,6 +313,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   <div id="thrWrap" class="glass"><button id="btnEng" class="lever" role="switch" aria-checked="false" title="Liga/desliga todos os motores (E)" aria-label="Motores"><i></i><span id="engLbl">LIGAR</span></button><div class="gauges"><div class="gcol"><span class="eyebrow">Motor</span><div id="thrTrack"><div id="thrFill"></div></div><b id="thrPct">0%</b></div><div class="gcol"><span class="eyebrow">Comb.</span><div id="fuelTrack"><div id="fuelFill"></div></div><b id="fuelPct">100%</b></div></div><div class="mini"><button id="thrMax">MÁX</button><button id="thrCut">0</button></div></div>
   <div id="tip" class="glass" role="status"></div>
   <div id="campWin" class="glass dlg" hidden role="dialog" aria-label="Missão cumprida"><p class="eyebrow">Campanha</p><h2 id="cwT">Missão cumprida ✓</h2><p id="cwB"></p><div class="cwBtns"><button class="primary" id="cwNext">Próxima missão</button><button id="cwStay">Continuar voando</button></div></div>
+  <button id="btnAbort" class="primary" hidden>⚠ ABORTAR</button>
   <div id="deadBox" hidden><button id="btnRewind" class="primary">⟲ Voltar 30 s</button><button id="btnDRestart" class="glass">↻ Lançar de novo</button><button id="btnDHangar" class="glass">⌂ Voltar ao hangar</button></div>
   <div id="pop" class="glass" hidden><b id="popT"></b><span id="popS"></span><button id="popB"></button><button id="popX" aria-label="Fechar">✕</button></div>
   <div id="toast" class="glass"><h2 id="tTitle"></h2><p id="tBody"></p></div>
@@ -949,6 +956,7 @@ function sfx(type){if(!snd.ac)return;const ac=snd.ac,t=ac.currentTime,out=snd.ma
   else if(type==='clamp'){[180,271,433,689].forEach((f,i)=>tone(f,f*.985,1.4-i*.25,.09,0,'triangle'));burst(.08,5000,1200,.5,'highpass');burst(1.1,2600,500,.18,'bandpass',out,.05);}
   else if(type==='ignite'){burst(1.8,90,3200,.9,'lowpass',snd.drive);tone(48,30,1.6,.7);burst(.15,3000,600,.4,'bandpass',out,.02);}
   else if(type==='chute'){for(let k=0;k<8;k++)burst(.12,700+k*90,300,.35*(1-k/9),'bandpass',out,k*.09);burst(1.2,2400,400,.25,'bandpass');}
+  else if(type==='alarm'){for(let i=0;i<4;i++){tone(880,880,.17,.07,i*.42,'square');tone(620,620,.17,.07,i*.42+.21,'square');}}
   else if(type==='sonic'){burst(.04,7000,1800,1.1,'highpass');tone(95,35,.35,.8);burst(.04,7000,1800,.9,'highpass',out,.14);tone(95,35,.3,.6,.14);}
   else if(type==='boom'){burst(.05,8000,2000,1.3,'highpass');burst(3.4,1800,30,1.3);tone(70,22,1.8,1);burst(1.5,4000,600,.4,'bandpass',out,.2);}}
 // ================= MÚSICA (ambiente espacial, gerada na hora) =================
@@ -1010,6 +1018,11 @@ const CAMP=[
   {id:'a',t:'Decolar',h:'Toque no motor A-7 para armar, acelerador no máximo e LIGAR.',done:()=>S.altE>5000},
   {id:'b',t:'Passar dos 100 km',h:'Suba quase reto, inclinando só um pouco para a direita.',done:()=>S.altE>SPACE},
   {id:'c',t:'Pousar em segurança',h:'No alto, ESTÁGIO solta o foguete. Mira para trás (escudo para frente) e o paraquedas abre sozinho se estiver armado.',done:()=>S.landedEarth}]},
+ {id:'c1b',t:'Emergência!',ship:'Mercury-Redstone',preset:()=>presetMR(),fail:{alt:6500},txt:'Mais um voo de teste do Redstone. Fique esperto: se algo der errado, a torre de escape salva você.',steps:[
+  {id:'a',t:'Decolar',h:'Arme o A-7, acelerador no máximo e LIGAR.',done:()=>S.altE>2000},
+  {id:'b',t:'Ejetar com a torre de escape',h:'Deu FALHA: aperte ABORTAR ou toque na torre de escape.',done:()=>!!S.aborted},
+  {id:'c',t:'Soltar a torre',h:'Ela solta sozinha quando apaga, e o paraquedas fica armado.',done:()=>!V.parts.some(q=>PT(q).les)},
+  {id:'d',t:'Pousar de paraquedas',h:'Espere o paraquedas abrir e descer até o chão.',done:()=>S.aborted&&S.dom.earth&&V.ground&&Math.hypot(S.rvx,S.rvy)<1}]},
  {id:'c2',t:'Uma volta ao mundo',ship:'Mercury-Atlas',preset:()=>presetMA(),txt:'Como John Glenn em 1962: entre em órbita da Terra e volte.',steps:[
   {id:'a',t:'Chegar ao espaço',h:'Arme os três motores do Atlas e suba inclinando até uns 45° perto dos 12 km.',done:()=>S.altE>SPACE},
   {id:'b',t:'Entrar em órbita',h:'Solte a Base Atlas (ESTÁGIO) quando ela secar o empuxo; deite na horizontal até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
@@ -1047,7 +1060,16 @@ const campLoad=()=>{try{return JSON.parse(localStorage.getItem('orbita.camp')||'
 function campUnlocked(i){const d=campLoad();return i===0||d.includes(CAMP[i-1].id)||d.includes(CAMP[i].id);}
 function renderCamp(){const d=campLoad();$('#cpList').innerHTML='';CAMP.forEach((c,i)=>{const li=document.createElement('li'),ok=campUnlocked(i),dn=d.includes(c.id);li.className=(dn?'done ':'')+(ok?'':'lock ')+(CAMP_CUR===c.id?'cur':'');
   li.innerHTML='<span class="n">'+(dn?'✓':i+1)+'</span><div><b>'+c.t+'</b><small>'+c.txt+' · nave: '+c.ship+'</small></div>';const b=document.createElement('button');b.textContent=ok?(dn?'Jogar de novo':'Jogar'):'🔒';b.disabled=!ok;if(ok&&!dn)b.className='primary';b.onclick=()=>campStart(c.id);li.appendChild(b);$('#cpList').appendChild(li);});}
-function campStart(id){const c=CAMP.find(q=>q.id===id);CAMP_CUR=id;save();parts=c.preset();sel=null;$('#camp').hidden=true;$('#models').hidden=true;campBar();fitView();refresh();}
+function campStart(id){const c=CAMP.find(q=>q.id===id);CAMP_CUR=id;save();parts=c.preset();sel=null;$('#camp').hidden=true;$('#models').hidden=true;campBar();fitView();refresh();showBrief(parts,'Missão '+(CAMP.indexOf(c)+1)+': '+c.t);$('#brSub').textContent=c.txt+' Antes de ir, as peças da sua nave:';}
+// apresentação: cada peça da nave (de cima para baixo) e para que serve
+const BRIEF={les:'Emergência: se o foguete falhar, toque nela (ou ABORTAR) e ela arranca a cápsula para longe. Se nada der errado, ela se solta sozinha depois do estágio.',capMerc:'Onde fica o astronauta. Já tem paraquedas e escudo térmico embutidos.',retro:'Três foguetinhos para frear e sair da órbita. Apagado, toque para soltar.',
+  rdSep:'Separa a cápsula do foguete (botão ESTÁGIO).',rdFus:'Compartimento de instrumentos entre o tanque e a cápsula.',rdTank:'Combustível do Redstone (álcool e oxigênio líquido).',rdEng:'O motor do Redstone. As aletas embutidas deixam o foguete estável.',
+  atAdapt:'Afina o tanque de 3 m para a cápsula de 2 m.',atTank:'Tanque-balão de aço fino: leve, mas só fica de pé cheio.',atBase:'Segura os dois motores de reforço; quando secar o empuxo, ESTÁGIO solta eles e o motor do meio continua.',atSus:'Motor do meio (sustentador): fica no foguete até a órbita.',atBoost:'Motores de reforço da decolagem: caem junto com a Base Atlas.',
+  hover:'Jatos de flutuar: com o HOVER ligado, perto do chão a nave flutua e anda com ◀ ▶.',para:'Paraquedas: arme e ele abre sozinho na descida.',sep:'Separa os estágios (botão ESTÁGIO).'};
+function showBrief(ps,title){const seen=new Set(),L=$('#brList');L.innerHTML='';$('#brT').textContent=title||'Peças da nave';$('#brSub').textContent='De cima para baixo: o que cada peça faz.';
+  ps.slice().sort((a,b)=>box(a).t-box(b).t).forEach(q=>{if(seen.has(q.type))return;seen.add(q.type);const P=PARTS[q.type],li=document.createElement('li');li.className='brRow';li.innerHTML='<canvas width="96" height="96"></canvas><div><b>'+P.n+'</b><small>'+(BRIEF[q.type]||P.d)+'</small></div>';
+    const c=li.querySelector('canvas').getContext('2d');drawPart(c,q.type,48,48,72/Math.max(P.h,P.w*1.3,1),P.fuel?1:null,null,null,{type:q.type,x:1});L.appendChild(li);});$('#brief').hidden=false;}
+$('#brOk').onclick=$('#brClose').onclick=()=>{$('#brief').hidden=true;};$('#cbParts').onclick=()=>showBrief(parts,'Peças da nave');
 function campBar(){const c=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);$('#campBar').hidden=!c;if(c)$('#cbTxt').innerHTML='<b>Missão '+(CAMP.indexOf(c)+1)+':</b> '+c.t+(c.start==='moon'?' · começa na Lua':'');}
 function campWin(c){$('#toast').classList.remove('on');const d=campLoad();if(!d.includes(c.id))d.push(c.id);campSave(d);const i=CAMP.indexOf(c),nx=CAMP[i+1];sfx('chime');$('#cwT').textContent='Missão cumprida ✓';$('#cwB').textContent=c.t+(nx?' · Próxima: '+nx.t:' · Você terminou a campanha!');$('#cwNext').hidden=!nx;$('#campWin').hidden=false;
   $('#cwNext').onclick=()=>{$('#campWin').hidden=true;$('#mHangar').onclick();campStart(nx.id);};}
@@ -1095,9 +1117,9 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
   if(rho>0&&sp>.1){const vbx=v.vx*pxv[0]+v.vy*pxv[1],vby=v.vx*axv[0]+v.vy*axv[1],sa=vbx/sp,ca=vby/sp,fd=.5*rho*sp*(v.cda*ca*ca+v.sideA*sa*sa);Fx-=fd*v.vx;Fy-=fd*v.vy;
     for(const p of v.parts){const by=-(p.y-v.com.y)*UNIT,lat=vbx-v.om*by,f=-.5*rho*sp*latArea(p)*UNIT*UNIT*lat;tau-=by*f;Fx+=f*pxv[0];Fy+=f*pxv[1];}
     // como na Soyuz/Apollo: paraquedas de freio primeiro (aguenta mais velocidade), depois o principal
-    if(v.para&&v.armed&&!v.chute&&!v.ripped&&altE<9000&&sp<CH_DROGUE){v.chute=.02;v.chStg=1;v.chTangle=chuteTangle(v);if(v.main){sfx('chute');capOnly();if(v.chTangle)tangleMsg(1);}}
+    if(v.para&&v.armed&&!v.chute&&!v.ripped&&altE<9000&&sp<CH_DROGUE){if(v.main){const li=v.parts.findIndex(q=>PT(q).les);if(li>=0){const L=v.parts[li];L.on=L.lit=true;fire([li]);}}v.chute=.02;v.chStg=1;v.chTangle=chuteTangle(v);if(v.main){sfx('chute');capOnly();if(v.chTangle)tangleMsg(1);}}
     if(v.chStg===1&&altE<3000&&(sp<CH_MAIN||v.chTangle&&sp<260)){v.chStg=2;v.chute=.05;v.chTangle=chuteTangle(v);if(v.main){sfx('chute');if(v.chTangle)tangleMsg(2);}}
-    if(v.chute>0&&!v.ground){v.chute=Math.min(1,v.chute+dt*(v.chStg===2?.3:.8));const A=(v.chStg===2?450:3)*(1+.45*v.paraL.filter(q=>q!==v.para).length)*v.chute*v.chute*(v.chTangle?.1:1),fd2=Math.min(.5*rho*sp*1.3*A,v.m*G0*6/sp),cfx=-fd2*v.vx,cfy=-fd2*v.vy;Fx+=cfx;Fy+=cfy;
+    if(v.chute>0&&!v.ground){v.chute=Math.min(1,v.chute+dt*(v.chStg===2?.3:.8));const A=(v.chStg===2?300:3)*(1+.45*v.paraL.filter(q=>q!==v.para).length)*v.chute*v.chute*(v.chTangle?.1:1),fd2=Math.min(.5*rho*sp*1.3*A,v.m*G0*6/sp),cfx=-fd2*v.vx,cfy=-fd2*v.vy;Fx+=cfx;Fy+=cfy;
       // a força do paraquedas puxa pelo topo da cápsula (onde prendem as cordas): é isso que a vira de pé
       const bx=(v.para.x-v.com.x)*UNIT,by=-(box(v.para).t-v.com.y)*UNIT,fbx=cfx*pxv[0]+cfy*pxv[1],fby=cfx*axv[0]+cfy*axv[1];tau+=bx*fby-by*fbx;v.om*=Math.exp(-2.5*dt);}}
   // aquecimento na reentrada (Sutton-Graves): fluxo ~ raiz(densidade) x velocidade³; o casco irradia calor de volta
@@ -1140,6 +1162,7 @@ function tangleMsg(st){sfx('pyro');toast('Paraquedas embaraçou!',st===1?'Abriu 
 // abrir o paraquedas na hora (toque nele, na cápsula ou no botão); rápido demais rasgaria
 // solta tudo o que está embaixo da cápsula (módulo de serviço), como a Soyuz faz antes da reentrada
 // aborto com a torre: corta tudo que está abaixo da cápsula (e do pacote retro), com ou sem separador
+function doAbort(){const tp=V.parts.find(q=>PT(q).les);if(!tp||tp.lit||S.dead)return;tp.on=tp.lit=true;sfx('ignite');S.aborted=true;S.abortT=S.t;S.lesAuto=0;if(!capOnly())abortCut();tip(innerWidth/2,innerHeight*.4,'ESCAPE! Torre acesa e cápsula solta');}
 function abortCut(){if(!V.cap)return;const rp=V.parts.find(q=>below(V.cap,q)&&PT(q).jett),cut=box(rp||V.cap).b,keep=V.parts.filter(q=>box(q).b<=cut+EPS),rest=V.parts.filter(q=>!keep.includes(q));if(!rest.length)return;
   const adj=graph(rest),c=comps(rest,adj),g={};rest.forEach((q,i)=>{(g[c[i]]??=[]).push(q);});fire([],{keep,drop:Object.values(g)});}
 function capOnly(){if(!V.cap||V.clamped)return false;const ci=V.parts.indexOf(V.cap),rp=V.parts.find(q=>below(V.cap,q)&&PT(q).jett),si=V.parts.findIndex(q=>below(rp||V.cap,q)&&PT(q).t==='sep');if(si<0||V.parts.length<=3)return false;fire([si]);void ci;tip(innerWidth/2,innerHeight*.4,'Cápsula separada do resto ✓');return true;}
@@ -1147,8 +1170,9 @@ function deployChute(cx,cy){if(!V.para||S.dead)return;cx=cx??innerWidth/2;cy=cy?
   if(V.chute>0){tip(cx,cy,V.chStg===2?'Paraquedas principal aberto':'Paraquedas de freio aberto');return;}V.armed=true;
   if(rho<1e-3){tip(cx,cy,'Sem ar aqui: armado, abre sozinho na descida');return;}
   if(sp>CH_DROGUE){tip(cx,cy,'Rápido demais ('+Math.round(sp)+' m/s): rasgaria. Armado, abre abaixo de '+CH_DROGUE+' m/s');return;}
+  {const li=V.parts.findIndex(q=>PT(q).les);if(li>=0){const L=V.parts[li];L.on=L.lit=true;fire([li]);}}
   capOnly();V.chStg=sp<CH_MAIN?2:1;V.chute=.04;V.chTangle=chuteTangle(V);sfx('chute');if(V.chTangle){tangleMsg(V.chStg);return;}tip(cx,cy,V.chStg===2?'Paraquedas principal aberto ✓':'Paraquedas de freio aberto ✓ · o principal abre abaixo de '+CH_MAIN+' m/s');}
-function crash(v,imp,why){if(v.main){S.dead=true;sfx('boom');if(why==='tombou')toast('Tombou','Sem os pés de pouso abertos a nave caiu de lado. Abra os pés (toque neles ou G) antes de tocar o chão.');else toast('Bum.','Bateu a '+Math.round(imp)+' m/s. '+(S.dom.earth?'Acima de 12 m/s a cápsula não aguenta. Freie antes, abra o paraquedas e desça devagar.':'Na Lua não há ar: freie com o motor (Mira para trás) e toque a menos de 8 m/s, ou 10 com os pés abertos.'));}
+function crash(v,imp,why){if(v.main){S.dead=true;sfx('boom');if(why==='falha')toast('O foguete explodiu','Faltou ejetar. Quando der FALHA, aperte ABORTAR na hora: a torre arranca a cápsula para longe da explosão.');else if(why==='tombou')toast('Tombou','Sem os pés de pouso abertos a nave caiu de lado. Abra os pés (toque neles ou G) antes de tocar o chão.');else toast('Bum.','Bateu a '+Math.round(imp)+' m/s. '+(S.dom.earth?'Acima de 12 m/s a cápsula não aguenta. Freie antes, abra o paraquedas e desça devagar.':'Na Lua não há ar: freie com o motor (Mira para trás) e toque a menos de 8 m/s, ou 10 com os pés abertos.'));}
   v.dead=true;for(let i=0;i<(v.main?160:40);i++){const a=Math.random()*7,s=Math.random()*(v.main?70:30),hot=i%2;particles.push({type:hot?'fire':'smoke',fl:'kero',x:v.x,y:v.y,vx:v.vx*.2+Math.cos(a)*s,vy:v.vy*.2+Math.sin(a)*s,life:hot?1.4:12,max:hot?1.4:12,size:hot?10:12,grow:hot?8:6,v:i%4,heat:1});}}
 function stage(){if(!V||S.dead)return;const hasF=V.parts.some(q=>PT(q).t==='fair');
   // como no SFS/vida real: a carenagem sai quando já não há ar (acima de ~60 km), antes de soltar a carga
@@ -1163,7 +1187,7 @@ function tapAt(cx,cy){if(S.dead)return;const r=cv.getBoundingClientRect(),X=(cx-
   if(P.t==='solar'){const op=!tp.dep;for(const q of V.solars)q.dep=op;sfx('clamp');tip(cx,cy,op?'Painéis solares abertos ✓':'Painéis fechados');return;}
   if(P.t==='fair'){if(V.clamped){tip(cx,cy,'Solte a carenagem depois de decolar');return;}releaseFair();tip(cx,cy,'Carenagem solta ✓');return;}
   if(P.probe&&V.parts.length<=8){tp.dep=!tp.dep;sfx('clamp');tip(cx,cy,tp.dep?'Sonda abrindo painéis e antena':'Sonda fechando');return;}
-  if(P.les){if(V.clamped){tip(cx,cy,'A torre de escape só funciona depois de decolar');return;}if(!tp.lit&&tp.fuel>0){tp.on=true;tp.lit=true;sfx('ignite');if(!capOnly())abortCut();tip(cx,cy,'ESCAPE! Torre acesa e cápsula solta');return;}if(!(tp.fuel>0)||!V.firing.some(f=>f.p===tp)){fire([i]);tip(cx,cy,'Torre de escape solta ✓');return;}tip(cx,cy,'Torre ainda queimando');return;}
+  if(P.les){if(V.clamped){tip(cx,cy,'A torre de escape só funciona depois de decolar');return;}if(!tp.lit&&tp.fuel>0){doAbort();return;}if(false){tip(cx,cy,'ESCAPE! Torre acesa e cápsula solta');return;}if(!(tp.fuel>0)||!V.firing.some(f=>f.p===tp)){fire([i]);tip(cx,cy,'Torre de escape solta ✓');return;}tip(cx,cy,'Torre ainda queimando');return;}
   if(P.jett&&tp.lit&&!(tp.fuel>0)){fire([i]);tip(cx,cy,P.n+' solto ✓');return;}
   if(P.t==='rcs'){S.rcs=!S.rcs;rcsUI();sfx('clamp');tip(cx,cy,S.rcs?'RCS ligado ✓ · setas para andar de lado':'RCS desligado',!S.rcs);return;}
   const fireSep=k=>{if(V.clamped){tip(cx,cy,'Separe depois de decolar');return;}const mi=V.parts.findIndex(q=>q.uid===V.parts[k].mir);fire(mi>=0?[k,mi]:[k]);};
@@ -1189,6 +1213,7 @@ function fire(idx,pre){const fired_w=ix=>ix.map(i=>V.parts[i]).filter(Boolean).m
     for(let k=0;k<8;k++){const a=Math.random()*7,sp=20+Math.random()*40;particles.push({type:'fire',fl:'kero',x:sx2,y:sy2,vx:V.vx+Math.cos(a)*sp,vy:V.vy+Math.sin(a)*sp,life:.18+Math.random()*.12,max:.3,size:.5+Math.random()*.6,grow:2});}
     for(let k=0;k<16;k++){const sd=k%2?1:-1,sp=4+Math.random()*10;particles.push({type:'smoke',x:sx2+px2*sd*Math.random()*1.5,y:sy2+py2*sd*Math.random()*1.5,vx:V.vx+px2*sd*sp+(Math.random()-.5)*3,vy:V.vy+py2*sd*sp+(Math.random()-.5)*3,life:1.5+Math.random()*2*(.3+air),max:3.5,size:1.2,grow:2.5+3*air,v:k%4,heat:.3,spread:1});}}
   V.vx+=jx;V.vy+=jy;
+  {const L=keep.find(q=>PT(q).les),free=!keep.some(q=>PT(q).t==='eng'&&!PT(q).les&&!PT(q).jett);if(L&&!L.lit&&free&&V.parts!==keep)S.lesAuto=S.t+1;}
   {const cp=keep.find(q=>PT(q).t==='cap');if(cp&&PT(cp).probe&&keep.length<=8&&!cp.dep&&(!S.dom.earth||S.altE>SPACE*.7))S.probeDep=S.t+1.5;if(cp&&PT(cp).probe&&keep.length<=8&&!S.probeTold){S.probeTold=true;setTimeout(()=>toast('Sonda solta ✓','Agora você pilota só a sonda. Ela tem motor próprio: use para ir até a Lua ou outro planeta.'),50);}}
   V.parts=keep;restructure(V);updateMass(V);sfx('pyro');if(S.master&&V.act.some(i=>V.parts[i].on)&&S.thr>0)sfx('ignite');else if(V.act.length&&!V.act.some(i=>V.parts[i].on))toast('Estágio solto','Toque no motor de cima para armar.');}
 function domain(){S.dom=domBody(V.x,V.y,S.t);const bp=S.dom.pos(S.t),bv=S.dom.vel(S.t);S.alt=Math.hypot(V.x-bp[0],V.y-bp[1])-S.dom.r;S.altE=Math.hypot(V.x,V.y)-R;S.rvx=V.vx-bv[0];S.rvy=V.vy-bv[1];
@@ -1198,7 +1223,7 @@ function tgtOm(user){if(user){V.hold=null;if(V.aim){V.aim=null;aimUI();}return u
 function steer(user,dt){const err=tgtOm(user)-V.om;V.trim=Math.max(-1,Math.min(1,(V.trim||0)+err*dt*3)); // trim: compensa empuxo fora do centro
   return Math.max(-1,Math.min(1,err*4+V.trim));}
 function stepWorld(dt){S.t+=dt;const user=(keys.a?1:0)-(keys.d?1:0),hovT=!!(S.hover&&V.hov&&V.hov.length&&(V.hgt??0)<25),drv=V.ground&&V.wheels&&V.wheels.length&&!V.clamped,turn=V.clamped||drv||!(user||sas||V.aim)?0:steer(user,dt),thr=warp>5?0:S.thr;
-  if(!S.dead)stepV(V,dt,{rot:hovT?0:turn,thr,rails:warp>5,master:!!S.master,drive:drv&&!hovT?user:null,rcs:S.rcs?RCST:null,hover:S.hover&&V.hov&&V.hov.length?{dir:user}:null});for(const d of debris){if(!d.dead)stepV(d,dt,{rot:0,thr:0,rails:warp>5,drive:d.wheels&&d.wheels.length?0:null});d.t+=dt;}debris=debris.filter(d=>!d.dead);if(debris.length>40){const k=debris.findIndex(d=>!d.cap);debris.splice(k<0?0:k,1);}
+  if(!S.dead)stepV(V,dt,{rot:hovT?0:turn,thr,rails:warp>5&&!chuteWarp(),master:!!S.master,drive:drv&&!hovT?user:null,rcs:S.rcs?RCST:null,hover:S.hover&&V.hov&&V.hov.length?{dir:user}:null});for(const d of debris){if(!d.dead)stepV(d,dt,{rot:0,thr:0,rails:warp>5&&!chuteWarp(),drive:d.wheels&&d.wheels.length?0:null});d.t+=dt;}debris=debris.filter(d=>!d.dead);if(debris.length>40){const k=debris.findIndex(d=>!d.cap);debris.splice(k<0?0:k,1);}
   for(const p of particles){const pr=Math.hypot(p.x,p.y),air=rhoAt(pr-R)/RHO0;if(p.type==='smoke'){const k=Math.exp(-1.4*Math.sqrt(air)*dt);p.vx*=k;p.vy*=k;p.vx+=p.x/pr*3*air*dt;p.vy+=p.y/pr*3*air*dt;}
     p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;p.size+=p.grow*dt*(p.type==='smoke'?Math.max(.15,Math.sqrt(air)):1);p.heat=Math.max(0,(p.heat||0)-dt*2.5);
     if(pr<R){const nx=p.x/pr,ny=p.y/pr,vr=p.vx*nx+p.vy*ny;p.x=nx*R;p.y=ny*R;p.vx-=vr*nx;p.vy-=vr*ny;if(!p.spread){p.spread=1;const s=(Math.random()<.5?-1:1)*(25+Math.random()*55);p.vx+=-ny*s;p.vy+=nx*s;}}}
@@ -1230,8 +1255,8 @@ async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id)
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
-  if(!S.dead){if(warp>5&&warpLimited())warp=5;let left=real*warp,guard=0;
-    while(left>1e-9&&guard++<3000){const dmin=nearDist(V.x,V.y,S.t),vv=Math.hypot(V.vx,V.vy)||1,dtm=warp<=5?.02:Math.max(.02,Math.min(dmin>1e9?3600:60,.01*dmin/vv)),dt=Math.min(left,dtm);stepWorld(dt);left-=dt;}
+  if(!S.dead){const cw=chuteWarp();if(warp>5&&warpLimited()&&!(cw&&warp<=50))warp=cw?Math.min(warp,50):5;let left=real*warp,guard=0;
+    while(left>1e-9&&guard++<3000){const dmin=nearDist(V.x,V.y,S.t),vv=Math.hypot(V.vx,V.vy)||1,dtm=warp<=5||cw?.02:Math.max(.02,Math.min(dmin>1e9?3600:60,.01*dmin/vv)),dt=Math.min(left,dtm);stepWorld(dt);left-=dt;}
     for(const v of[V,...debris])for(const q of v.parts)if(PT(q).probe){const tg=q.dep?1:0;q.depT=q.depT??tg;if(q.depT!==tg)q.depT=Math.max(0,Math.min(1,q.depT+(tg?1:-1)*real/3.2));}
     if(S.probeDep&&S.t>=S.probeDep){S.probeDep=0;if(V.cap&&PT(V.cap).probe){V.cap.dep=true;sfx('clamp');tip(innerWidth/2,innerHeight*.4,'Sonda abrindo painéis solares e antena');}}
     for(const v of[V,...debris])if(v.legs)for(const q of v.legs){const tg=q.dep?1:0;q.depT=q.depT??tg;if(q.depT!==tg)q.depT=Math.max(0,Math.min(1,q.depT+(tg?1:-1)*real/.9));}
@@ -1245,6 +1270,20 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
   predTimer-=real;if(predTimer<=0&&(view2==='map'||target||warp>5)){predTimer=view2==='map'?(V.firing.length?.15:.25):1;pred=predict();steerTarget();}
   if(!S.dead&&pred&&warp>5){const nx=pred.segs.find(q=>q.b!==S.dom&&q.t0>S.t);if(nx&&(nx.t0-S.t)/warp<3){setWarp(-1);if(warp<=50)tip(innerWidth/2,innerHeight*.3,'Tempo desacelerado: chegando na gravidade '+nx.b.de);}}
   if(!S.dead&&S.dom!==S.domW){if(S.domW&&warp>5){warp=5;}S.domW=S.dom;}
+  // paraquedas aberto: acelera o tempo sozinho (×10) e volta ao normal perto do chão para você ver o pouso
+  if(!S.dead&&chuteWarp()){if(!S.chAuto&&V.chute>.5&&S.altE>300&&warp<50){warp=50;S.chAuto=1;tip(innerWidth/2,innerHeight*.35,'Tempo ×50 na descida · volta ao normal perto do chão');}else if(S.chAuto===1&&S.altE<60&&warp>1){warp=1;S.chAuto=2;}}
+  // torre de escape: some sozinha depois do estágio (como na Mercury) e depois de um aborto, quando apaga
+  if(!S.dead){const li=V.parts.findIndex(q=>PT(q).les);if(li>=0){const L=V.parts[li];
+    if(S.lesAuto&&S.t>=S.lesAuto&&!L.lit){S.lesAuto=0;L.on=L.lit=true;sfx('ignite');fire([li]);tip(innerWidth/2,innerHeight*.35,'Torre de escape descartada ✓');}
+    else if(L.lit&&!(L.fuel>0)){if(!S.lesDrop)S.lesDrop=S.t+.8;else if(S.t>=S.lesDrop){S.lesDrop=0;fire([li]);if(S.aborted&&V.para){V.armed=true;tip(innerWidth/2,innerHeight*.35,'Torre solta ✓ · paraquedas armado sozinho');}else tip(innerWidth/2,innerHeight*.35,'Torre solta ✓');}}}else S.lesAuto=0;}
+  // missão com falha: o foguete começa a rodar e pegar fogo; sem abortar em 8 s, explode
+  {const cm=CAMP_CUR&&CAMP.find(c=>c.id===CAMP_CUR);if(cm&&cm.fail&&!S.dead){
+    if(!S.failT&&!V.clamped&&S.altE>cm.fail.alt){S.failT=S.t;S.failR=0;warp=1;sfx('alarm');toast('FALHA NO FOGUETE!','O motor está pegando fogo e o foguete saiu de controle. Aperte ABORTAR (ou toque na torre de escape) AGORA!');}
+    if(S.failT&&!S.aborted){S.failR+=real;if(warp>1)warp=1;V.om+=.5*real*(V.om>=0?1:-1)+.0001;if(Math.random()<.5){const e=V.parts.find(q=>PT(q).t==='eng'&&!PT(q).les);if(e){const[ex,ey]=bodyToWorld(V,e.x,e.y);for(let k=0;k<4;k++){const a=Math.random()*7,sp=10+Math.random()*30;particles.push({type:k%2?'smoke':'fire',fl:'kero',x:ex,y:ey,vx:V.vx+Math.cos(a)*sp,vy:V.vy+Math.sin(a)*sp,life:k%2?3:.5,max:k%2?3:.5,size:2,grow:4,v:k%4,heat:1});}}}
+      if(Math.floor(S.failR*2)!==S.failBeep){S.failBeep=Math.floor(S.failR*2);if(S.failBeep%3===0)sfx('alarm');}
+      if(S.failR>8){crash(V,99,'falha');}}
+    if(S.aborted&&!S.boomDone){const bd=debris.find(d=>d.parts.some(q=>PT(q).t==='eng'&&!PT(q).les&&!PT(q).jett));if(bd&&S.t-S.abortT>2.2){S.boomDone=1;bd.dead=true;sfx('boom');for(let i=0;i<120;i++){const a=Math.random()*7,s2=Math.random()*70;particles.push({type:i%2?'fire':'smoke',fl:'kero',x:bd.x,y:bd.y,vx:bd.vx*.5+Math.cos(a)*s2,vy:bd.vy*.5+Math.sin(a)*s2,life:i%2?1.2:7,max:i%2?1.2:7,size:7,grow:8,v:i%4,heat:1});}}}}
+    $('#btnAbort').hidden=!(cm&&cm.fail&&S.failT&&!S.aborted&&!S.dead&&V.parts.some(q=>PT(q).les));}
   if(!S.dead)realism(real);
   {const want=mus.want=!S.dead&&S.liftT>=0&&(S.altE>SPACE||!S.dom.earth)&&!V.firing.length;if(want&&!mus.playing)musicStart();else if(!want&&mus.playing)musicStop(V.firing.length>0);}
   try{draw(real);hud();}catch(e){console.error(e);}requestAnimationFrame(loop);}
@@ -1290,7 +1329,7 @@ function tapDebris(cx,cy,wx,wy){const W0=[V.x+wx,V.y+wy];void W0;let best=null,b
   if(!best||bd>Math.max(40,vesselLen(best)*z*.6)){hidePop();return;}showPop(cx,cy,PT(best.cap).probe?'Sonda separada':'Nave separada','controlada por '+PT(best.cap).n.toLowerCase(),'Controlar esta nave',false,()=>{switchTo(best);hidePop();});}
 function switchTo(d){debris=debris.filter(x=>x!==d);V.main=false;V.t=0;debris.push(V);V=d;V.main=true;V.hold=null;restructure(V);updateMass(V);domain();zs=0;aimUI();leverUI();tip(innerWidth/2,innerHeight*.35,'Controlando: '+PT(V.cap).n);}
 function toggleLegs(cx,cy){if(!V||!V.legs.length||S.dead)return;const open=!V.legs.every(p=>p.dep);V.legs.forEach(p=>p.dep=open);sfx('clamp');tip(cx??innerWidth/2,cy??innerHeight*.5,open?'Pés de pouso abertos ✓':'Pés de pouso fechados');}
-$('#btnLegs').onclick=()=>toggleLegs();$('#btnRcs').onclick=()=>{S.rcs=!S.rcs;rcsUI();};$('#btnHover').onclick=()=>{S.hover=!S.hover;sfx('clamp');if(S.hover)tip(innerWidth/2,innerHeight*.45,'Hover ligado: perto do chão a nave flutua; ◀ ▶ para andar');rcsUI();};
+$('#btnLegs').onclick=()=>toggleLegs();$('#btnAbort').onclick=()=>doAbort();$('#btnRcs').onclick=()=>{S.rcs=!S.rcs;rcsUI();};$('#btnHover').onclick=()=>{S.hover=!S.hover;sfx('clamp');if(S.hover)tip(innerWidth/2,innerHeight*.45,'Hover ligado: perto do chão a nave flutua; ◀ ▶ para andar');rcsUI();};
 document.querySelectorAll('#rcsPad button').forEach(b=>{const[x,y]=b.dataset.r.split(',').map(Number),on=e=>{e.preventDefault();RCST.x=x;RCST.y=y;},off=()=>{RCST.x=RCST.y=0;};b.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,off));});
 function engKey(){setMaster(!S.master);}
 function leverUI(){const b=$('#btnEng'),on=!!(S&&S.master);b.classList.toggle('on',on);b.setAttribute('aria-checked',on);$('#engLbl').textContent=on?'LIGADOS':'LIGAR';}
@@ -1336,8 +1375,10 @@ document.querySelectorAll('#ctlL [data-k]').forEach(b=>{const k=b.dataset.k;b.ad
 const tt=$('#thrTrack');tt.addEventListener('pointerdown',e=>{tt.setPointerCapture(e.pointerId);const f=ev=>{const r=tt.getBoundingClientRect();setThr(1-(ev.clientY-r.top)/r.height);};f(e);tt.onpointermove=f;tt.onpointerup=()=>tt.onpointermove=null;});
 $('#thrMax').onclick=()=>setThr(1);$('#thrCut').onclick=()=>setThr(0);$('#btnStage').onclick=stage;
 function chuteBtn(){if(!V.para)return;if(V.chute>0&&(V.ground||V.chTangle)){V.chute=0;V.chCut=true;V.armed=false;sfx('pyro');tip(innerWidth/2,innerHeight*.5,'Paraquedas cortado');return;}if(!V.chute)deployChute();}$('#btnChute').onclick=chuteBtn;
-let whTimer;function setWarp(d){const nw=WARPS[Math.max(0,Math.min(WARPS.length-1,WARPS.indexOf(warp)+d))];if(nw>5&&warpLimited()){warp=5;$('#warpHint').classList.add('on');clearTimeout(whTimer);whTimer=setTimeout(()=>$('#warpHint').classList.remove('on'),2500);return;}warp=nw;}
+let whTimer;function setWarp(d){const nw=WARPS[Math.max(0,Math.min(WARPS.length-1,WARPS.indexOf(warp)+d))];if(nw>5&&chuteWarp()){warp=Math.min(nw,50);return;}if(nw>5&&warpLimited()){warp=5;$('#warpHint').classList.add('on');clearTimeout(whTimer);whTimer=setTimeout(()=>$('#warpHint').classList.remove('on'),2500);return;}warp=nw;}
 const solidLit=v=>v.parts.some(p=>p.lit&&PT(p).solid&&p.fuel>0);
+// debaixo do paraquedas dá para acelerar até 50× sem trocar a física (passos curtos, com ar)
+const chuteWarp=()=>!!(V&&V.chute>0&&!V.ground&&S.dom&&S.dom.earth&&!S.dead);
 const warpLimited=()=>S.altE<SPACE*1.05||S.thr>0||solidLit(V)||V.ground||V.clamped; // no ar ou com motor, a física precisa de passos curtos
 $('#wDn').onclick=()=>setWarp(-1);$('#wUp').onclick=()=>setWarp(1);
 function toggleSas(){sas=!sas;$('#mSas').textContent='Estabilizador: '+(sas?'ligado':'desligado');$('#mSas').classList.toggle('on',sas);}$('#mSas').onclick=toggleSas;
