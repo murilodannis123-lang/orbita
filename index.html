@@ -1130,7 +1130,7 @@ const CAMP=[
   {id:'b',t:'Entrar em órbita',h:'Quando o Ap passar de 110 km, desligue o motor e espere chegar perto do Ap. Aí deite na horizontal e acelere até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'c',t:'Voltar e pousar',h:'Mira para trás, solte o Atlas (ESTÁGIO) e toque no pacote retro para acender. Quando ele apagar, toque nele de novo para soltar (senão ele tampa o escudo). Arme o paraquedas e mantenha Mira para trás até o fim.',done:()=>S.landedEarth}]},
  {id:'c3',t:'Primeiro satélite',ship:'Explorer',preset:()=>presetExplorer(),txt:'Ponha uma sonda em órbita e abra os painéis solares.',steps:[
-  {id:'a',t:'Chegar ao espaço',h:'Arme o A-7 e suba inclinando aos poucos.',done:()=>S.altE>SPACE},
+  {id:'a',t:'Chegar ao espaço',h:'Arme o A-7 e suba inclinando aos poucos. Quando ele apagar, deixe o acelerador no máximo e aperte ESTÁGIO: o motor de cima acende junto e segura o foguete reto.',done:()=>S.altE>SPACE},
   {id:'b',t:'Soltar a carenagem',h:'Acima de 60 km, ESTÁGIO ou toque na carenagem.',done:()=>!V.parts.some(q=>PT(q).t==='fair')},
   {id:'c',t:'Órbita acima de 150 km',h:'Solte o Redstone e use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 160 km, espere chegar no Ap e acelere de novo até o Pe passar de 150 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>150000},
   {id:'d',t:'Sonda livre e aberta',h:'Solte o resto do foguete: a sonda abre os painéis sozinha.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
@@ -1374,7 +1374,11 @@ function fire(idx,pre){const fired_w=ix=>ix.map(i=>V.parts[i]).filter(Boolean).m
   V.vx+=jx;V.vy+=jy;
   {const L=keep.find(q=>PT(q).les),free=!keep.some(q=>PT(q).t==='eng'&&!PT(q).les&&!PT(q).jett);if(L&&!L.lit&&free&&V.parts!==keep)S.lesAuto=S.t+1;}
   {const cp=keep.find(q=>PT(q).t==='cap');if(cp&&PT(cp).probe&&keep.length<=8&&!cp.dep&&(!S.dom.earth||S.altE>SPACE*.7))S.probeDep=S.t+1.5;if(cp&&PT(cp).probe&&keep.length<=8&&!S.probeTold){S.probeTold=true;setTimeout(()=>toast('Sonda solta ✓','Agora você pilota só a sonda. Ela tem motor próprio: use para ir até a Lua ou outro planeta.'),50);}}
-  V.parts=keep;restructure(V);updateMass(V);sfx('pyro');if(S.master&&propAct(V).some(i=>V.parts[i].on)&&S.thr>0)sfx('ignite');else if(propAct(V).length&&!propAct(V).some(i=>V.parts[i].on)){const en=PT(V.parts[propAct(V)[0]]);toast('Estágio solto',en.jett?'Se precisar frear, toque no '+en.n+' para armar.':'Toque no '+en.n+' para armar o próximo motor.');}}
+  V.parts=keep;restructure(V);updateMass(V);sfx('pyro');const nxt=propAct(V).filter(i=>!PT(V.parts[i]).jett);
+  // como no SFS/KSP: se você estava acelerando, o motor do próximo estágio acende junto (com ele empurrando, o estágio não vira cambalhota no ar)
+  if(nxt.length&&!nxt.some(i=>V.parts[i].on)&&S.master&&S.thr>0){for(const i of nxt)V.parts[i].on=true;sfx('ignite');tip(innerWidth/2,innerHeight*.4,'Estágio solto ✓ · '+PT(V.parts[nxt[0]]).n+' aceso');}
+  else if(S.master&&propAct(V).some(i=>V.parts[i].on)&&S.thr>0)sfx('ignite');
+  else if(propAct(V).length&&!propAct(V).some(i=>V.parts[i].on)){const en=PT(V.parts[propAct(V)[0]]),air=(V.q||0)>1500;toast('Estágio solto',en.jett?'Se precisar frear, toque no '+en.n+' para armar.':(air?'Ainda tem ar: sem motor o foguete pode girar. ':'')+'Toque no '+en.n+' para armar e LIGUE o motor.');}}
 function domain(){S.dom=domBody(V.x,V.y,S.t);const bp=S.dom.pos(S.t),bv=S.dom.vel(S.t);S.alt=Math.hypot(V.x-bp[0],V.y-bp[1])-S.dom.r;S.altE=Math.hypot(V.x,V.y)-R;if(S.liftT>=0&&S.altE>(S.peak||0))S.peak=S.altE;S.rvx=V.vx-bv[0];S.rvy=V.vy-bv[1];
   S.el=elements(V.x-bp[0],V.y-bp[1],S.rvx,S.rvy,S.dom.mu,S.dom.r);}
 const TURN_RATE=.25; // rad/s pedidos pelo piloto; o computador de bordo usa gimbal e giroscópio para chegar nisso
