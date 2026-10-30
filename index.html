@@ -97,6 +97,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #btnStage{min-width:150px;padding:8px 14px;font-family:var(--display);font-weight:700;letter-spacing:.06em;background:rgba(255,179,71,.92);color:#1a1200;border-color:var(--accent);display:flex;flex-direction:column;align-items:center;line-height:1.15}
 #btnStage small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:0}
 #btnStage:disabled{opacity:.35}
+#btnRamp{padding:8px 12px;background:rgba(7,11,22,.6);font-size:13px;white-space:nowrap}#btnRamp.on{border-color:var(--orbit);color:var(--orbit)}
 #btnRover{padding:8px 12px;background:rgba(7,11,22,.6);font-size:13px;white-space:nowrap}#btnRover.on{border-color:var(--good);color:var(--good);animation:rvGlow 1s infinite alternate}@keyframes rvGlow{from{box-shadow:0 0 0 rgba(80,230,140,0)}to{box-shadow:0 0 14px rgba(80,230,140,.65)}}
 #btnHover{padding:8px 12px;background:rgba(7,11,22,.6);font-size:13px;white-space:nowrap}#btnHover.on{border-color:var(--orbit);color:var(--orbit)}
 #btnRcs{padding:8px 12px;background:rgba(7,11,22,.6);font-size:13px}#btnRcs.on{border-color:var(--orbit);color:var(--orbit)}#rcsPad{position:absolute;right:calc(130px + env(safe-area-inset-right,0px));bottom:calc(90px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;z-index:6}#rcsPad[hidden]{display:none}#rcsPad button{padding:0;font-size:16px;background:rgba(7,11,22,.6);border-color:rgba(79,209,255,.5);color:var(--orbit)}#rcsPad [data-r='0,1']{grid-area:1/2}#rcsPad [data-r='-1,0']{grid-area:2/1}#rcsPad [data-r='0,-1']{grid-area:3/2}#rcsPad [data-r='1,0']{grid-area:2/3}
@@ -313,7 +314,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   <div id="mapUI"><div id="mapInfo" class="glass" title="Toque para esconder"></div><button id="mapCenter" class="glass" hidden>◎ Centralizar</button><button id="miBtn" class="glass" hidden aria-label="Mostrar informações da órbita">ⓘ Órbita</button></div>
   <div id="ctlL"><button class="round" data-k="a" aria-label="Girar para a esquerda">⟲</button><button class="round" data-k="d" aria-label="Girar para a direita">⟳</button></div>
   <div id="rcsPad" hidden><button data-r="0,1" aria-label="RCS frente">▲</button><button data-r="-1,0" aria-label="RCS esquerda">◀</button><button data-r="0,-1" aria-label="RCS trás">▼</button><button data-r="1,0" aria-label="RCS direita">▶</button></div>
-  <div id="ctlC"><button id="btnHover" hidden>Hover: desligado</button><button id="btnRover" hidden>🚗 Soltar rover</button><button id="btnRcs" hidden>RCS</button><button id="btnLegs" hidden>Pés: fechados</button><button id="btnAim" title="Mira automática (V)">Mira: livre</button><button id="btnChute" hidden>Paraquedas</button><button id="btnStage">ESTÁGIO<small id="stNext"></small></button></div>
+  <div id="ctlC"><button id="btnHover" hidden>Hover: desligado</button><button id="btnRover" hidden>🚗 Soltar rover</button><button id="btnRamp" hidden>Rampa: fechada</button><button id="btnRcs" hidden>RCS</button><button id="btnLegs" hidden>Pés: fechados</button><button id="btnAim" title="Mira automática (V)">Mira: livre</button><button id="btnChute" hidden>Paraquedas</button><button id="btnStage">ESTÁGIO<small id="stNext"></small></button></div>
   <div id="thrWrap" class="glass"><button id="btnEng" class="lever" role="switch" aria-checked="false" title="Liga/desliga todos os motores (E)" aria-label="Motores"><i></i><span id="engLbl">LIGAR</span></button><div class="gauges"><div class="gcol"><span class="eyebrow">Motor</span><div id="thrTrack"><div id="thrFill"></div></div><b id="thrPct">0%</b></div><div class="gcol"><span class="eyebrow">Comb.</span><div id="fuelTrack"><div id="fuelFill"></div></div><b id="fuelPct">100%</b></div></div><div class="mini"><button id="thrMax">MÁX</button><button id="thrCut">0</button></div></div>
   <div id="tip" class="glass" role="status"></div>
   <div id="campWin" class="glass dlg" hidden role="dialog" aria-label="Missão cumprida"><p class="eyebrow" id="cwE">Campanha</p><h2 id="cwT">Missão cumprida ✓</h2><p id="cwB"></p><div id="cwS" class="cwStats" hidden></div><div class="cwBtns"><button class="primary" id="cwNext">Próxima missão</button><button class="glass" id="cwHangar">⌂ Voltar ao hangar</button><button id="cwStay">Continuar aqui</button><button id="cwHome">Tela inicial</button></div></div>
@@ -567,17 +568,23 @@ function nozzle(ctx,ex,y0,ew,h,u,kind){const mh=h*(kind==='vac'?.16:.22);ctx.fil
   ctx.fillStyle='#120b07';ctx.beginPath();ctx.ellipse(ex,ny+nh,ew*flare*.94,nh*.045+.3,0,0,7);ctx.fill();ctx.strokeStyle=kind==='vac'?'#c9ced8':'#e2b27a';ctx.lineWidth=Math.max(PXS*.5,u*.025);ctx.beginPath();ctx.ellipse(ex,ny+nh,ew*flare,nh*.05+.3,0,0,Math.PI);ctx.stroke();}
 function gauge(ctx,x,y,w,h,f){if(f==null)return;ctx.fillStyle='rgba(8,12,24,.8)';ctx.fillRect(x,y,w,h);ctx.fillStyle=f>.25?'#ffb347':'#ff6b6b';ctx.fillRect(x,y+h*(1-f),w,h*f);ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=.5;ctx.strokeRect(x,y,w,h);}
 function rcs(ctx,x,y,u,s){ctx.fillStyle='#d5dbe4';ctx.fillRect(x-u*.05,y-u*.06,u*.1,u*.12);ctx.fillStyle='#3a3f4a';ctx.fillRect(x+s*u*.05,y-u*.02,u*.04*s,u*.04);ctx.fillRect(x-u*.02,y-u*.09,u*.04,u*.03);ctx.fillRect(x-u*.02,y+u*.06,u*.04,u*.03);}
+// placa da rampa da baia do rover (px): dobradiça (hx,hy), ângulo a (−90° = em pé, fechada), comprimento Ld, escala u (px por unidade)
+function rampPlate(ctx,hx,hy,a,Ld,u){const ca=Math.cos(a),sa=Math.sin(a),n=[-sa,ca],w=.09*u,L=Ld*u,ex=hx+ca*L,ey=hy+sa*L;
+  const pg=ctx.createLinearGradient(hx,hy,ex,ey);pg.addColorStop(0,'#e3e7ee');pg.addColorStop(1,'#b9c0ca');ctx.fillStyle=pg;ctx.beginPath();ctx.moveTo(hx+n[0]*w,hy+n[1]*w);ctx.lineTo(ex+n[0]*w,ey+n[1]*w);ctx.lineTo(ex-n[0]*w*.5,ey-n[1]*w*.5);ctx.lineTo(hx-n[0]*w*.5,hy-n[1]*w*.5);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#5b636e';ctx.lineWidth=Math.max(PXS*.5,.025*u);ctx.stroke();ctx.strokeStyle='#ffb020';ctx.lineWidth=Math.max(PXS*.4,.02*u);for(let i=1;i<5;i++){const q=i/5,px=hx+ca*L*q,py=hy+sa*L*q;ctx.beginPath();ctx.moveTo(px-n[0]*w*.3,py-n[1]*w*.3);ctx.lineTo(px+n[0]*w*.8,py+n[1]*w*.8);ctx.stroke();}
+  ctx.fillStyle='#2a2d33';ctx.beginPath();ctx.arc(hx,hy,Math.max(PXS,.06*u),0,7);ctx.fill();}
 function drawPart(ctx,type,cx,cy,u,frac,dw,dh,part){if(part&&part.half&&!ctx.__half){const w=(dw??PARTS[type].w)*u,h=(dh??PARTS[type].h)*u;ctx.save();ctx.beginPath();ctx.rect(part.half<0?cx-w/2-1:cx,cy-h/2-1,w/2+1,h+2);ctx.clip();ctx.__half=1;drawPart(ctx,type,cx,cy,u,frac,dw,dh,part);ctx.__half=0;ctx.restore();return;}pxs(ctx);const p=PARTS[type],w=(dw??p.w)*u,h=(dh??p.h)*u,x=cx-w/2,y0=cy-h/2,sk=skinOf(type,part&&part.skin),C=SKINC[sk.c]||SKINC.branco;
   if(type==='roverBay'){// baia de carga: caixa com manta térmica e porta lateral (abre virando rampa)
     ctx.fillStyle=cyl(ctx,x,w,'#f4f6f9','#cfd5de','#7d8693');ctx.fillRect(x,y0,w,h);ctx.beginPath();ctx.rect(x,y0,w,h);edge(ctx,u);
     const gg=ctx.createLinearGradient(x,0,x+w,0);gg.addColorStop(0,'#8a6414');gg.addColorStop(.4,'#f6d27a');gg.addColorStop(.7,'#c99a2e');gg.addColorStop(1,'#8a6414');ctx.fillStyle=gg;ctx.fillRect(x,y0+h*.06,w*.35,h*.88);
     ctx.strokeStyle='rgba(90,60,10,.5)';ctx.lineWidth=Math.max(PXS*.4,u*.015);for(let k=1;k<5;k++){ctx.beginPath();ctx.moveTo(x,y0+h*k/5);ctx.lineTo(x+w*.35,y0+h*k/5+h*.03);ctx.stroke();}
-    const dx0=x+w*.42,dx1=x+w*.96;if(part&&part.rovT!=null){// porta aberta: interior escuro
-      const ig=ctx.createLinearGradient(dx0,0,dx1,0);ig.addColorStop(0,'#0c0f14');ig.addColorStop(1,'#2a2f38');ctx.fillStyle=ig;ctx.fillRect(dx0,y0+h*.08,dx1-dx0,h*.86);ctx.fillStyle='rgba(255,230,160,.35)';ctx.fillRect(dx0+w*.02,y0+h*.1,dx1-dx0-w*.04,h*.04);}
-    else{ctx.fillStyle=cyl(ctx,dx0,dx1-dx0,'#ffffff','#e3e7ee','#9aa3b0');ctx.fillRect(dx0,y0+h*.08,dx1-dx0,h*.86);ctx.strokeStyle='#5b636e';ctx.lineWidth=Math.max(PXS*.6,u*.025);ctx.strokeRect(dx0,y0+h*.08,dx1-dx0,h*.86);
-      ctx.fillStyle='#ffb020';ctx.fillRect(dx0,y0+h*.9,dx1-dx0,h*.04);ctx.fillStyle='#3a3f47';ctx.fillRect(dx1-w*.08,y0+h*.45,w*.04,h*.1);
-      ctx.fillStyle='#1d2027';if(h*.13>=3){ctx.font='700 '+(h*.13)+'px IBM Plex Sans, system-ui, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('ROVER',(dx0+dx1)/2,y0+h*.3);}else{ctx.fillRect(dx0+(dx1-dx0)*.2,y0+h*.27,(dx1-dx0)*.6,h*.06);}
-      ctx.fillStyle='#7dff9a';ctx.beginPath();ctx.arc(dx0+w*.06,y0+h*.18,Math.max(PXS*.6,h*.03),0,7);ctx.fill();}
+    const dx0=x+w*.42,dx1=x+w*.96,ko=part?Math.min(1,(part.rampK||0)*1.6+(part.mv?1:0)):0;
+    ctx.fillStyle=cyl(ctx,dx0,dx1-dx0,'#ffffff','#e3e7ee','#9aa3b0');ctx.fillRect(dx0,y0+h*.08,dx1-dx0,h*.86);ctx.strokeStyle='#5b636e';ctx.lineWidth=Math.max(PXS*.6,u*.02);ctx.strokeRect(dx0,y0+h*.08,dx1-dx0,h*.86);
+    ctx.fillStyle='#1d2027';if(h*.13>=3){ctx.font='700 '+(h*.13)+'px IBM Plex Sans, system-ui, sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('ROVER',(dx0+dx1)/2,y0+h*.3);}else ctx.fillRect(dx0+(dx1-dx0)*.2,y0+h*.27,(dx1-dx0)*.6,h*.06);
+    ctx.fillStyle=ko>0?'#ffb020':'#7dff9a';ctx.beginPath();ctx.arc(dx0+w*.06,y0+h*.18,Math.max(PXS*.6,h*.03),0,7);ctx.fill();
+    if(ko>0){// a lateral abre: interior escuro com luz aparece aos poucos
+      ctx.globalAlpha=ko;const ig=ctx.createLinearGradient(dx0,0,dx1,0);ig.addColorStop(0,'#0c0f14');ig.addColorStop(1,'#2a2f38');ctx.fillStyle=ig;ctx.fillRect(dx0,y0+h*.08,dx1-dx0,h*.86);ctx.fillStyle='rgba(255,230,160,.35)';ctx.fillRect(dx0+w*.02,y0+h*.1,dx1-dx0-w*.04,h*.04);ctx.globalAlpha=1;}
+    else rampPlate(ctx,x+w,y0+h,-Math.PI/2,h/u*.86,u);
     return;}
   if(p.t==='cap'&&p.probe){
     // sonda: corpo com manta dourada (MLI), anel de acoplamento embaixo, painéis solares dobrados nos lados e antena dobrada em cima.
@@ -754,15 +761,24 @@ function drawPart(ctx,type,cx,cy,u,frac,dw,dh,part){if(part&&part.half&&!ctx.__h
 // pé aberto: haste diagonal até o chão, escora e sapata, como o módulo lunar
 // pé de pouso: tamanho fixo (não depende do resto da nave). Abre em duas fases como no SFS: gira para fora e depois estica
 const legFoot=(p,ps,t)=>{const B=box(p),s=legSide(p,ps),k=PT(p).big||1,hy=B.t+.15,L0=Math.max(.3,B.b-hy),dx1=.95*k,dy1=B.b+.55*k-hy,L1=Math.hypot(dx1,dy1),a1=Math.atan2(dx1,dy1);
-  const r=Math.min(1,t/.6),e=Math.max(0,(t-.6)/.4),ea=r*r*(3-2*r),a=a1*ea,L=L0+(L1-L0)*e*e*(3-2*e);return[p.x+s*Math.sin(a)*L,hy+Math.cos(a)*L];};
-function drawLegOpen(ctx,p,ps,u,X,Y){pxs(ctx);const t=p.depT??(p.dep?1:0),B=box(p),k=PT(p).big||1,[fxu,fyu]=legFoot(p,ps,t),hx=X(p.x),hy=Y(B.t+.15),fx=X(fxu),fy=Y(fyu),kx=X(p.x),ky=Y(B.b-.1);
-  ctx.fillStyle=cyl(ctx,X(B.l),W(p)*u,...METAL);ctx.fillRect(X(B.l)+W(p)*u*.2,Y(B.t),W(p)*u*.6,H(p)*u*.5);ctx.lineCap='round';
-  // haste externa (cilindro) + haste interna que estica
-  const mx=hx+(fx-hx)*.62,my=hy+(fy-hy)*.62;ctx.strokeStyle='#3d434f';ctx.lineWidth=u*.17*k;ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(mx,my);ctx.stroke();ctx.strokeStyle='#c9d0da';ctx.lineWidth=u*.1*k;ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(mx,my);ctx.stroke();
-  ctx.strokeStyle='#e6ebf2';ctx.lineWidth=u*.06*k;ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(fx,fy);ctx.stroke();
-  ctx.strokeStyle='#d4a23a';ctx.lineWidth=u*.03*k;ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(mx,my);ctx.stroke();
-  if(t>.15){ctx.strokeStyle='#8a929f';ctx.lineWidth=u*.06*k;ctx.beginPath();ctx.moveTo(kx,ky);ctx.lineTo((hx+fx)/2,(hy+fy)/2);ctx.stroke();}ctx.lineCap='butt';
-  const fa=Math.atan2(fy-hy,fx-hx)-Math.PI/2,ft=Math.min(1,t*1.5);ctx.save();ctx.translate(fx,fy);ctx.rotate(fa*(1-ft));ctx.fillStyle='#ffc23a';ctx.beginPath();ctx.ellipse(0,0,u*.3*k,u*.085*k,0,0,7);ctx.fill();ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=Math.max(PXS*.6,u*.02);ctx.stroke();ctx.restore();}
+  const r=Math.max(0,Math.min(1,t/.7)),c1=.9,ea=r<=0?0:1+(c1+1)*Math.pow(r-1,3)+c1*Math.pow(r-1,2),e0=Math.max(0,Math.min(1,(t-.35)/.5)),e=e0*e0*(3-2*e0),a=a1*ea,L=L0+(L1-L0)*e;return[p.x+s*Math.sin(a)*L,hy+Math.cos(a)*L];};
+function drawLegOpen(ctx,p,ps,u,X,Y){pxs(ctx);const t=p.depT??(p.dep?1:0),B=box(p),k=PT(p).big||1,s=legSide(p,ps),[fxu,fyu]=legFoot(p,ps,t),hx=X(p.x),hy=Y(B.t+.15),fx=X(fxu),fy=Y(fyu),kx=X(p.x),ky=Y(B.b-.08),lw=Math.max(PXS*.8,u*.02);
+  // suportes presos no tanque (em cima a articulação, embaixo o pé da escora)
+  ctx.fillStyle='#4b525e';ctx.fillRect(hx-u*.1*k,hy-u*.14*k,u*.2*k,u*.24*k);ctx.fillRect(kx-u*.08*k,ky-u*.1*k,u*.16*k,u*.16*k);
+  const dx=fx-hx,dy=fy-hy,len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,mid=.58,mx=hx+dx*mid,my=hy+dy*mid;
+  // escora diagonal (sempre ligada: abre junto, sem aparecer do nada)
+  const sx=hx+dx*.5,sy=hy+dy*.5;ctx.lineCap='round';ctx.strokeStyle='#5b636e';ctx.lineWidth=u*.07*k;ctx.beginPath();ctx.moveTo(kx,ky);ctx.lineTo(sx,sy);ctx.stroke();ctx.strokeStyle='#aeb5c0';ctx.lineWidth=u*.03*k;ctx.stroke();
+  // perna: cilindro externo com manta dourada + haste cromada que estica
+  ctx.strokeStyle='#7a5a12';ctx.lineWidth=u*.19*k;ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(mx,my);ctx.stroke();
+  const gg=ctx.createLinearGradient(hx-uy*u*.1,hy+ux*u*.1,hx+uy*u*.1,hy-ux*u*.1);gg.addColorStop(0,'#8a6414');gg.addColorStop(.45,'#f6d27a');gg.addColorStop(1,'#a87a1c');ctx.strokeStyle=gg;ctx.lineWidth=u*.15*k;ctx.stroke();
+  ctx.strokeStyle='rgba(90,60,10,.55)';ctx.lineWidth=lw*.6;for(let q=.12;q<mid;q+=.11){const ax=hx+dx*q,ay=hy+dy*q;ctx.beginPath();ctx.moveTo(ax-uy*u*.07*k,ay+ux*u*.07*k);ctx.lineTo(ax+uy*u*.07*k,ay-ux*u*.07*k);ctx.stroke();}
+  ctx.strokeStyle='#3a3f47';ctx.lineWidth=u*.085*k;ctx.beginPath();ctx.moveTo(mx,my);ctx.lineTo(fx-ux*u*.06,fy-uy*u*.06);ctx.stroke();ctx.strokeStyle='#e6ebf2';ctx.lineWidth=u*.055*k;ctx.stroke();
+  ctx.fillStyle='#2a2d33';ctx.beginPath();ctx.arc(mx,my,u*.07*k,0,7);ctx.fill();ctx.lineCap='butt';
+  // sapata: dobrada junto da perna, desdobra até ficar deitada no chão (com pequeno balanço)
+  const f0=Math.max(0,Math.min(1,(t-.5)/.5)),fe=f0<=0?0:1+2.2*Math.pow(f0-1,3)+1.2*Math.pow(f0-1,2),th=Math.atan2(dy,dx),pa=(th>Math.PI/2?th-Math.PI:th)*(1-fe);
+  ctx.save();ctx.translate(fx,fy);ctx.rotate(pa);const pw=u*.32*k,ph=u*.1*k;const pg=ctx.createLinearGradient(-pw,0,pw,0);pg.addColorStop(0,'#c99a2e');pg.addColorStop(.5,'#ffd86a');pg.addColorStop(1,'#a87a1c');ctx.fillStyle=pg;
+  ctx.beginPath();ctx.moveTo(-pw,-ph*.15);ctx.lineTo(pw,-ph*.15);ctx.quadraticCurveTo(pw*.8,ph*1.1,0,ph*1.1);ctx.quadraticCurveTo(-pw*.8,ph*1.1,-pw,-ph*.15);ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=lw*.7;ctx.stroke();
+  ctx.fillStyle='#2a2d33';ctx.beginPath();ctx.arc(0,-ph*.2,u*.05*k,0,7);ctx.fill();ctx.restore();void s;}
 // painel solar aberto: braço e placas de células azuis
 function drawSolarOpen(ctx,p,ps,u,X,Y){pxs(ctx);const B=box(p),s=legSide(p,ps),x0=X(s>0?B.r:B.l),L=3.2*u*(PT(p).big||1),ph=H(p)*u*.8,y0=Y(p.y)-ph/2,xa=s>0?x0:x0-L;void 0;
   ctx.fillStyle=cyl(ctx,X(B.l),W(p)*u,...METAL);ctx.fillRect(X(B.l),Y(B.t),W(p)*u,H(p)*u);ctx.fillStyle='#8a929f';ctx.fillRect(s>0?x0:x0-u*.5,Y(p.y)-u*.04,u*.5,u*.08);
@@ -779,7 +795,7 @@ function drawSep(ctx,p,ps,u,X,Y,alpha){pxs(ctx);const B=box(p);let topY=B.t,topW
     if(sk.p!=='liso'){ctx.fillStyle=cyl(ctx,xc-mw/2,mw,...SKINC[dark2(sk.c)]);ctx.fillRect(xc-mw/2,yt+(yb-bh-yt)*.4,mw/2,(yb-bh-yt)*.25);}
     shade(ctx,xc-mw/2,yt,mw,yb-bh-yt);ctx.restore();ctx.beginPath();ctx.moveTo(xc-wt/2,yt);ctx.lineTo(xc+wt/2,yt);ctx.lineTo(xc+wb/2,yb-bh);ctx.lineTo(xc-wb/2,yb-bh);ctx.closePath();edge(ctx,u);}
   drawPart(ctx,PT(p).atlas?p.type:'sep',xc,yb-bh/2,u,null,PT(p).atlas?W(p):botW,PT(p).h,p);ctx.restore();}
-function drawCraft(ctx,ps,u,X,Y,sepAlpha,fairA=1){pxs(ctx);for(const p of ps){const t=PT(p).t;if(t==='fair')continue;if(t==='leg'&&(p.depT??(p.dep?1:0))>.001)drawLegOpen(ctx,p,ps,u,X,Y);else if(t==='solar'&&p.dep)drawSolarOpen(ctx,p,ps,u,X,Y);else if(t!=='sep')drawPart(ctx,p.type,X(p.x),Y(p.y),u,PT(p).fuel?fuelOf(p)/capOf(p):null,p.w,p.h,p);}for(const p of ps)if(PT(p).t==='sep')drawSep(ctx,p,ps,u,X,Y,sepAlpha);
+function drawCraft(ctx,ps,u,X,Y,sepAlpha,fairA=1){pxs(ctx);for(const p of ps){const t=PT(p).t;if(t==='fair')continue;if(t==='leg'&&(ctx===g||(p.depT??(p.dep?1:0))>.001))drawLegOpen(ctx,p,ps,u,X,Y);else if(t==='solar'&&p.dep)drawSolarOpen(ctx,p,ps,u,X,Y);else if(t!=='sep')drawPart(ctx,p.type,X(p.x),Y(p.y),u,PT(p).fuel?fuelOf(p)/capOf(p):null,p.w,p.h,p);}for(const p of ps)if(PT(p).t==='sep')drawSep(ctx,p,ps,u,X,Y,sepAlpha);
   const inside=f=>ps.some(q=>q!==f&&PT(q).t!=='fair'&&ovl(box(q).l,box(q).r,box(f).l,box(f).r)>.05&&ovl(box(q).t,box(q).b,box(f).t,box(f).b)>.05);
   for(const p of ps)if(PT(p).t==='fair'){const a=fairA<1&&inside(p)?fairA:1;ctx.globalAlpha*=a;drawPart(ctx,p.type,X(p.x),Y(p.y),u,null,p.w,p.h,p);ctx.globalAlpha/=a;}}
 
@@ -800,13 +816,13 @@ function presetLunar(){const core=stackUp(['para','capPingo','sep','tankM','tank
   for(const sd of[-1,1]){add[sd]=[mk('leg',sd*(.5+.15),lo.y),mk('sepLat',sd*(.65+.125),low.y),mk('liqb',sd*(.9+.45),-1.7),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 // sonda sem tripulante: ogiva, sonda com motor próprio (estágio de chute), estágio superior e primeiro estágio
-function presetProbe(){const core=stackUp(['probe','tankP','engMini','sep','tankM','tankM','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);for(const q of core)if(q.type==='tankG'||q.type==='aleta')q.w=1.5;const t=mk('engTita',0,-1+PARTS.engTita.h/2);
+function presetProbe(){const core=stackUp(['probe','sep','tankP','engMini','sep','tankM','tankM','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);for(const q of core)if(q.type==='tankG'||q.type==='aleta')q.w=1.5;const t=mk('engTita',0,-1+PARTS.engTita.h/2);
   // carenagem oca em volta da carga: corpo sobre o separador de cima + bico
-  const sp=core.filter(q=>q.type==='sep').reduce((m,q)=>q.y<m.y?q:m),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.2),{h:2.4}),fc=mk('fair',0,top-2.4-PARTS.fair.h/2);return[...core,t,fb,fc];}
+  const sp=core.filter(q=>q.type==='sep').sort((a,b)=>a.y-b.y)[1],top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.35),{h:2.7}),fc=mk('fair',0,top-2.7-PARTS.fair.h/2);return[...core,t,fb,fc];}
 // pacote Redstone/Atlas e hover
 function presetMR(){return stackUp(['les','capMerc','retro','rdSep','rdFus','rdTank','rdEng'],0,-1);}
 function presetMA(){const core=stackUp(['les','capMerc','retro','rdSep','atAdapt','atTank','atBase'],0,-1),bb=box(core.find(q=>q.type==='atBase')).b,a=mk('atBoost',-.53,bb+.45),c=mk('atBoost',.53,bb+.45),su=mk('atSus',0,bb+.45);a.mir=c.uid;c.mir=a.uid;return[...core,a,c,su];}
-function presetExplorer(){const core=stackUp(['probe','tankP','engVaga','rdSep','rdFus','rdTank','rdEng'],0,-1),sp=core.find(q=>q.type==='rdSep'),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.2),{w:1.2,h:2.4}),fc=Object.assign(mk('fair',0,0),{w:1.2,h:PARTS.fair.h*1.2/1.3});fc.y=top-2.4-fc.h/2;return[...core,fb,fc];}
+function presetExplorer(){const core=stackUp(['probe','sep','tankP','engVaga','rdSep','rdFus','rdTank','rdEng'],0,-1),sp=core.find(q=>q.type==='rdSep'),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.35),{w:1.2,h:2.7}),fc=Object.assign(mk('fair',0,0),{w:1.2,h:PARTS.fair.h*1.2/1.3});fc.y=top-2.7-fc.h/2;return[...core,fb,fc];}
 function presetHover(){const core=stackUp(['para','capPingo','sep','tankM','beam'],0,-1),bb=-1,e=mk('engFalcao',0,bb+PARTS.engFalcao.h/2),a=mk('hover',-.7,bb+PARTS.hover.h/2),b=mk('hover',.7,bb+PARTS.hover.h/2);a.mir=b.uid;b.mir=a.uid;return[...core,e,a,b];}
 // foguete lunar completo com a nave do rover em cima (Terra → Lua → rover)
 function presetRoverFull(){const core=stackUp(['para','capPingo','sep','tankM','tankM','roverBay','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
@@ -1133,7 +1149,7 @@ const CAMP=[
   {id:'a',t:'Chegar ao espaço',h:'Arme o A-7 e suba inclinando aos poucos. Quando ele apagar, deixe o acelerador no máximo e aperte ESTÁGIO: o motor de cima acende junto e segura o foguete reto.',done:()=>S.altE>SPACE},
   {id:'b',t:'Soltar a carenagem',h:'Acima de 60 km, ESTÁGIO ou toque na carenagem.',done:()=>!V.parts.some(q=>PT(q).t==='fair')},
   {id:'c',t:'Órbita acima de 150 km',h:'Solte o Redstone e use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 160 km, espere chegar no Ap e acelere de novo até o Pe passar de 150 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>150000},
-  {id:'d',t:'Sonda livre e aberta',h:'Solte o resto do foguete: a sonda abre os painéis sozinha.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
+  {id:'d',t:'Sonda livre e aberta',h:'Por último, aperte ESTÁGIO para soltar a sonda do motor: sozinha, ela abre os painéis.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
  {id:'c4',t:'Até a Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande uma sonda até a gravidade da Lua.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Pe acima de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Navegar até a Lua',h:'Abra o mapa, toque na Lua e escolha Navegar.',done:()=>target===MOON_B},
@@ -1144,7 +1160,7 @@ const CAMP=[
  {id:'c6',t:'Passeio de rover',ship:'Lunar com rover',preset:()=>presetRover(),start:'moon',txt:'Você já começa pousado na Lua, com um rover guardado na baia da nave. Solte ele e dirija pelo chão de outro mundo, como na Apollo 15.',steps:[
   {id:'a',t:'Soltar o rover',h:'Toque em 🚗 SOLTAR ROVER (ou na baia do rover): a porta vira rampa e o rover desce.',done:()=>!!S.roverOut},
   {id:'b',t:'Dirigir 500 m',h:'Segure ◀ ou ▶ para andar. Na Lua tudo é leve: vá com calma nas descidas.',done:()=>(S.rovDist||0)>500},
-  {id:'c',t:'Voltar para a nave',h:'Dirija de volta até perto da nave (menos de 20 m) e toque em 🚀 VOLTAR PARA A NAVE.',done:()=>(S.rovDist||0)>500&&!V.isRover&&!!S.rover&&Math.hypot(S.rover.x-V.x,S.rover.y-V.y)<20}]},
+  {id:'c',t:'Guardar o rover',h:'Dirija de volta até o pé da rampa e toque em ⬆ GUARDAR O ROVER: ele sobe e entra na baia.',done:()=>(S.rovDist||0)>500&&!V.isRover&&(S.roverHome||(!!S.rover&&Math.hypot(S.rover.x-V.x,S.rover.y-V.y)<20))}]},
  {id:'c7',t:'Pouso na Lua',ship:'Lunar',preset:()=>presetLunar(),txt:'Como a Apollo 11: chegue na Lua e pouse de pé.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Pe acima de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Entrar na gravidade da Lua',h:'Navegar até a Lua e siga a linha verde.',done:()=>S.dom===MOON_B},
@@ -1245,7 +1261,7 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
     v.plasma=Math.max(0,Math.min(1,(qh-3e4)/2.5e5));v.heat=Math.max(0,Math.min(1,(v.temp-380)/1100));
     if(v.temp>(v.shield?2600:1250)&&!CH.heat){burnUp(v);return;}}
   v.gl=Math.hypot(Fx,Fy)/v.m/G0;
-  if(v.ground&&v.wheels&&v.wheels.length&&ctl.drive!=null){const bp=dom.pos(S.t),bv=dom.vel(S.t),nx=v.x-bp[0],ny=v.y-bp[1],nn=Math.hypot(nx,ny),tx=-ny/nn,ty=nx/nn,vt=(v.vx-bv[0])*tx+(v.vy-bv[1])*ty,acc=ctl.drive?ctl.drive*2.5:-Math.sign(vt)*Math.min(Math.abs(vt)/dt,2),vmx=v.parts.some(q=>PT(q).rover)?7:11,nv=Math.max(-vmx,Math.min(vmx,vt+acc*dt));v.vx+=(nv-vt)*tx;v.vy+=(nv-vt)*ty;
+  if(v.ground&&v.wheels&&v.wheels.length&&ctl.drive!=null){const bp=dom.pos(S.t),bv=dom.vel(S.t),nx=v.x-bp[0],ny=v.y-bp[1],nn=Math.hypot(nx,ny),tx=-ny/nn,ty=nx/nn,vt=(v.vx-bv[0])*tx+(v.vy-bv[1])*ty,acc=ctl.drive?ctl.drive*2.5:-Math.sign(vt)*Math.min(Math.abs(vt)/dt,v.parts.some(q=>PT(q).rover)?5:2),vmx=v.parts.some(q=>PT(q).rover)?7:11,nv=Math.max(-vmx,Math.min(vmx,vt+acc*dt));v.vx+=(nv-vt)*tx;v.vy+=(nv-vt)*ty;
     for(const w of v.wheels){const r=Math.min(W(w),H(w))*.42*UNIT;w.rot=((w.rot||0)-nv*dt/r)%(Math.PI*2);}}
   v.hovOn=false;for(const q of v.hov||[])q.glow=Math.max(0,(q.glow||0)-dt*2);
   if(v.clamped&&v.hgt==null)v.hgt=0;if(ctl.hover&&v.hov&&v.hov.length&&v.hgt!=null&&v.hgt<25){const tot=Object.values(sf).reduce((a,b)=>a+b,0);
@@ -1373,7 +1389,7 @@ function fire(idx,pre){const fired_w=ix=>ix.map(i=>V.parts[i]).filter(Boolean).m
     for(let k=0;k<16;k++){const sd=k%2?1:-1,sp=4+Math.random()*10;particles.push({type:'smoke',x:sx2+px2*sd*Math.random()*1.5,y:sy2+py2*sd*Math.random()*1.5,vx:V.vx+px2*sd*sp+(Math.random()-.5)*3,vy:V.vy+py2*sd*sp+(Math.random()-.5)*3,life:1.5+Math.random()*2*(.3+air),max:3.5,size:1.2,grow:2.5+3*air,v:k%4,heat:.3,spread:1});}}
   V.vx+=jx;V.vy+=jy;
   {const L=keep.find(q=>PT(q).les),free=!keep.some(q=>PT(q).t==='eng'&&!PT(q).les&&!PT(q).jett);if(L&&!L.lit&&free&&V.parts!==keep)S.lesAuto=S.t+1;}
-  {const cp=keep.find(q=>PT(q).t==='cap');if(cp&&PT(cp).probe&&keep.length<=8&&!cp.dep&&(!S.dom.earth||S.altE>SPACE*.7))S.probeDep=S.t+1.5;if(cp&&PT(cp).probe&&keep.length<=8&&!S.probeTold){S.probeTold=true;setTimeout(()=>toast('Sonda solta ✓','Agora você pilota só a sonda. Ela tem motor próprio: use para ir até a Lua ou outro planeta.'),50);}}
+  {const cp=keep.find(q=>PT(q).t==='cap');const alone=cp&&keep.every(q=>q===cp||!['tank','eng'].includes(PT(q).t));if(cp&&PT(cp).probe&&alone&&!cp.dep&&(!S.dom.earth||S.altE>SPACE*.7))S.probeDep=S.t+1.5;if(cp&&PT(cp).probe&&keep.length<=8&&!S.probeTold){S.probeTold=true;setTimeout(()=>toast('Sonda solta ✓','Agora você pilota só a sonda. Ela tem motor próprio: use para ir até a Lua ou outro planeta.'),50);}}
   V.parts=keep;restructure(V);updateMass(V);sfx('pyro');const nxt=propAct(V).filter(i=>!PT(V.parts[i]).jett);
   // como no SFS/KSP: se você estava acelerando, o motor do próximo estágio acende junto (com ele empurrando, o estágio não vira cambalhota no ar)
   if(nxt.length&&!nxt.some(i=>V.parts[i].on)&&S.master&&S.thr>0){for(const i of nxt)V.parts[i].on=true;sfx('ignite');tip(innerWidth/2,innerHeight*.4,'Estágio solto ✓ · '+PT(V.parts[nxt[0]]).n+' aceso');}
@@ -1426,7 +1442,7 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
     while(left>1e-9&&guard++<3000){const dmin=nearDist(V.x,V.y,S.t),vv=Math.hypot(V.vx,V.vy)||1,dtm=warp<=5||cw?.02:Math.max(.02,Math.min(dmin>1e9?3600:60,.01*dmin/vv)),dt=Math.min(left,dtm);stepWorld(dt);left-=dt;}
     for(const v of[V,...debris])for(const q of v.parts)if(PT(q).probe){const tg=q.dep?1:0;q.depT=q.depT??tg;if(q.depT!==tg)q.depT=Math.max(0,Math.min(1,q.depT+(tg?1:-1)*real/3.2));}
     if(S.probeDep&&S.t>=S.probeDep){S.probeDep=0;if(V.cap&&PT(V.cap).probe){V.cap.dep=true;sfx('clamp');tip(innerWidth/2,innerHeight*.4,'Sonda abrindo painéis solares e antena');}}
-    for(const v of[V,...debris])if(v.legs)for(const q of v.legs){const tg=q.dep?1:0;q.depT=q.depT??tg;if(q.depT!==tg)q.depT=Math.max(0,Math.min(1,q.depT+(tg?1:-1)*real/.9));}
+    for(const v of[V,...debris])if(v.legs)for(const q of v.legs){const tg=q.dep?1:0;q.depT=q.depT??tg;if(q.depT!==tg)q.depT=Math.max(0,Math.min(1,q.depT+(tg?1:-1)*real/1.6));}
     emit(real);const li=layerAt(S.altE);if(S.dom.earth&&li!==S.layer){if(li>S.layer&&li>0){layerBanner(li);if(S.layer>=0)sfx('chime');}S.layer=li;}
     if(CAMP_CUR){const cm=CAMP.find(c=>c.id===CAMP_CUR),m=MS.find(q=>!S.done.has(q.id));if(m&&m.done()){S.done.add(m.id);sfx('chime');buildMissions();const nx=MS.find(q=>!S.done.has(q.id));if(nx)toast(m.t+' ✓','Agora: '+nx.t+'. '+nx.h);else if(S.dom.earth&&V.ground&&V.cap&&!S.hover){S.pendWin=cm;S.pendAt=S.t;}else campWin(cm);}}
     else for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
@@ -1516,7 +1532,7 @@ function tapDebris(cx,cy,wx,wy){const W0=[V.x+wx,V.y+wy];void W0;let best=null,b
   if(!best||bd>Math.max(40,vesselLen(best)*z*.6)){hidePop();return;}showPop(cx,cy,PT(best.cap).probe?'Sonda separada':'Nave separada','controlada por '+PT(best.cap).n.toLowerCase(),'Controlar esta nave',false,()=>{switchTo(best);hidePop();});}
 function switchTo(d){debris=debris.filter(x=>x!==d);V.main=false;V.t=0;debris.push(V);V=d;V.main=true;V.hold=null;restructure(V);updateMass(V);domain();zs=0;aimUI();leverUI();tip(innerWidth/2,innerHeight*.35,'Controlando: '+PT(V.cap).n);}
 function toggleLegs(cx,cy){if(!V||!V.legs.length||S.dead)return;const open=!V.legs.every(p=>p.dep);V.legs.forEach(p=>p.dep=open);sfx('clamp');tip(cx??innerWidth/2,cy??innerHeight*.5,open?'Pés de pouso abertos ✓':'Pés de pouso fechados');}
-$('#btnLegs').onclick=()=>toggleLegs();$('#btnAbort').onclick=()=>doAbort();$('#btnRcs').onclick=()=>{S.rcs=!S.rcs;rcsUI();};$('#btnRover').onclick=()=>roverBtn();$('#btnHover').onclick=()=>{S.hover=!S.hover;sfx('clamp');if(S.hover)tip(innerWidth/2,innerHeight*.45,'Hover ligado: perto do chão a nave flutua; ◀ ▶ para andar');rcsUI();};
+$('#btnLegs').onclick=()=>toggleLegs();$('#btnAbort').onclick=()=>doAbort();$('#btnRcs').onclick=()=>{S.rcs=!S.rcs;rcsUI();};$('#btnRover').onclick=()=>roverBtn();$('#btnRamp').onclick=()=>toggleRamp();$('#btnHover').onclick=()=>{S.hover=!S.hover;sfx('clamp');if(S.hover)tip(innerWidth/2,innerHeight*.45,'Hover ligado: perto do chão a nave flutua; ◀ ▶ para andar');rcsUI();};
 document.querySelectorAll('#rcsPad button').forEach(b=>{const[x,y]=b.dataset.r.split(',').map(Number),on=e=>{e.preventDefault();RCST.x=x;RCST.y=y;},off=()=>{RCST.x=RCST.y=0;};b.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,off));});
 function engKey(){setMaster(!S.master);}
 function leverUI(){const b=$('#btnEng'),on=!!(S&&S.master);b.classList.toggle('on',on);b.setAttribute('aria-checked',on);$('#engLbl').textContent=on?'LIGADOS':'LIGAR';}
@@ -1805,7 +1821,7 @@ function drawVessel(v,day){const[ox,oy]=bodyToWorld(v,0,0);frame(ox,oy);const sp
     g.globalAlpha=.35*k;g.drawImage(SPR.plasma,fx-rr*4,fy-rr*4,rr*8,rr*8);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
   g.rotate(v.hdg-Math.PI/2);g.scale(1,-1);const X=x=>x*UNIT,Y=y=>y*UNIT;
   for(const f of v.firing){const P=PT(f.p);drawFlame(X(f.p.x),Y(f.p.y+P.h/2)-.1,P.w*UNIT*(P.solid||P.lock?.7:.92),f.th,f.air,P.fl,day);}
-  if(v.sink)g.globalAlpha=Math.max(.1,1-v.sink.d/20);drawCraft(g,v.parts,UNIT,X,Y,1);g.globalAlpha=1;if(v.parts.some(q=>q.type==='roverBay'&&q.rovT!=null))drawBayRamp(v,X,Y);
+  if(v.sink)g.globalAlpha=Math.max(.1,1-v.sink.d/20);drawCraft(g,v.parts,UNIT,X,Y,1);g.globalAlpha=1;if(v.parts.some(q=>q.type==='roverBay'&&((q.rampK||0)>0||q.mv)))drawBayRamp(v,X,Y);
   if((v.heat||0)>.03&&sp>1){const vb=[(v.vx*Math.sin(v.hdg)-v.vy*Math.cos(v.hdg))/sp,-(v.vx*Math.cos(v.hdg)+v.vy*Math.sin(v.hdg))/sp],L2=Math.max(.5,len/UNIT/2);g.globalCompositeOperation='lighter';
     for(const p of v.parts){const fr=Math.max(0,Math.min(1,.5+((p.x-v.com.x)*vb[0]+(p.y-v.com.y)*vb[1])/L2*.6)),a=v.heat*(.15+.65*fr)*(.85+.3*Math.random());if(a<.02)continue;const B=box(p);
       const gg=g.createLinearGradient(X(p.x)+vb[0]*W(p)*UNIT*.5,Y(p.y)+vb[1]*H(p)*UNIT*.5,X(p.x)-vb[0]*W(p)*UNIT*.5,Y(p.y)-vb[1]*H(p)*UNIT*.5);gg.addColorStop(0,'rgba(255,120,40,'+a+')');gg.addColorStop(1,'rgba(255,40,10,'+a*.25+')');g.fillStyle=gg;g.fillRect(X(B.l),Y(B.t),W(p)*UNIT,H(p)*UNIT);}
@@ -2067,32 +2083,56 @@ function rauUpdate(t){if(!snd.ac||!RAU.u.length)return;const ac=snd.ac,now=ac.cu
       if(!P.moving&&!p.horn){p.horn=1;const tt=now+.05;for(const f of[98,147.3]){const o=ac.createOscillator(),gn=ac.createGain(),lp=ac.createBiquadFilter();o.type='sawtooth';o.frequency.value=f;lp.type='lowpass';lp.frequency.value=900;gn.gain.setValueAtTime(0,tt);gn.gain.linearRampToValueAtTime(.4,tt+.15);gn.gain.setValueAtTime(.4,tt+2.4);gn.gain.linearRampToValueAtTime(0,tt+3);o.connect(lp).connect(gn).connect(x.out);o.start(tt);o.stop(tt+3.1);}}}
     x.out.gain.setTargetAtTime(g0,now,.15);}}
 // ================= ROVER: baia na nave, rampa, rover dirigível e troca nave ↔ rover =================
-function bayOf(v){return v&&v.parts.find(q=>q.type==='roverBay'&&q.rovT==null);}
-function bayGeom(v,b){const B=box(b);let gy=Math.max(...v.parts.map(q=>box(q).b));for(const l of v.legs||[])if(l.dep){const f=legFoot(l,v.parts,l.depT??1);gy=Math.max(gy,f[1]);}
-  const drop=Math.max(.05,gy-B.b),run=Math.max(1.4,drop*1.5),L=Math.hypot(run,drop);return{B,gy,hx:B.r,hy:B.b,ex:B.r+run,ey:gy,L,a1:Math.atan2(drop,run)};}
-function canDeploy(){return !S.dead&&V&&!V.isRover&&bayOf(V)&&(V.ground||V.clamped)&&Math.hypot(S.rvx,S.rvy)<1.5;}
-function deployRover(){const b=bayOf(V);if(!b)return;if(!canDeploy()){tip(innerWidth/2,innerHeight*.45,V.ground?'Pare a nave por completo antes de soltar o rover':'Primeiro pouse (na Lua, por exemplo) e pare: aí a rampa abre e o rover desce',true);return;}b.rovT=S.t;sfx('hyd');S.roverOut=false;tip(innerWidth/2,innerHeight*.4,'Abrindo a rampa…');}
-function spawnRover(v,b){const G=bayGeom(v,b),P=PARTS.roverCar,rp=mk('roverCar',G.ex+P.w/2+.15,G.gy-P.h/2-.02),[wx,wy]=bodyToWorld(v,rp.x,rp.y);
-  const rv=makeVessel([rp],wx,wy,v.vx,v.vy,v.hdg,0);rv.isRover=true;rv.keep=true;rv.t=0;v.keep=true;b.rovOut=true;S.roverOut=true;S.rover=rv;S.lander=v;S.rovDist=S.rovDist||0;debris.push(rv);
-  if(v===V)switchV(rv);sfx('thunk');toast('Rover no chão! 🚗','Segure ◀ ▶ para dirigir. Para voltar, toque em 🚀 VOLTAR PARA A NAVE.');}
+// estado da baia: b.rov ('in' guardado | 'out' fora), b.ramp (alvo 0/1), b.rampK (0 fechada … 1 aberta), b.mv {dir:'out'|'in',t0} animação do rover na rampa
+const RAMP_T=1.8,MV_T=2.6;
+function bayAll(v){return v&&v.parts?v.parts.find(q=>q.type==='roverBay'):null;}
+function bayOf(v){const b=bayAll(v);return b&&b.rov!=='out'&&!b.mv?b:null;}
+// a porta é a rampa: gira pra baixo e uma extensão desliza até o chão (limite: se a nave estiver alta demais, não alcança)
+function bayGeom(v,b){const B=box(b);let gy=Math.max(...v.parts.map(q=>box(q).b));for(const l of v.legs||[])if(l.dep&&(l.depT??1)>.95){const f=legFoot(l,v.parts,1);gy=Math.max(gy,f[1]);}
+  const Ld=H(b)*.86,extMax=1.6,maxA=.7,drop=Math.max(.05,gy-B.b);let a1,Lt;if(drop<=Ld*Math.sin(maxA)){a1=Math.asin(drop/Ld);Lt=Ld;}else{a1=maxA;Lt=drop/Math.sin(maxA);}
+  const ok=Lt<=Ld+extMax+1e-6;return{B,gy,hx:B.r,hy:B.b,Ld,Lt:Math.min(Lt,Ld+extMax),a1,ok,ex:B.r+Math.cos(a1)*Lt,ey:B.b+Math.sin(a1)*Lt};}
+function canDeploy(){const b=bayOf(V);return !S.dead&&V&&!V.isRover&&!!b&&(V.ground||V.clamped)&&Math.hypot(S.rvx,S.rvy)<1.5&&bayGeom(V,b).ok;}
+function deployRover(){const b=bayOf(V);if(!b)return;if(!canDeploy()){const G=bayGeom(V,b);tip(innerWidth/2,innerHeight*.45,!G.ok&&(V.ground||V.clamped)?'Muito alto do chão: a rampa não alcança. Solte os estágios de baixo e pouse com os pés':V.ground?'Pare a nave por completo antes de soltar o rover':'Primeiro pouse (na Lua, por exemplo) e pare: aí a rampa abre e o rover desce',true);return;}
+  b.want='out';if((b.rampK||0)<1){b.ramp=1;sfx('hyd');tip(innerWidth/2,innerHeight*.4,'Abrindo a rampa…');}}
+function roverHomePt(v,b){const G=bayGeom(v,b),P=PARTS.roverCar;return[G.ex+P.w/2+.15,G.gy-P.h/2-.02];}
+function spawnRover(v,b){const P=PARTS.roverCar,[rx,ry]=roverHomePt(v,b),rp=mk('roverCar',rx,ry),[wx,wy]=bodyToWorld(v,rx,ry);
+  const rv=makeVessel([rp],wx,wy,v.vx,v.vy,v.hdg,0);rv.isRover=true;rv.keep=true;rv.t=0;v.keep=true;b.rov='out';b.mv=null;S.roverOut=true;S.rover=rv;S.lander=v;S.roverHome=false;S.rovDist=S.rovDist||0;debris.push(rv);
+  if(v===V)switchV(rv);sfx('thunk');if(!S.rovTold){S.rovTold=1;toast('Rover no chão! 🚗','Segure ◀ ▶ para dirigir. Para guardar, volte até o pé da rampa e toque em ⬆ GUARDAR O ROVER.');}}
+function nearRamp(){const L=S.lander,b=bayAll(L);if(!L||!b||!S.rover||(b.rampK||0)<.99)return false;const[hx,hy]=roverHomePt(L,b),[wx,wy]=bodyToWorld(L,hx,hy);return Math.hypot(S.rover.x-wx,S.rover.y-wy)<4.5&&Math.hypot(S.rvx,S.rvy)<3.5;}
+function returnRover(){const L=S.lander,b=bayAll(L),rv=S.rover;if(!L||!b||!rv)return;if(V===rv)switchV(L);const i=debris.indexOf(rv);if(i>=0)debris.splice(i,1);S.rover=null;b.mv={dir:'in',t0:S.t};sfx('hyd');tip(innerWidth/2,innerHeight*.4,'Rover subindo a rampa…');}
+function toggleRamp(){const v=V&&!V.isRover?V:S.lander,b=bayAll(v);if(!b||b.mv||S.dead)return;if((b.ramp||0)>0){b.ramp=0;b.want=null;sfx('hyd');tip(innerWidth/2,innerHeight*.45,'Rampa fechando');}
+  else{if(!(v.ground||v.clamped)||!bayGeom(v,b).ok){tip(innerWidth/2,innerHeight*.45,'Só dá para abrir a rampa pousado, perto do chão',true);return;}b.ramp=1;sfx('hyd');tip(innerWidth/2,innerHeight*.45,'Rampa abrindo');}}
 function switchV(to){if(!to||to===V||S.dead)return;const i=debris.indexOf(to);if(i<0)return;debris.splice(i,1);V.main=false;to.main=true;debris.push(V);V=to;zoomUser=1;S.thr=0;S.master=false;try{aimUI();leverUI();buildStrip();hidePop();}catch(e){}domain();rcsUI();}
-function roverTick(real){// anima a rampa e solta o rover; conta a distância rodada
-  for(const v of[V,...debris]){if(!v||!v.parts)continue;for(const b of v.parts)if(b.type==='roverBay'&&b.rovT!=null&&!b.rovOut&&S.t-b.rovT>3.7)spawnRover(v,b);}
+function roverTick(real){
+  for(const v of[V,...debris]){if(!v||!v.parts)continue;const b=bayAll(v);if(!b)continue;const dt=Math.max(0,Math.min(.2,S.t-(b.lastT??S.t)));b.lastT=S.t;
+    const tg=b.ramp||0,k=b.rampK||0;if(k!==tg){b.rampK=tg>k?Math.min(tg,k+dt/RAMP_T):Math.max(tg,k-dt/RAMP_T);if(b.rampK===1||b.rampK===0)sfx('thunk');}
+    if(b.want==='out'&&b.rampK>=1&&!b.mv&&b.rov!=='out'){b.want=null;b.mv={dir:'out',t0:S.t};sfx('ignite');}
+    if(b.mv&&S.t-b.mv.t0>MV_T){if(b.mv.dir==='out')spawnRover(v,b);else{b.rov='in';b.mv=null;S.roverHome=true;sfx('thunk');tip(innerWidth/2,innerHeight*.4,'Rover guardado ✓ · pode fechar a rampa');}}}
   if(V&&V.isRover&&!S.dead){const bp0=S.dom.pos(S.t),rx=V.x-bp0[0],ry=V.y-bp0[1],p0=S.rovP;if(p0&&p0[2]===S.dom)S.rovDist=(S.rovDist||0)+Math.min(30,Math.hypot(rx-p0[0],ry-p0[1]));S.rovP=[rx,ry,S.dom];
     const sp=Math.hypot(S.rvx,S.rvy);if(V.ground&&sp>.6&&Math.random()<real*12){const a=Math.atan2(V.y-S.dom.pos(S.t)[1],V.x-S.dom.pos(S.t)[0]),bp=S.dom.pos(S.t),rr=S.dom.r+.2,o=(Math.random()-.5)*2.5;particles.push({type:'smoke',x:bp[0]+Math.cos(a)*rr-Math.sin(a)*o,y:bp[1]+Math.sin(a)*rr+Math.cos(a)*o,vx:S.dom.vel(S.t)[0]+Math.cos(a)*(.3+Math.random()*.6),vy:S.dom.vel(S.t)[1]+Math.sin(a)*(.3+Math.random()*.6),life:.7,max:.9,size:.35,grow:.7,v:(Math.random()*6)|0,rot:Math.random()*6,heat:0,spread:1,dust:S.dom.earth?1:0});}}
   else S.rovP=null;
-  const btn=$('#btnRover');if(!btn)return;let lab='';if(!S.dead){if(V.isRover&&S.lander&&!S.lander.dead)lab='🚀 Voltar para a nave';else if(S.rover&&!S.rover.dead&&!V.isRover)lab='🚗 Ir para o rover';else if(bayOf(V))lab=canDeploy()?'🚗 Soltar rover':'🚗 Rover (pouse para soltar)';}
+  const btn=$('#btnRover');if(!btn)return;let lab='',on=false;if(!S.dead){if(V.isRover&&S.lander&&!S.lander.dead){if(nearRamp()){lab='⬆ Guardar o rover';on=true;}else lab='🚀 Ir para a nave';}
+    else if(S.rover&&!S.rover.dead&&!V.isRover)lab='🚗 Ir para o rover';else if(bayOf(V)){lab=canDeploy()?'🚗 Soltar rover':'🚗 Rover (pouse para soltar)';on=canDeploy();}}
   if(!S.dead&&bayOf(V)&&V.ground&&!V.clamped&&canDeploy()&&!S.rovHint&&S.liftT>=0&&S.t-S.liftT>8&&(S.dom!==EARTH_B||Math.abs(Math.atan2(V.y,V.x)-Math.PI/2)*R>300)){S.rovHint=1;toast('Pousou! 🚗','Toque em 🚗 SOLTAR ROVER (ou na baia do rover): a rampa abre e o rover desce.');}
-  btn.hidden=!lab;if(lab&&btn.textContent!==lab)btn.textContent=lab;btn.classList.toggle('on',lab==='🚗 Soltar rover');}
-function roverBtn(){if(V.isRover){if(S.lander){const d=Math.hypot(V.x-S.lander.x,V.y-S.lander.y);switchV(S.lander);if(d>15)tip(innerWidth/2,innerHeight*.45,'O rover ficou a '+Math.round(d)+' m da nave');}}else if(S.rover&&!S.rover.dead)switchV(S.rover);else deployRover();}
-// rampa e rover saindo (desenhado no referencial da nave)
-function drawBayRamp(v,X,Y){for(const b of v.parts){if(b.type!=='roverBay'||b.rovT==null)continue;const G=bayGeom(v,b),t=S.t-b.rovT,k1=Math.max(0,Math.min(1,t/1.2)),a=-Math.PI/2+(G.a1+Math.PI/2)*ease(k1),L=G.L,ex=G.hx+Math.cos(a)*L,ey=G.hy+Math.sin(a)*L;
-  // rampa: chapa com degraus antiderrapantes
-  g.strokeStyle='#4b525e';g.lineWidth=.22*UNIT*.5;g.lineCap='round';g.beginPath();g.moveTo(X(G.hx),Y(G.hy));g.lineTo(X(ex),Y(ey));g.stroke();g.strokeStyle='#c9ced6';g.lineWidth=.12*UNIT*.5;g.stroke();g.lineCap='butt';
-  g.strokeStyle='#ffb020';g.lineWidth=.04*UNIT;for(let i=1;i<8;i++){const s2=i/8,px=G.hx+Math.cos(a)*L*s2,py=G.hy+Math.sin(a)*L*s2;g.beginPath();g.moveTo(X(px-Math.sin(a)*.07),Y(py+Math.cos(a)*.07));g.lineTo(X(px+Math.sin(a)*.07),Y(py-Math.cos(a)*.07));g.stroke();}
-  if(!b.rovOut&&t>1.3){const k2=Math.min(1,(t-1.3)/2.3),P=PARTS.roverCar,s=ease(k2),inX=(G.B.l+G.B.r)/2,outX=G.hx+P.w*.45;let px,py,ang;
-    if(s<.35){const q=s/.35;px=inX+(outX-inX)*q;py=G.hy-P.h/2;ang=0;}else{const q=(s-.35)/.65,sx=outX,sy=G.hy-P.h/2,tx2=G.ex+P.w/2+.15,ty2=G.gy-P.h/2;px=sx+(tx2-sx)*q;py=sy+(ty2-sy)*q;ang=q<.9?G.a1:G.a1*(1-(q-.9)/.1);}
-    const part={type:'roverCar',rot:-t*4};g.save();g.beginPath();g.rect(X(G.hx),Y(G.B.t-2),UNIT*20,UNIT*20);g.clip();g.translate(X(px),Y(py));g.rotate(ang);drawPart(g,'roverCar',0,0,UNIT,null,null,null,part);g.restore();}}}
+  btn.hidden=!lab;if(lab&&btn.textContent!==lab)btn.textContent=lab;btn.classList.toggle('on',on);
+  const rb=$('#btnRamp'),lv=V&&!V.isRover?V:null,bb=lv&&bayAll(lv);if(rb){const show=!S.dead&&!!bb&&((lv.ground||lv.clamped)||(bb.rampK||0)>0);rb.hidden=!show;if(show){const tx='Rampa: '+((bb.ramp||0)>0?'aberta':'fechada');if(rb.textContent!==tx)rb.textContent=tx;rb.classList.toggle('on',(bb.ramp||0)>0);}}}
+function roverBtn(){if(V.isRover){if(nearRamp())returnRover();else if(S.lander){const d=Math.hypot(V.x-S.lander.x,V.y-S.lander.y);switchV(S.lander);if(d>15)tip(innerWidth/2,innerHeight*.45,'O rover ficou a '+Math.round(d)+' m da nave');}}else if(S.rover&&!S.rover.dead)switchV(S.rover);else deployRover();}
+// rampa (porta + extensão) e rover andando nela, no referencial da nave
+function drawBayRamp(v,X,Y){const b=bayAll(v);if(!b||(!(b.rampK>0)&&!b.mv))return;// fechada: a placa já vem desenhada na peça
+const G=bayGeom(v,b),k=b.rampK||0,P=PARTS.roverCar;
+  const kr=Math.min(1,k/.72),kd=kr<=0?0:1+1.6*Math.pow(kr-1,3)+.6*Math.pow(kr-1,2),a=-Math.PI/2+(G.a1+Math.PI/2)*kd,ke=Math.max(0,Math.min(1,(k-.6)/.4)),ext=(G.Lt-G.Ld)*ke*ke*(3-2*ke),L=G.Ld+ext,ca=Math.cos(a),sa=Math.sin(a);
+  const pt=d=>[G.hx+ca*d,G.hy+sa*d],[dx1,dy1]=pt(G.Ld),[ex,ey]=pt(L),n=[-sa,ca],w=.09;
+  // cabos de sustentação do topo da baia até a ponta da porta
+  g.strokeStyle='rgba(40,44,52,.85)';g.lineWidth=.035*UNIT;g.beginPath();g.moveTo(X(G.B.r-.05),Y(G.B.t+.08));g.lineTo(X(dx1),Y(dy1));g.stroke();
+  // extensão (chapa mais fina que desliza para fora)
+  if(ext>.01){g.fillStyle='#9aa1ab';g.beginPath();g.moveTo(X(dx1+n[0]*w*.6),Y(dy1+n[1]*w*.6));g.lineTo(X(ex+n[0]*w*.6),Y(ey+n[1]*w*.6));g.lineTo(X(ex-n[0]*w*.3),Y(ey-n[1]*w*.3));g.lineTo(X(dx1-n[0]*w*.3),Y(dy1-n[1]*w*.3));g.closePath();g.fill();
+    g.strokeStyle='#ffb020';g.lineWidth=.03*UNIT;for(let i=1;i<6;i++){const[qx,qy]=pt(G.Ld+ext*i/6);g.beginPath();g.moveTo(X(qx-n[0]*.05),Y(qy-n[1]*.05));g.lineTo(X(qx+n[0]*.05),Y(qy+n[1]*.05));g.stroke();}}
+  // porta-rampa: a mesma placa que fica em pé na lateral, girando para baixo
+  rampPlate(g,X(G.hx),Y(G.hy),a,G.Ld,UNIT);
+  // rover andando na rampa (saindo ou entrando)
+  if(b.mv){const t=S.t-b.mv.t0,q0=Math.max(0,Math.min(1,t/MV_T)),q=b.mv.dir==='out'?ease(q0):ease(1-q0),inX=(G.B.l+G.B.r)/2,outX=G.hx+P.w*.45,[gx2,gy2]=roverHomePt(v,b);let px,py,ang;
+    if(q<.35){const r=q/.35;px=inX+(outX-inX)*r;py=G.hy-P.h/2;ang=0;}else{const r=(q-.35)/.65;px=outX+(gx2-outX)*r;py=(G.hy-P.h/2)+(gy2-(G.hy-P.h/2))*r;ang=r<.85?G.a1*Math.min(1,r/.15):G.a1*(1-(r-.85)/.15);}
+    g.save();g.beginPath();g.rect(X(G.hx),Y(G.B.t-2),UNIT*20,UNIT*20);g.clip();g.translate(X(px),Y(py));g.rotate(ang);drawPart(g,'roverCar',0,0,UNIT,null,null,null,{type:'roverCar',rot:(b.mv.dir==='out'?-1:1)*t*4});g.restore();}}
 // ================= RESGATE DEPOIS DO POUSO (como na vida real) =================
 // em terra: helicópteros (estilo Mi-8 da busca e resgate) e caminhões 6x6 todo-terreno; no mar: navio de resgate com heliponto, botes e helicóptero da Marinha
 function startRescue(){const a0=Math.atan2(V.y,V.x),sea=!landAt(a0),t0=S.t,U=[];
