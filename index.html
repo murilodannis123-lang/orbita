@@ -61,6 +61,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 #fuelEd{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(70px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;padding:8px 12px;z-index:4;width:min(460px,92vw);border-color:var(--accent);font-size:13px}#fuelEd input{flex:1;min-width:100px;accent-color:var(--accent)}#feVal{color:var(--muted)}
 #ghost{position:fixed;left:0;top:0;width:64px;height:64px;pointer-events:none;z-index:50;display:none}
 #flight{position:fixed;inset:0;display:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+html,body,#hangar,#stack,#catalog,.pgrid{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}input,textarea{-webkit-user-select:text;user-select:text}.pgrid .part{touch-action:pan-x pan-y}
 button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 #flight.on{display:block}
 #sky{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
@@ -411,7 +412,7 @@ const W=p=>p.w??PT(p).w,H=p=>p.h??PT(p).h; // tanques têm tamanho próprio
 const vol=p=>(W(p)**2*H(p))/(PT(p).w**2*PT(p).h); // massa e combustível crescem com o volume
 const box=p=>{const w=W(p),h=H(p);return{l:p.x-w/2,r:p.x+w/2,t:p.y-h/2,b:p.y+h/2};}; // y para baixo
 const EPS=0.02,ovl=(a0,a1,b0,b1)=>Math.min(a1,b1)-Math.max(a0,b0);
-const overlaps=(a,b)=>{if(typeof CH!=='undefined'&&CH.clip)return false;const A=box(a),B=box(b);return ovl(A.l,A.r,B.l,B.r)>EPS&&ovl(A.t,A.b,B.t,B.b)>EPS;};
+const overlaps=(a,b)=>{if(typeof CH!=='undefined'&&CH.clip)return false;if(PARTS[a.type].t==='fair'||PARTS[b.type].t==='fair')return false;const A=box(a),B=box(b);return ovl(A.l,A.r,B.l,B.r)>EPS&&ovl(A.t,A.b,B.t,B.b)>EPS;};
 const below=(a,b)=>{const A=box(a),B=box(b);return Math.abs(A.b-B.t)<EPS&&ovl(A.l,A.r,B.l,B.r)>0.05;}; // b encosta embaixo de a
 const sideBy=(a,b)=>{const A=box(a),B=box(b);return(Math.abs(A.r-B.l)<EPS||Math.abs(B.r-A.l)<EPS)&&ovl(A.t,A.b,B.t,B.b)>0.1;};
 const sideOK=p=>['sepLat','leg','solar','wheel','rcs','paraL'].includes(PT(p).t);
@@ -453,8 +454,8 @@ function validate(ps){const errs=[],warns=[],bad=new Set();
   const act=activeEng(ps).filter(i=>!PT(ps[i]).les),c=centerOfMass(ps),T=act.reduce((s,i)=>s+thrustAt(PT(ps[i]),1),0),twr=T/(c.m*G0);
   if(!act.length)(ps.some(p=>PT(p).t==='wheel')?warns:errs).push(ps.some(p=>PT(p).t==='wheel')?'Sem motor: é um rover, só anda com as rodas':'Nenhum motor com a saída livre para decolar');
   else if(twr<1)errs.push('Empuxo ÷ peso = '+twr.toFixed(2)+': pesado demais para sair do chão');else if(twr<1.2)warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+': vai subir devagar e gastar muito');
-  if(!ps.some(p=>PT(p).t==='para'||PT(p).chute||PT(p).t==='paraL'))warns.push('Sem paraquedas: dá para subir, mas não para voltar');
-  if(ci>=0&&ps.some(q=>below(ps[ci],q)&&PT(q).t!=='sep'&&!(PT(q).jett&&ps.some(r=>below(q,r)&&PT(r).t==='sep'))))warns.push('Ponha um separador logo embaixo da cápsula: na volta o paraquedas solta o resto e desce só ela');
+  const crew=ci>=0&&!PT(ps[ci]).probe;if(crew&&!ps.some(p=>PT(p).t==='para'||PT(p).chute||PT(p).t==='paraL'))warns.push('Sem paraquedas: dá para subir, mas não para voltar');
+  if(crew&&ps.some(q=>below(ps[ci],q)&&PT(q).t!=='sep'&&!(PT(q).jett&&ps.some(r=>below(q,r)&&PT(r).t==='sep'))))warns.push('Ponha um separador logo embaixo da cápsula: na volta o paraquedas solta o resto e desce só ela');
   if(act.length){const tx=act.reduce((s,i)=>s+ps[i].x*PT(ps[i]).thrust,0)/act.reduce((s,i)=>s+PT(ps[i]).thrust,0);if(Math.abs(tx-c.x)>0.06)warns.push('Empuxo fora do centro de massa: o foguete vai girar sozinho');}
   if(ci>=0&&centerOfPressure(ps).y<c.y)warns.push('Instável: o centro de pressão está acima do centro de massa. Ponha aletas embaixo');
   return{errs:[...new Set(errs)],warns,bad};}
@@ -523,10 +524,31 @@ function nozzle(ctx,ex,y0,ew,h,u,kind){const mh=h*(kind==='vac'?.16:.22);ctx.fil
 function gauge(ctx,x,y,w,h,f){if(f==null)return;ctx.fillStyle='rgba(8,12,24,.8)';ctx.fillRect(x,y,w,h);ctx.fillStyle=f>.25?'#ffb347':'#ff6b6b';ctx.fillRect(x,y+h*(1-f),w,h*f);ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=.5;ctx.strokeRect(x,y,w,h);}
 function rcs(ctx,x,y,u,s){ctx.fillStyle='#d5dbe4';ctx.fillRect(x-u*.05,y-u*.06,u*.1,u*.12);ctx.fillStyle='#3a3f4a';ctx.fillRect(x+s*u*.05,y-u*.02,u*.04*s,u*.04);ctx.fillRect(x-u*.02,y-u*.09,u*.04,u*.03);ctx.fillRect(x-u*.02,y+u*.06,u*.04,u*.03);}
 function drawPart(ctx,type,cx,cy,u,frac,dw,dh,part){if(part&&part.half&&!ctx.__half){const w=(dw??PARTS[type].w)*u,h=(dh??PARTS[type].h)*u;ctx.save();ctx.beginPath();ctx.rect(part.half<0?cx-w/2-1:cx,cy-h/2-1,w/2+1,h+2);ctx.clip();ctx.__half=1;drawPart(ctx,type,cx,cy,u,frac,dw,dh,part);ctx.__half=0;ctx.restore();return;}pxs(ctx);const p=PARTS[type],w=(dw??p.w)*u,h=(dh??p.h)*u,x=cx-w/2,y0=cy-h/2,sk=skinOf(type,part&&part.skin),C=SKINC[sk.c]||SKINC.branco;
-  if(p.t==='cap'&&p.probe){const bh=h*.62,by=y0+h-bh;ctx.fillStyle=cyl(ctx,x,w,...C);ctx.beginPath();ctx.moveTo(x+w*.12,by);ctx.lineTo(x+w*.88,by);ctx.lineTo(x+w,by+bh*.25);ctx.lineTo(x+w,by+bh);ctx.lineTo(x,by+bh);ctx.lineTo(x,by+bh*.25);ctx.closePath();ctx.fill();edge(ctx,u);
-    ctx.save();ctx.clip();ctx.strokeStyle='rgba(90,60,10,.35)';ctx.lineWidth=Math.max(PXS*.4,u*.012);for(let k=0;k<9;k++){ctx.beginPath();ctx.moveTo(x+w*(k/9),by);ctx.lineTo(x+w*((k+.6)/9),by+bh);ctx.stroke();}spec(ctx,x,by,w,bh,.4);ctx.restore();
-    ctx.fillStyle='#1d2433';ctx.fillRect(cx-w*.18,by+bh*.4,w*.36,bh*.3);ctx.fillStyle='#4fd1ff';ctx.fillRect(cx-w*.14,by+bh*.47,w*.08,bh*.08);ctx.fillStyle='#5ee2a0';ctx.fillRect(cx+w*.04,by+bh*.47,w*.06,bh*.08);
-    ctx.strokeStyle='#c9ced8';ctx.lineWidth=Math.max(PXS*.6,u*.04);ctx.beginPath();ctx.moveTo(cx,by);ctx.lineTo(cx,y0+h*.12);ctx.stroke();ctx.fillStyle=cyl(ctx,cx-w*.3,w*.6,'#ffffff','#d0d6df','#7a8494');ctx.beginPath();ctx.ellipse(cx,y0+h*.12,w*.32,h*.08,0,Math.PI,0,true);ctx.fill();edge(ctx,u);return;}
+  if(p.t==='cap'&&p.probe){
+    // sonda: corpo com manta dourada (MLI), anel de acoplamento embaixo, painéis solares dobrados nos lados e antena dobrada em cima.
+    // dep 0→1: os painéis giram para fora e desdobram, o mastro sobe e a antena abre (como uma sonda de verdade depois de solta)
+    const t=part?(part.depT??(part.dep?1:0)):0,e1=Math.min(1,t/.45),e2=Math.max(0,Math.min(1,(t-.4)/.4)),e3=Math.max(0,(t-.7)/.3),sm=k=>k*k*(3-2*k);
+    const bx=x+w*.1,bw=w*.8,bt=y0+h*.3,bb=y0+h*.88;
+    // anel de acoplamento
+    ctx.fillStyle=cyl(ctx,x,w,...METAL);ctx.fillRect(x+w*.04,bb,w*.92,h-(bb-y0));ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x+w*.04,bb,w*.92,Math.max(PXS*.6,h*.02));ctx.beginPath();ctx.rect(x+w*.04,bb,w*.92,h-(bb-y0));edge(ctx,u);
+    // corpo dourado amassado
+    ctx.fillStyle=cyl(ctx,bx,bw,'#fff1b0','#d6a83a','#6a4a10');ctx.fillRect(bx,bt,bw,bb-bt);ctx.save();ctx.beginPath();ctx.rect(bx,bt,bw,bb-bt);ctx.clip();
+    ctx.strokeStyle='rgba(110,70,10,.35)';ctx.lineWidth=Math.max(PXS*.4,u*.01);const rr=rng(7);for(let k=0;k<14;k++){const a1=bx+bw*rr(),b1=bt+(bb-bt)*rr();ctx.beginPath();ctx.moveTo(a1,b1);ctx.lineTo(a1+bw*(rr()-.5)*.5,b1+(bb-bt)*(rr()-.5)*.5);ctx.stroke();}
+    spec(ctx,bx,bt,bw,bb-bt,.45);ctx.fillStyle='#1b2130';ctx.fillRect(cx-bw*.2,bt+(bb-bt)*.28,bw*.4,(bb-bt)*.44);ctx.fillStyle='rgba(120,160,220,.35)';for(let k=0;k<4;k++)ctx.fillRect(cx-bw*.18,bt+(bb-bt)*(.31+k*.1),bw*.36,(bb-bt)*.04);
+    ctx.fillStyle='#5ee2a0';ctx.beginPath();ctx.arc(cx+bw*.3,bt+(bb-bt)*.2,Math.max(PXS,u*.025),0,7);ctx.fill();ctx.restore();ctx.beginPath();ctx.rect(bx,bt,bw,bb-bt);edge(ctx,u);
+    rcs(ctx,bx+u*.03,bb-u*.06,u*.7,-1);rcs(ctx,bx+bw-u*.03,bb-u*.06,u*.7,1);
+    // painéis solares: 2 segmentos de cada lado
+    const L=h*.62,thF=w*.09,thO=h*.24;
+    const panel=(px,py,ang,th)=>{ctx.save();ctx.translate(px,py);ctx.rotate(ang);ctx.fillStyle='#183a7a';ctx.fillRect(0,-th/2,L,th);ctx.strokeStyle='rgba(150,195,255,.55)';ctx.lineWidth=Math.max(PXS*.4,u*.008);
+      for(let k=1;k<6;k++){ctx.beginPath();ctx.moveTo(L*k/6,-th/2);ctx.lineTo(L*k/6,th/2);ctx.stroke();}if(th>u*.08){ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(L,0);ctx.stroke();}ctx.strokeStyle='#c9ced8';ctx.lineWidth=Math.max(PXS*.6,u*.015);ctx.strokeRect(0,-th/2,L,th);ctx.restore();};
+    for(const sd of[-1,1]){const hx=sd<0?bx:bx+bw,hy=bt+u*.02,th=thF+(thO-thF)*sm(e1),a1=sd>0?Math.PI/2*(1-sm(e1)):Math.PI-Math.PI/2*(1-sm(e1)),off=sd*th*.5*(1-sm(e1));
+      if(t>.02){ctx.strokeStyle='#8a929f';ctx.lineWidth=Math.max(PXS*.6,u*.03);ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(hx+sd*u*.08*sm(e1),hy);ctx.stroke();}
+      const px0=hx+sd*(u*.08*sm(e1))+off,py0=hy;panel(px0,py0,a1,th);
+      const ex=px0+Math.cos(a1)*L,ey=py0+Math.sin(a1)*L,a2=a1+(sd>0?1:-1)*Math.PI*(1-sm(e2));panel(ex,ey,a2,th);}
+    // antena: dobrada em cima, sobe no mastro e abre o prato
+    const mh=h*.38*sm(e3),dy=y0+h*.24-mh,dw2=w*(.55+.35*sm(e3));ctx.strokeStyle='#c9ced8';ctx.lineWidth=Math.max(PXS*.6,u*.03);ctx.beginPath();ctx.moveTo(cx,bt);ctx.lineTo(cx,dy+h*.04);ctx.stroke();
+    ctx.fillStyle=cyl(ctx,cx-dw2/2,dw2,'#ffffff','#d0d6df','#7a8494');ctx.beginPath();ctx.moveTo(cx-dw2/2,dy);ctx.quadraticCurveTo(cx,dy+h*(.16+.06*e3),cx+dw2/2,dy);ctx.closePath();ctx.fill();edge(ctx,u);
+    ctx.strokeStyle='#8a929f';ctx.lineWidth=Math.max(PXS*.5,u*.015);ctx.beginPath();ctx.moveTo(cx-dw2*.3,dy+h*.02);ctx.lineTo(cx,dy-h*.1*(.3+.7*e3));ctx.lineTo(cx+dw2*.3,dy+h*.02);ctx.stroke();ctx.fillStyle='#ffb347';ctx.beginPath();ctx.arc(cx,dy-h*.1*(.3+.7*e3),Math.max(PXS,u*.025),0,7);ctx.fill();return;}
   if(p.t==='cap'){const tw=type==='capDupla'?.26:.22,hb=h*.86;ctx.beginPath();ctx.moveTo(cx-w*tw,y0);ctx.lineTo(cx+w*tw,y0);ctx.lineTo(x+w,y0+hb);ctx.lineTo(x,y0+hb);ctx.closePath();ctx.fillStyle=cyl(ctx,x,w,...C);ctx.fill();
     ctx.save();ctx.clip();ctx.strokeStyle='rgba(20,30,50,.18)';ctx.lineWidth=Math.max(PXS*.4,u*.012);for(let k=1;k<6;k++){const f=k/6;ctx.beginPath();ctx.moveTo(cx-w*tw+2*w*tw*f,y0);ctx.lineTo(x+w*f,y0+hb);ctx.stroke();}for(const f of[.3,.62]){ctx.beginPath();ctx.moveTo(x,y0+hb*f);ctx.lineTo(x+w,y0+hb*f);ctx.stroke();}
     if(isMetal(sk.c))spec(ctx,x,y0,w,hb,.3);shade(ctx,x,y0,w,hb);ctx.restore();ctx.beginPath();ctx.moveTo(cx-w*tw,y0);ctx.lineTo(cx+w*tw,y0);ctx.lineTo(x+w,y0+hb);ctx.lineTo(x,y0+hb);ctx.closePath();edge(ctx,u);
@@ -629,7 +651,9 @@ function drawSep(ctx,p,ps,u,X,Y,alpha){pxs(ctx);const B=box(p);let topY=B.t,topW
     if(sk.p!=='liso'){ctx.fillStyle=cyl(ctx,xc-mw/2,mw,...SKINC[dark2(sk.c)]);ctx.fillRect(xc-mw/2,yt+(yb-bh-yt)*.4,mw/2,(yb-bh-yt)*.25);}
     shade(ctx,xc-mw/2,yt,mw,yb-bh-yt);ctx.restore();ctx.beginPath();ctx.moveTo(xc-wt/2,yt);ctx.lineTo(xc+wt/2,yt);ctx.lineTo(xc+wb/2,yb-bh);ctx.lineTo(xc-wb/2,yb-bh);ctx.closePath();edge(ctx,u);}
   drawPart(ctx,PT(p).atlas?p.type:'sep',xc,yb-bh/2,u,null,PT(p).atlas?W(p):botW,PT(p).h,p);ctx.restore();}
-function drawCraft(ctx,ps,u,X,Y,sepAlpha){pxs(ctx);for(const p of ps){const t=PT(p).t;if(t==='leg'&&(p.depT??(p.dep?1:0))>.001)drawLegOpen(ctx,p,ps,u,X,Y);else if(t==='solar'&&p.dep)drawSolarOpen(ctx,p,ps,u,X,Y);else if(t!=='sep')drawPart(ctx,p.type,X(p.x),Y(p.y),u,PT(p).fuel?fuelOf(p)/capOf(p):null,p.w,p.h,p);}for(const p of ps)if(PT(p).t==='sep')drawSep(ctx,p,ps,u,X,Y,sepAlpha);}
+function drawCraft(ctx,ps,u,X,Y,sepAlpha,fairA=1){pxs(ctx);for(const p of ps){const t=PT(p).t;if(t==='fair')continue;if(t==='leg'&&(p.depT??(p.dep?1:0))>.001)drawLegOpen(ctx,p,ps,u,X,Y);else if(t==='solar'&&p.dep)drawSolarOpen(ctx,p,ps,u,X,Y);else if(t!=='sep')drawPart(ctx,p.type,X(p.x),Y(p.y),u,PT(p).fuel?fuelOf(p)/capOf(p):null,p.w,p.h,p);}for(const p of ps)if(PT(p).t==='sep')drawSep(ctx,p,ps,u,X,Y,sepAlpha);
+  const inside=f=>ps.some(q=>q!==f&&PT(q).t!=='fair'&&ovl(box(q).l,box(q).r,box(f).l,box(f).r)>.05&&ovl(box(q).t,box(q).b,box(f).t,box(f).b)>.05);
+  for(const p of ps)if(PT(p).t==='fair'){const a=fairA<1&&inside(p)?fairA:1;ctx.globalAlpha*=a;drawPart(ctx,p.type,X(p.x),Y(p.y),u,null,p.w,p.h,p);ctx.globalAlpha/=a;}}
 
 // ================= HANGAR (estilo SFS: bancada em tela cheia, arrasta, toca para editar) =================
 let parts=[],hist=[],sym=false,drag=null,gest=null,uidN=1,view={u:40,ox:0,oy:0},sel=null,tab=0,lastWH=null;
@@ -648,7 +672,9 @@ function presetLunar(){const core=stackUp(['para','capPingo','sep','tankM','tank
   for(const sd of[-1,1]){add[sd]=[mk('leg',sd*(.5+.15),lo.y),mk('sepLat',sd*(.65+.125),low.y),mk('liqb',sd*(.9+.45),-1.7),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 // sonda sem tripulante: ogiva, sonda com motor próprio (estágio de chute), estágio superior e primeiro estágio
-function presetProbe(){const core=stackUp(['cone','probe','tankP','engMini','sep','tankM','tankM','engVaga','sep','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;return[...core,a,b];}
+function presetProbe(){const core=stackUp(['probe','tankP','engMini','sep','tankM','tankM','engVaga','sep','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;
+  // carenagem oca em volta da carga: corpo sobre o separador de cima + bico
+  const sp=core.filter(q=>q.type==='sep').reduce((m,q)=>q.y<m.y?q:m),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.2),{h:2.4}),fc=mk('fair',0,top-2.4-PARTS.fair.h/2);return[...core,a,b,fb,fc];}
 function save(){hist.push(JSON.stringify(parts));if(hist.length>60)hist.shift();}
 const mobile=()=>matchMedia('(max-width:860px)').matches,landM=()=>matchMedia('(orientation:landscape) and (max-height:500px)').matches;
 const selPart=()=>parts.find(q=>q.uid===sel);
@@ -673,11 +699,11 @@ function freeRect(){const Wd=sc.clientWidth,Hd=sc.clientHeight;let L=0,Rr=Wd,T=0
 function fitView(){const f=freeRect();let l=-2.5,r=2.5,t=-7,b=0;for(const p of parts){const B=box(p);l=Math.min(l,B.l);r=Math.max(r,B.r);t=Math.min(t,B.t);b=Math.max(b,B.b);}
   const u=Math.max(10,Math.min(70,(f.R-f.L-30)/(r-l+1.5),(f.B-f.T-30)/(b-t+1.5)));view={u,ox:(f.L+f.R)/2-(l+r)/2*u,oy:(f.T+f.B)/2-(t+b)/2*u};lastWH=[sc.clientWidth,sc.clientHeight];}
 function zoomAt(px,py,k){const nu=Math.max(8,Math.min(160,view.u*k)),kk=nu/view.u;view.ox=px-(px-view.ox)*kk;view.oy=py-(py-view.oy)*kk;view.u=nu;drawEditor();posSel();}
-function snapPos(type,px,py,others,w,h){const d=PARTS[type];let best=null,bd=Math.max(.6,40/view.u);
+function snapPos(type,px,py,others,w,h){const d=PARTS[type];let best=null,bd=Math.max(.6,(mobile()?64:40)/view.u);
   const cand=(x,y,pen=0)=>{const p={type,w,h,x,y};if(others.some(o=>overlaps(p,o)))return;const dd=Math.hypot(x-px,y-py)+pen;if(dd<bd){bd=dd;best={x,y};}};
   for(const o of others){const B=box(o),od=PT(o);cand(o.x,B.t-h/2);cand(o.x,B.b+h/2);
     const xs=Math.round(px*40)/40;if(w<=(B.r-B.l)*.6&&ovl(xs-w/2,xs+w/2,B.l,B.r)>.15){cand(xs,B.b+h/2,.25);cand(xs,B.t-h/2,.25);}
-    if(d.t==='sepLat'||d.t==='leg'||od.t==='sepLat')for(const y of[o.y,B.t+h/2,B.b-h/2,Math.round(py*4)/4]){if(ovl(y-h/2,y+h/2,B.t,B.b)<.2)continue;cand(B.l-w/2,y);cand(B.r+w/2,y);}}
+    if(['sepLat','leg','solar','wheel','rcs','paraL'].includes(d.t)||od.t==='sepLat')for(const y of[o.y,B.t+h/2,B.b-h/2,Math.round(py*4)/4]){if(ovl(y-h/2,y+h/2,B.t,B.b)<.2)continue;cand(B.l-w/2,y);cand(B.r+w/2,y);}}
   return best;}
 const overCanvas=e=>document.elementFromPoint(e.clientX,e.clientY)===sc;
 function startDrag(e,info){e.preventDefault();const P=PARTS[info.type];drag={moved:false,...info,sx:e.clientX,sy:e.clientY,pos:null,lift:e.pointerType==='touch'?60:0,w:info.part?W(info.part):P.w,h:info.part?H(info.part):P.h};$('#selBar').hidden=true;
@@ -716,7 +742,7 @@ function grpBeyond(p,edge){const adj=graph(parts),pi=parts.indexOf(p),seen=new S
   for(const i of seen){const o=parts[i];if(edge!=='b'&&below(p,o)||edge!=='t'&&below(o,p))return null;}return[...seen].map(i=>parts[i]);}
 const shift=(g,dx,dy)=>{if(g)for(const o of g){o.x+=dx;o.y+=dy;}};
 const hitPart=(ux,uy)=>parts.slice().reverse().find(p=>{const B=box(p);return ux>=B.l&&ux<=B.r&&uy>=B.t&&uy<=B.b;});
-function handleAt(cx,cy){const p=selPart();if(!p||PT(p).t!=='tank')return null;const B=box(p),x=view.ox+p.x*view.u;
+function handleAt(cx,cy){const p=selPart();if(!p||!(PT(p).t==='tank'||PT(p).shape==='body'))return null;const B=box(p),x=view.ox+p.x*view.u;
   for(const[edge,y]of[['t',B.t],['b',B.b]])if(Math.hypot(cx-x,cy-(view.oy+y*view.u))<20)return edge;return null;}
 function resizeTo(p,edge,nh,g){const d=nh-H(p);if(!d)return;const old={y:p.y,h:p.h};p.h=nh;p.y+=edge==='b'?d/2:-d/2;shift(g,0,edge==='b'?d:-d);
   if(parts.some(o=>o!==p&&overlaps(p,o))){p.h=old.h;p.y=old.y;shift(g,0,edge==='b'?-d:d);}}
@@ -745,10 +771,10 @@ function drawEditor(){const dpr=devicePixelRatio||1,Wd=sc.clientWidth,Hd=sc.clie
     for(let k=Math.ceil(-ox/u/stp)*stp;X(k)<Wd;k+=stp){c.moveTo(Math.round(X(k))+.5,0);c.lineTo(Math.round(X(k))+.5,Hd);}for(let k=Math.ceil(-oy/u/stp)*stp;Y(k)<Hd;k+=stp){c.moveTo(0,Math.round(Y(k))+.5);c.lineTo(Wd,Math.round(Y(k))+.5);}c.stroke();}
   c.strokeStyle=sym?'rgba(79,209,255,.45)':'rgba(120,150,220,.2)';c.setLineDash(sym?[5,6]:[]);c.beginPath();c.moveTo(X(0),0);c.lineTo(X(0),Hd);c.stroke();c.setLineDash([]);
   if(!parts.length&&!drag){const f=freeRect();c.fillStyle='rgba(233,237,247,.55)';c.font='15px IBM Plex Sans, system-ui, sans-serif';c.textAlign='center';c.fillText('Arraste uma cápsula do catálogo para começar',(f.L+f.R)/2,(f.T+f.B)/2);}
-  drawCraft(c,parts,u,X,Y,1);
+  drawCraft(c,parts,u,X,Y,1,.45);
   const v=validate(parts);c.strokeStyle='#ff6b6b';c.lineWidth=2;for(const p of v.bad){const B=box(p);c.strokeRect(X(B.l)-2,Y(B.t)-2,(B.r-B.l)*u+4,(B.b-B.t)*u+4);}
   const sp=selPart();if(sp&&!drag){const m=parts.find(q=>q.uid===sp.mir);c.strokeStyle='#ffb347';c.lineWidth=2;c.setLineDash([6,4]);for(const q of m?[sp,m]:[sp]){const B=box(q);c.globalAlpha=q===sp?1:.45;c.strokeRect(X(B.l)-4,Y(B.t)-4,(B.r-B.l)*u+8,(B.b-B.t)*u+8);}c.setLineDash([]);c.globalAlpha=1;
-    if(PT(sp).t==='tank'){const B=box(sp);for(const y of[B.t,B.b]){const hx=X(sp.x),hy=Y(y);c.fillStyle='#ffb347';c.strokeStyle='#0b0f1d';c.lineWidth=2;c.beginPath();c.roundRect(hx-16,hy-7,32,14,7);c.fill();c.stroke();c.fillStyle='#1a1200';c.beginPath();c.moveTo(hx-5,hy-1);c.lineTo(hx,hy-5);c.lineTo(hx+5,hy-1);c.moveTo(hx-5,hy+1);c.lineTo(hx,hy+5);c.lineTo(hx+5,hy+1);c.fill();}}}
+    if(PT(sp).t==='tank'||PT(sp).shape==='body'){const B=box(sp);for(const y of[B.t,B.b]){const hx=X(sp.x),hy=Y(y);c.fillStyle='#ffb347';c.strokeStyle='#0b0f1d';c.lineWidth=2;c.beginPath();c.roundRect(hx-16,hy-7,32,14,7);c.fill();c.stroke();c.fillStyle='#1a1200';c.beginPath();c.moveTo(hx-5,hy-1);c.lineTo(hx,hy-5);c.lineTo(hx+5,hy-1);c.moveTo(hx-5,hy+1);c.lineTo(hx,hy+5);c.lineTo(hx+5,hy+1);c.fill();}}}
   if(drag&&drag.pos){const gs=[{type:drag.type,w:drag.w,h:drag.h,x:drag.pos.x,y:drag.pos.y,skin:drag.part&&drag.part.skin}];if(sym&&Math.abs(drag.pos.x)>.05)gs.push({...gs[0],x:-drag.pos.x});
     c.globalAlpha=.8;for(const q of gs)drawPart(c,q.type,X(q.x),Y(q.y),u,null,q.w,q.h,q);c.globalAlpha=1;
     if(drag.pos.snap){c.strokeStyle='#5ee2a0';c.lineWidth=3;c.lineCap='round';c.beginPath();for(const q of gs){const A=box(q);for(const o of parts){const O=box(o);
@@ -1016,16 +1042,19 @@ function deployChute(cx,cy){if(!V.para||S.dead)return;cx=cx??innerWidth/2;cy=cy?
   capOnly();V.chStg=sp<CH_MAIN?2:1;V.chute=.04;V.chTangle=chuteTangle(V);sfx('chute');if(V.chTangle){tangleMsg(V.chStg);return;}tip(cx,cy,V.chStg===2?'Paraquedas principal aberto ✓':'Paraquedas de freio aberto ✓ · o principal abre abaixo de '+CH_MAIN+' m/s');}
 function crash(v,imp,why){if(v.main){S.dead=true;sfx('boom');if(why==='tombou')toast('Tombou','Sem os pés de pouso abertos a nave caiu de lado. Abra os pés (toque neles ou G) antes de tocar o chão.');else toast('Bum.','Bateu a '+Math.round(imp)+' m/s. '+(S.dom.earth?'Acima de 12 m/s a cápsula não aguenta. Freie antes, abra o paraquedas e desça devagar.':'Na Lua não há ar: freie com o motor (Mira para trás) e toque a menos de 8 m/s, ou 10 com os pés abertos.'));}
   v.dead=true;for(let i=0;i<(v.main?160:40);i++){const a=Math.random()*7,s=Math.random()*(v.main?70:30),hot=i%2;particles.push({type:hot?'fire':'smoke',fl:'kero',x:v.x,y:v.y,vx:v.vx*.2+Math.cos(a)*s,vy:v.vy*.2+Math.sin(a)*s,life:hot?1.4:12,max:hot?1.4:12,size:hot?10:12,grow:hot?8:6,v:i%4,heat:1});}}
-function stage(){if(V&&!S.dead&&V.groups.length)fire(V.groups[0]);}
+function stage(){if(!V||S.dead)return;const hasF=V.parts.some(q=>PT(q).t==='fair');
+  // como no SFS/vida real: a carenagem sai quando já não há ar (acima de ~60 km), antes de soltar a carga
+  if(hasF&&!V.clamped&&(!S.dom.earth||S.altE>60000)){releaseFair();tip(innerWidth/2,innerHeight*.4,'Carenagem solta ✓');return;}
+  if(V.groups.length)fire(V.groups[0]);}
+function releaseFair(){const n0=debris.length;fire(V.parts.map((q,k)=>PT(q).t==='fair'?k:-1).filter(k=>k>=0));
+  const sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),px=[sn,-cs];for(const d of debris.splice(n0)){if(!d.parts.every(q=>PT(q).t==='fair')){debris.push(d);continue;}
+    for(const sd of[-1,1]){const h=makeVessel(d.parts.map(q=>({...q,half:sd})),d.x+px[0]*sd*.6,d.y+px[1]*sd*.6,d.vx+px[0]*sd*5,d.vy+px[1]*sd*5,d.hdg,d.om-sd*.7);h.t=0;debris.push(h);}}}
 // toque numa peça: solta o separador mais perto dela no caminho até a cápsula (e o par simétrico)
 function tapAt(cx,cy){if(S.dead)return;const r=cv.getBoundingClientRect(),X=(cx-r.left-VW/2)/z,Y=(camY-(cy-r.top))/z,c=Math.cos(rot),s=Math.sin(rot),wx=X*c+Y*s,wy=-X*s+Y*c,sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),ux=(wx*sn-wy*cs)/UNIT+V.com.x,uy=-(wx*cs+wy*sn)/UNIT+V.com.y,m=Math.max(.15,20/(z*UNIT));
   let i=-1,best=m;V.parts.forEach((p,j)=>{const B=box(p),dd=Math.hypot(Math.max(B.l-ux,0,ux-B.r),Math.max(B.t-uy,0,uy-B.b));if(dd<=best){best=dd;i=j;}});if(i<0)return tapDebris(cx,cy,wx,wy);const tp=V.parts[i],P=PT(tp);if(P.t==='leg')return toggleLegs(cx,cy);
   if(P.t==='solar'){const op=!tp.dep;for(const q of V.solars)q.dep=op;sfx('clamp');tip(cx,cy,op?'Painéis solares abertos ✓':'Painéis fechados');return;}
-  if(P.t==='fair'){if(V.clamped){tip(cx,cy,'Solte a carenagem depois de decolar');return;}const n0=debris.length;fire(V.parts.map((q,k)=>PT(q).t==='fair'?k:-1).filter(k=>k>=0));
-    // como no SFS: a carenagem abre em duas metades que se afastam girando
-    const sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),px=[sn,-cs];for(const d of debris.splice(n0)){if(!d.parts.every(q=>PT(q).t==='fair')){debris.push(d);continue;}
-      for(const sd of[-1,1]){const h=makeVessel(d.parts.map(q=>({...q,half:sd})),d.x+px[0]*sd*.6,d.y+px[1]*sd*.6,d.vx+px[0]*sd*5,d.vy+px[1]*sd*5,d.hdg,d.om-sd*.7);h.t=0;debris.push(h);}}
-    tip(cx,cy,'Carenagem solta ✓');return;}
+  if(P.t==='fair'){if(V.clamped){tip(cx,cy,'Solte a carenagem depois de decolar');return;}releaseFair();tip(cx,cy,'Carenagem solta ✓');return;}
+  if(P.probe&&V.parts.length<=8){tp.dep=!tp.dep;sfx('clamp');tip(cx,cy,tp.dep?'Sonda abrindo painéis e antena':'Sonda fechando');return;}
   if(P.les){if(V.clamped){tip(cx,cy,'A torre de escape só funciona depois de decolar');return;}if(!tp.lit&&tp.fuel>0){tp.on=true;tp.lit=true;sfx('ignite');if(!capOnly())abortCut();tip(cx,cy,'ESCAPE! Torre acesa e cápsula solta');return;}if(!(tp.fuel>0)||!V.firing.some(f=>f.p===tp)){fire([i]);tip(cx,cy,'Torre de escape solta ✓');return;}tip(cx,cy,'Torre ainda queimando');return;}
   if(P.jett&&tp.lit&&!(tp.fuel>0)){fire([i]);tip(cx,cy,P.n+' solto ✓');return;}
   if(P.t==='rcs'){S.rcs=!S.rcs;rcsUI();sfx('clamp');tip(cx,cy,S.rcs?'RCS ligado ✓ · setas para andar de lado':'RCS desligado',!S.rcs);return;}
@@ -1052,7 +1081,7 @@ function fire(idx,pre){const fired_w=ix=>ix.map(i=>V.parts[i]).filter(Boolean).m
     for(let k=0;k<8;k++){const a=Math.random()*7,sp=20+Math.random()*40;particles.push({type:'fire',fl:'kero',x:sx2,y:sy2,vx:V.vx+Math.cos(a)*sp,vy:V.vy+Math.sin(a)*sp,life:.18+Math.random()*.12,max:.3,size:.5+Math.random()*.6,grow:2});}
     for(let k=0;k<16;k++){const sd=k%2?1:-1,sp=4+Math.random()*10;particles.push({type:'smoke',x:sx2+px2*sd*Math.random()*1.5,y:sy2+py2*sd*Math.random()*1.5,vx:V.vx+px2*sd*sp+(Math.random()-.5)*3,vy:V.vy+py2*sd*sp+(Math.random()-.5)*3,life:1.5+Math.random()*2*(.3+air),max:3.5,size:1.2,grow:2.5+3*air,v:k%4,heat:.3,spread:1});}}
   V.vx+=jx;V.vy+=jy;
-  {const cp=keep.find(q=>PT(q).t==='cap');if(cp&&PT(cp).probe&&keep.length<=6&&!S.probeTold){S.probeTold=true;setTimeout(()=>toast('Sonda solta ✓','Agora você pilota só a sonda. Ela tem motor próprio: use para ir até a Lua ou outro planeta.'),50);}}
+  {const cp=keep.find(q=>PT(q).t==='cap');if(cp&&PT(cp).probe&&keep.length<=8&&!cp.dep&&(!S.dom.earth||S.altE>SPACE*.7))S.probeDep=S.t+1.5;if(cp&&PT(cp).probe&&keep.length<=8&&!S.probeTold){S.probeTold=true;setTimeout(()=>toast('Sonda solta ✓','Agora você pilota só a sonda. Ela tem motor próprio: use para ir até a Lua ou outro planeta.'),50);}}
   V.parts=keep;restructure(V);updateMass(V);sfx('pyro');if(S.master&&V.act.some(i=>V.parts[i].on)&&S.thr>0)sfx('ignite');else if(V.act.length&&!V.act.some(i=>V.parts[i].on))toast('Estágio solto','Toque no motor de cima para armar.');}
 function domain(){S.dom=domBody(V.x,V.y,S.t);const bp=S.dom.pos(S.t),bv=S.dom.vel(S.t);S.alt=Math.hypot(V.x-bp[0],V.y-bp[1])-S.dom.r;S.altE=Math.hypot(V.x,V.y)-R;S.rvx=V.vx-bv[0];S.rvy=V.vy-bv[1];
   S.el=elements(V.x-bp[0],V.y-bp[1],S.rvx,S.rvy,S.dom.mu,S.dom.r);}
@@ -1094,6 +1123,8 @@ $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btn
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
   if(!S.dead){if(warp>5&&warpLimited())warp=5;let left=real*warp,guard=0;
     while(left>1e-9&&guard++<3000){const dmin=nearDist(V.x,V.y,S.t),vv=Math.hypot(V.vx,V.vy)||1,dtm=warp<=5?.02:Math.max(.02,Math.min(dmin>1e9?3600:60,.01*dmin/vv)),dt=Math.min(left,dtm);stepWorld(dt);left-=dt;}
+    for(const v of[V,...debris])for(const q of v.parts)if(PT(q).probe){const tg=q.dep?1:0;q.depT=q.depT??tg;if(q.depT!==tg)q.depT=Math.max(0,Math.min(1,q.depT+(tg?1:-1)*real/3.2));}
+    if(S.probeDep&&S.t>=S.probeDep){S.probeDep=0;if(V.cap&&PT(V.cap).probe){V.cap.dep=true;sfx('clamp');tip(innerWidth/2,innerHeight*.4,'Sonda abrindo painéis solares e antena');}}
     for(const v of[V,...debris])if(v.legs)for(const q of v.legs){const tg=q.dep?1:0;q.depT=q.depT??tg;if(q.depT!==tg)q.depT=Math.max(0,Math.min(1,q.depT+(tg?1:-1)*real/.9));}
     emit(real);const li=layerAt(S.altE);if(S.dom.earth&&li!==S.layer){if(li>S.layer&&li>0){layerBanner(li);if(S.layer>=0)sfx('chime');}S.layer=li;}
     for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
