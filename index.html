@@ -1952,7 +1952,7 @@ function rauAdd(kind,pose,opt={}){const ac=snd.ac;if(!ac)return;rauBufs(ac);cons
     const wake=loopSrc(snd.pinkB,1),wg=gain(.3);wake.connect(filt('bandpass',700,.6)).connect(wg).connect(out);x.p={wg,base:1.2,horn:0};}
   RAU.u.push(x);return x;}
 function rauStart(){rauStop();if(!snd.ac||!S.rescue)return;const R0=S.rescue;
-  for(const u of R0.U)rauAdd(u.k,t=>{const P=rescuePose(u,t);return{wx:P.r*Math.cos(P.a),wy:P.r*Math.sin(P.a),moving:P.moving,k:P.k,after:t-R0.t0-u.d-u.T,hover:u.hover};},{siren:u.k==='truck'});}
+  for(const u of R0.U)rauAdd(u.k,t=>{const P=rescuePose(u,t);return{wx:P.r*Math.cos(P.a),wy:P.r*Math.sin(P.a),moving:P.moving,k:P.k,after:t-R0.t0-u.d-u.T,hover:u.hover&&!P.gone,gone:P.gone};},{siren:u.k==='truck'});}
 function remPos(w,t){const pl=remPlan(w),kIn=(t-(pl.tArr-REM.drive))/REM.drive,kOut=(t-pl.tDone)/REM.drive,s=t<pl.tArr?pl.s0+(pl.s1-pl.s0)*ease(Math.max(0,Math.min(1,kIn))):t<pl.tDone?pl.s1:pl.s1+(pl.s0-pl.s1)*ease(Math.min(1,kOut));return{s,moving:t<pl.tArr||t>pl.tDone};}
 function rauRemoval(w){if(!snd.ac)return;rauAdd('truck',t=>{const P=remPos(w,t),aa=w.a-P.s/R,gr=surfR(aa);return{wx:gr*Math.cos(aa),wy:gr*Math.sin(aa),moving:P.moving};},{id:w.id});}
 function rauDrop(w){rauStop(w.id);}
@@ -1962,8 +1962,8 @@ function rauUpdate(t){if(!snd.ac||!RAU.u.length)return;const ac=snd.ac,now=ac.cu
   for(const x of RAU.u){const P=x.pose(t),d=Math.hypot(P.wx-camX,P.wy-camYw),[sx]=toScreen(P.wx,P.wy),fall=1/(1+Math.pow(d/70,1.5)),p=x.p;
     let vr=0;if(x.lastD!=null&&t>x.lastT)vr=(d-x.lastD)/(t-x.lastT);x.lastD=d;x.lastT=t;const dop=Math.max(.85,Math.min(1.15,343/(343+Math.max(-120,Math.min(120,vr)))));
     if(x.pan)x.pan.pan.setTargetAtTime(Math.max(-1,Math.min(1,(sx-VW/2)/(VW*.6))),now,.1);x.lpD.frequency.setTargetAtTime(500+17000*Math.pow(fall,.7),now,.2);
-    let g0=(p.base||1)*fall*cut;
-    if(x.kind==='heli'){const spin=P.moving||P.hover?1:Math.max(0,1-P.after/12);g0*=Math.max(.0,spin);p.r.playbackRate.setTargetAtTime(Math.max(.15,spin)*dop,now,.25);p.tw.frequency.setTargetAtTime(3300*(.55+.45*spin)*dop,now,.4);p.twg.gain.setTargetAtTime(.014*spin,now,.4);p.tail.frequency.setTargetAtTime(88*Math.max(.2,spin)*dop,now,.3);}
+    let g0=(p.base||1)*fall*cut;if(x.kind!=='heli'){if(P.moving)x.stopT=null;else if(x.stopT==null)x.stopT=t;if(x.stopT!=null)g0*=Math.max(0,1-(t-x.stopT-(x.kind==='ship'?9:3))/2.5);}
+    if(x.kind==='heli'){const spin=P.gone?0:P.moving||P.hover?1:Math.max(0,1-P.after/12);g0*=Math.max(.0,spin);p.r.playbackRate.setTargetAtTime(Math.max(.15,spin)*dop,now,.25);p.tw.frequency.setTargetAtTime(3300*(.55+.45*spin)*dop,now,.4);p.twg.gain.setTargetAtTime(.014*spin,now,.4);p.tail.frequency.setTargetAtTime(88*Math.max(.2,spin)*dop,now,.3);}
     else if(x.kind==='truck'){const mv=P.moving,rate=mv?1.55+.3*Math.abs(Math.sin(t*.45)):.95;p.d.playbackRate.setTargetAtTime(rate*dop,now,.35);p.dg.gain.setTargetAtTime(mv?1:.6,now,.4);p.tb.frequency.setTargetAtTime(2400*rate*dop,now,.3);p.tbg.gain.setTargetAtTime(mv?.008:0,now,.6);
       if(p.wasMoving&&!mv){// freio a ar: chiado
         const n=ac.createBufferSource();n.buffer=snd.white;const f=ac.createBiquadFilter();f.type='highpass';f.frequency.value=2500;const gg=ac.createGain();gg.gain.setValueAtTime(.18*fall*cut,now);gg.gain.exponentialRampToValueAtTime(.001,now+.9);n.connect(f).connect(gg).connect(x.out);n.start(now,Math.random());n.stop(now+1);}
@@ -1978,14 +1978,19 @@ function rauUpdate(t){if(!snd.ac||!RAU.u.length)return;const ac=snd.ac,now=ac.cu
 function startRescue(){const a0=Math.atan2(V.y,V.x),sea=!landAt(a0),t0=S.t,U=[];
   if(sea){U.push({k:'ship',s0:900,s1:150,d:0,T:40},{k:'boat',s0:520,s1:22,d:3,T:22,c:'#ff7a1a'},{k:'boat',s0:580,s1:-26,d:5,T:24,c:'#ff7a1a'},{k:'heli',s0:-1800,s1:-6,d:0,T:22,alt0:140,alt1:42,hover:1,liv:'navy'});}
   else{U.push({k:'heli',s0:-1800,s1:-62,d:0,T:22,alt0:150,alt1:0,liv:'sar'},{k:'heli',s0:2000,s1:78,d:3,T:25,alt0:170,alt1:0,liv:'sar2'},{k:'truck',s0:-800,s1:-28,d:2,T:30},{k:'truck',s0:-900,s1:-40,d:3,T:32},{k:'truck',s0:850,s1:34,d:4,T:34});}
+  // perto da praia: mede quanto chão (ou mar) contínuo há de cada lado e manda cada veículo para o lado certo, sem carro no mar nem navio na areia
+  const ext=d=>{let q=0;for(;q<3000;q+=6){if(landAt(a0-d*(q+6)/R)===sea)break;}return q;},eP=ext(1),eN=ext(-1),EX=d=>d>0?eP:eN;
+  const fixX=(x,pad)=>{const d=Math.sign(x)||1;if(EX(d)>=Math.abs(x)+pad)return x;if(EX(-d)>=Math.abs(x)+pad)return -x;const b=eP>=eN?1:-1;return b*Math.max(3,Math.min(Math.abs(x),EX(b)-pad));};
+  for(const u of U){const fly=u.k==='heli',pad=u.k==='ship'?45:u.k==='boat'?14:12,s1=fixX(u.s1,pad);if(Math.sign(s1)!==Math.sign(u.s1))u.s0=-u.s0;u.s1=s1;
+    if(!fly){const d=Math.sign(u.s1)||1;u.s0=d*Math.abs(u.s0);if(Math.abs(u.s0)>EX(d)-4)u.s0=d*Math.max(Math.abs(u.s1)+30,EX(d)-4);}}
   // a missão encerra quando a equipe chega na cápsula (~40 s de jogo; dá para acelerar até 5×)
-  S.rescue={a0,sea,t0,U,end:t0+(sea?36:40)};rauStart();toast(sea?'Splashdown! ✓':'Pouso confirmado ✓',(sea?'Helicóptero da Marinha, botes e navio a caminho.':'Helicópteros e caminhões de resgate a caminho.')+' Chegam em uns 20 s (acelere o tempo se quiser).');
+  S.rescue={a0,sea,t0,U,end:t0+(sea?36:40),fixX};rauStart();toast(sea?'Splashdown! ✓':'Pouso confirmado ✓',(sea?'Helicóptero da Marinha, botes e navio a caminho.':'Helicópteros e caminhões de resgate a caminho.')+' Chegam em uns 20 s (acelere o tempo se quiser).');
   const W0=VW||innerWidth,H0=VH||innerHeight,tz=(Math.min(W0,H0)*.5)/(sea?175:110),bz=H0*.25/Math.max(12,vesselLen(V))/Math.pow(1+Math.max(0,S.alt)/4000,.3);if(isFinite(tz/bz)&&bz*zoomUser>tz)zoomUser=Math.max(.02,tz/bz);}
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
-function rescuePose(u,t){const R0=S.rescue,k=Math.max(0,Math.min(1,(t-R0.t0-u.d)/u.T)),e=ease(k),sNow=u.s0+(u.s1-u.s0)*e,a=R0.a0-sNow/R,gr=R+(R0.sea?0:terrH(a));let alt=0;
-  if(u.k==='heli'){alt=u.alt1+(u.alt0-u.alt1)*(1-sstep(.62,1,k));if(u.hover&&k>=1)alt=u.alt1+Math.sin(t*.7)*2;}
+function rescuePose(u,t){const R0=S.rescue,k=Math.max(0,Math.min(1,(t-R0.t0-u.d)/u.T)),e=ease(k),dep=u.hover&&R0.end?Math.max(0,Math.min(1,(t-R0.end-3)/25)):0,sNow=dep>0?u.s1+(u.s0-u.s1)*ease(dep):u.s0+(u.s1-u.s0)*e,a=R0.a0-sNow/R,gr=R+(R0.sea?0:terrH(a));let alt=0;
+  if(u.k==='heli'){alt=u.alt1+(u.alt0-u.alt1)*(1-sstep(.62,1,k));if(u.hover&&k>=1)alt=u.alt1+Math.sin(t*.7)*2;if(dep>0)alt+=(160-u.alt1)*Math.min(1,dep*3);}
   if(R0.sea&&u.k!=='heli')alt=Math.sin(t*1.3+u.s0)*.35;
-  return{a,r:gr+alt,dir:Math.sign(u.s1-u.s0)||1,moving:k<1,k,alt,v:Math.abs(u.s1-u.s0)/u.T};}
+  return{a,r:gr+alt,dir:dep>0?-(Math.sign(u.s1-u.s0)||1):(Math.sign(u.s1-u.s0)||1),moving:k<1||(dep>0&&dep<1),k,alt,v:Math.abs(u.s1-u.s0)/u.T,dep,gone:dep>=1};}
 function drawRescue(t){const R0=S.rescue;if(!R0)return;
   for(const u of R0.U){const P=rescuePose(u,t),x=P.r*Math.cos(P.a),y=P.r*Math.sin(P.a);frame(x,y);g.rotate(P.a-Math.PI/2);MIRR=P.dir<0;if(MIRR)g.scale(-1,1);
     if(u.k==='heli')drawHeli(t,u,P);else if(u.k==='truck')drawTruck(t,u,P);else if(u.k==='ship')drawShip(t,u,P);else drawBoat(t,u,P);}
@@ -2005,8 +2010,8 @@ function person(x,y,sz,o={}){const k=sz/1.8,sk=o.skin||'#e2b48c';g.save();g.tran
 let MIRR=false;const rtxt=(t2,x,y,sz,col)=>{if(MIRR){g.save();g.scale(-1,1);txt(t2,-x,y,sz,col);g.restore();}else txt(t2,x,y,sz,col);};
 function drawCrewNearCapsule(t){const R0=S.rescue;if(!R0)return;const el=t-R0.t0,a0=R0.a0,at=(s,h)=>{const a=a0-s/R,r=R+h+(R0.sea?0:terrH(a));frame(r*Math.cos(a),r*Math.sin(a));g.rotate(a-Math.PI/2);MIRR=false;};
   if(R0.sea){if(el>29){for(const s of[-3.2,3.4]){at(s,Math.sin(t*1.3+s)*.25-1.25);person(0,0,1.7,{diver:1,sit:1});}}return;}
-  if(el>26){const n=Math.min(5,Math.floor((el-26)/2)+1);for(let i=0;i<n;i++){const tgt=[-6,-8.5,7,9.5,-11][i],from=i%2?40:-45,k=Math.min(1,(el-26-i*2)/9),sx=from+(tgt-from)*k;at(sx,0);person(0,0,1.75,{vest:i===4?'#ffffff':'#ff7a1a',helmet:i===4?'#e8ecf2':'#ffffff',walk:k<1?t*8:0,wave:i===1&&k>=1?t*5:0});}}
-  if(el>31){at(-24,0);g.fillStyle='#ff7a1a';g.beginPath();g.moveTo(-3,0);g.lineTo(-2.5,2.4);g.lineTo(0,3.2);g.lineTo(2.5,2.4);g.lineTo(3,0);g.closePath();g.fill();g.fillStyle='#c4471a';g.fillRect(-.8,0,1.6,1.8);g.fillStyle='#ffffff';g.fillRect(-.15,2.3,.3,.8);g.fillRect(-.4,2.55,.8,.3);}}
+  if(el>26){const n=Math.min(5,Math.floor((el-26)/2)+1);for(let i=0;i<n;i++){const fx=R0.fixX||(x=>x),tgt=fx([-6,-8.5,7,9.5,-11][i],3),f0=fx(tgt+Math.sign(tgt)*36,3),from=Math.sign(f0)===Math.sign(tgt)?f0:tgt+Math.sign(tgt)*4,k=Math.min(1,(el-26-i*2)/9),sx=from+(tgt-from)*k;at(sx,0);person(0,0,1.75,{vest:i===4?'#ffffff':'#ff7a1a',helmet:i===4?'#e8ecf2':'#ffffff',walk:k<1?t*8:0,wave:i===1&&k>=1?t*5:0});}}
+  if(el>31){at((R0.fixX||(x=>x))(-24,5),0);g.fillStyle='#ff7a1a';g.beginPath();g.moveTo(-3,0);g.lineTo(-2.5,2.4);g.lineTo(0,3.2);g.lineTo(2.5,2.4);g.lineTo(3,0);g.closePath();g.fill();g.fillStyle='#c4471a';g.fillRect(-.8,0,1.6,1.8);g.fillStyle='#ffffff';g.fillRect(-.15,2.3,.3,.8);g.fillRect(-.4,2.55,.8,.3);}}
 function drawHeli(t,u,P){const sea=u.liv==='navy',c1=sea?'#c9ced6':'#f2f2f2',c2=sea?'#6f7886':'#ff7a1a',spin=P.k<1||P.alt>.5?1:Math.max(.25,1-(t-S.rescue.t0-u.d-u.T)/12);
   // trem de pouso
   g.fillStyle='#2a2d33';for(const x of[4.8,-1.2,1.8]){g.fillRect(x-.08,0,.16,.9);g.beginPath();g.arc(x,.45,.45,0,7);g.fill();}
@@ -2028,7 +2033,7 @@ function drawHeli(t,u,P){const sea=u.liv==='navy',c1=sea?'#c9ced6':'#f2f2f2',c2=
   // nome grande na lateral, numa faixa de contraste
   g.fillStyle=sea?'#2b3a52':'#c4471a';g.fillRect(-3.4,1.25,8.6,.75);rtxt(sea?'MARINHA':'RESGATE',.9,1.42,.62,'#ffffff');rtxt(sea?'MARINHA':'RESGATE',-8.2,3.62,.5,sea?'#2b3a52':'#c4471a');
   // guincho: cabo e resgatista descendo até o mar quando o helicóptero paira
-  if(u.hover&&P.k>=1){const L=Math.max(0,P.alt-1.5)*Math.min(1,(t-S.rescue.t0-u.d-u.T)/8);g.fillStyle='#4b525e';g.fillRect(2.8,4.2,1.2,.25);g.strokeStyle='#2a2d33';g.lineWidth=.06;g.beginPath();g.moveTo(3.6,4.2);g.lineTo(3.6,4.2-L);g.stroke();if(L>.5)person(3.6,4.2-L-1.5,1.75,{vest:'#ff7a1a',helmet:'#f2f2f2'});}}
+  if(u.hover&&P.k>=1&&!(P.dep>0)){const L=Math.max(0,P.alt-1.5)*Math.min(1,(t-S.rescue.t0-u.d-u.T)/8);g.fillStyle='#4b525e';g.fillRect(2.8,4.2,1.2,.25);g.strokeStyle='#2a2d33';g.lineWidth=.06;g.beginPath();g.moveTo(3.6,4.2);g.lineTo(3.6,4.2-L);g.stroke();if(L>.5)person(3.6,4.2-L-1.5,1.75,{vest:'#ff7a1a',helmet:'#f2f2f2'});}}
 function drawTruck(t,u,P){const wr=(t-S.rescue.t0)*(P.moving?P.v/.75:0),wh=[[-3,.75],[-.6,.75],[3.1,.75]];
   for(const[x,r]of wh){g.fillStyle='#16181d';g.beginPath();g.arc(x,r,r,0,7);g.fill();g.strokeStyle='#3a3f4a';g.lineWidth=.1;for(let k=0;k<8;k++){const aa=-wr+k*.785;g.beginPath();g.moveTo(x+Math.cos(aa)*r*.75,r+Math.sin(aa)*r*.75);g.lineTo(x+Math.cos(aa)*r,r+Math.sin(aa)*r);g.stroke();}g.fillStyle='#8a929f';g.beginPath();g.arc(x,r,r*.38,0,7);g.fill();}
   const bg=g.createLinearGradient(0,1,0,3.6);bg.addColorStop(0,'#c65a12');bg.addColorStop(1,'#ff8a2a');g.fillStyle=bg;g.fillRect(-4.3,1.2,6.2,2.5);g.fillStyle='#f2f2f2';g.fillRect(-4.3,2.3,6.2,.35);
