@@ -97,6 +97,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #btnStage{min-width:150px;padding:8px 14px;font-family:var(--display);font-weight:700;letter-spacing:.06em;background:rgba(255,179,71,.92);color:#1a1200;border-color:var(--accent);display:flex;flex-direction:column;align-items:center;line-height:1.15}
 #btnStage small{font-family:var(--body);font-weight:500;font-size:11px;letter-spacing:0}
 #btnStage:disabled{opacity:.35}
+#btnHover{padding:8px 12px;background:rgba(7,11,22,.6);font-size:13px;white-space:nowrap}#btnHover.on{border-color:var(--orbit);color:var(--orbit)}
 #btnRcs{padding:8px 12px;background:rgba(7,11,22,.6);font-size:13px}#btnRcs.on{border-color:var(--orbit);color:var(--orbit)}#rcsPad{position:absolute;right:calc(130px + env(safe-area-inset-right,0px));bottom:calc(90px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;z-index:6}#rcsPad[hidden]{display:none}#rcsPad button{padding:0;font-size:16px;background:rgba(7,11,22,.6);border-color:rgba(79,209,255,.5);color:var(--orbit)}#rcsPad [data-r='0,1']{grid-area:1/2}#rcsPad [data-r='-1,0']{grid-area:2/1}#rcsPad [data-r='0,-1']{grid-area:3/2}#rcsPad [data-r='1,0']{grid-area:2/3}
 #btnLegs{padding:8px 12px;background:rgba(7,11,22,.6);backdrop-filter:blur(8px);font-size:13px;white-space:nowrap}#btnLegs.on{border-color:var(--good);color:var(--good)}
 #btnAim{padding:8px 12px;background:rgba(7,11,22,.6);backdrop-filter:blur(8px);font-size:13px;white-space:nowrap}#btnAim.on{border-color:var(--orbit);color:var(--orbit)}
@@ -205,6 +206,14 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #intro .sub{color:#c9d1e6;font-size:clamp(14px,3.6vw,17px);margin:14px auto 26px;max-width:440px}#btnStart{padding:14px 44px;font-size:19px;border-radius:999px;box-shadow:0 0 30px rgba(255,179,71,.35)}#intro .hint{color:var(--muted);font-size:12px;margin-top:14px}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 #blk{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff9ad5;animation:blink 1s infinite}@keyframes blink{50%{opacity:.35}}#rTemp.hot{color:var(--bad)}#rTemp.warm{color:var(--accent)}
+#models,#camp,#campWin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,94vw);max-height:86vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
+.mdGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mdGrid button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;text-align:left}.mdGrid button b{font-size:14px;color:var(--ink)}.mdGrid button small{font-size:12px;color:var(--muted)}
+.cpSub{margin:0;color:var(--muted);font-size:13px}#cpList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}#cpList li{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+#cpList li .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:rgba(255,255,255,.06);flex:0 0 auto}#cpList li.done .n{background:rgba(94,226,160,.2);color:var(--good)}#cpList li.lock{opacity:.45}#cpList li.cur{border-color:var(--accent)}
+#cpList li div{flex:1;min-width:0}#cpList li b{display:block;font-size:14px}#cpList li small{display:block;color:var(--muted);font-size:12px}#cpList li button{flex:0 0 auto;padding:7px 12px}
+#campBar{position:absolute;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top,0px));z-index:3;display:flex;gap:8px;align-items:center;padding:6px 8px 6px 12px;font-size:13px;max-width:min(560px,94vw)}#campBar b{color:var(--accent)}#campBar button{padding:5px 10px;font-size:12px}
+#campWin{text-align:center;align-items:center;width:min(420px,92vw)}#campWin h2{color:var(--good);font-family:var(--display);margin:0}#campWin p{margin:0;font-size:14px}.cwBtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#btnCampI{margin-top:12px;padding:10px 30px;border-radius:999px;background:rgba(7,11,22,.5);border-color:var(--accent);color:var(--accent);font-weight:700;letter-spacing:.06em}
 #saves{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:84vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
 #saves .svrow{display:flex;gap:8px}#svName{flex:1;min-width:0;font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}#svName:focus-visible{outline:2px solid var(--orbit)}
 #svSave{font-size:14px;padding:8px 12px}#svMsg{margin:0;font-size:12px;color:var(--muted)}
@@ -223,10 +232,8 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <b class="logo">ÓRBITA</b>
     <button id="btnUndo" title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
     <button id="btnSym">Simetria</button>
-    <button id="btnP1">2 estágios</button>
-    <button id="btnP2">Com laterais</button>
-    <button id="btnP3">Lunar</button>
-    <button id="btnP4">Sonda</button>
+    <button id="btnCamp">★ Campanha</button>
+    <button id="btnModels">Modelos ▾</button>
     <button id="btnClear">Limpar</button>
     <button id="btnSaves">Salvos</button>
     <button id="btnMus" aria-pressed="true">♪ Música</button>
@@ -251,6 +258,26 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   <div id="paintEd" class="glass" hidden><div class="phead"><b>Pintura</b><button id="pdClose" aria-label="Fechar">✕</button></div><div class="sw" id="pdCols"></div><div class="pats" id="pdPats"></div><button id="pdAll">Pintar o foguete todo com esta cor</button></div>
   <div id="fuelEd" class="glass" hidden><b id="feName"></b><input type="range" id="feR" min="0" max="100" step="5" aria-label="Combustível do tanque"><span id="feVal"></span><button id="feOk">Pronto</button></div>
   <button id="btnGo" class="primary mOnly">IR PARA A BASE</button>
+  <div id="models" class="glass dlg" hidden role="dialog" aria-label="Modelos prontos">
+    <div class="phead"><b>Modelos prontos</b><button id="mdClose" aria-label="Fechar">✕</button></div>
+    <div class="mdGrid">
+      <button id="btnP1"><b>2 estágios</b><small>O básico para chegar à órbita</small></button>
+      <button id="btnP2"><b>Com laterais</b><small>Propulsores sólidos dos lados</small></button>
+      <button id="btnP3"><b>Lunar</b><small>Desce e pousa na Lua com pés</small></button>
+      <button id="btnP4"><b>Sonda</b><small>Sonda na carenagem, sem tripulante</small></button>
+      <button id="btnP5"><b>Mercury-Redstone</b><small>Salto ao espaço de 1961 · pacote Redstone</small></button>
+      <button id="btnP6"><b>Mercury-Atlas</b><small>Órbita de 1962 · Atlas de 1,5 estágio</small></button>
+      <button id="btnP7"><b>Explorer</b><small>Redstone levando uma sonda à órbita</small></button>
+      <button id="btnP8"><b>Hover</b><small>Flutua e anda no chão de qualquer mundo</small></button>
+    </div>
+  </div>
+  <div id="camp" class="glass dlg" hidden role="dialog" aria-label="Campanha">
+    <div class="phead"><b>Campanha</b><button id="cpClose" aria-label="Fechar">✕</button></div>
+    <p class="cpSub">Missões curtas, uma depois da outra. Cada uma já vem com uma nave pronta (dá para mudar).</p>
+    <ol id="cpList"></ol>
+    <button id="cpFree">Sair da campanha (modo livre)</button>
+  </div>
+  <div id="campBar" class="glass" hidden><span id="cbTxt"></span><button id="cbOpen">Missões</button></div>
   <div id="saves" class="glass" hidden role="dialog" aria-label="Naves e jogo salvos">
     <div class="phead"><b>Naves salvas</b><button id="svClose" aria-label="Fechar">✕</button></div>
     <div class="svrow"><input id="svName" maxlength="40" placeholder="Nome da nave" aria-label="Nome da nave"><button class="primary" id="svSave">Salvar nave</button></div>
@@ -258,7 +285,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><p class="hint">Fone de ouvido recomendado</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -276,9 +303,10 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   <div id="mapUI"><div id="mapInfo" class="glass" title="Toque para esconder"></div><button id="mapCenter" class="glass" hidden>◎ Centralizar</button><button id="miBtn" class="glass" hidden aria-label="Mostrar informações da órbita">ⓘ Órbita</button></div>
   <div id="ctlL"><button class="round" data-k="a" aria-label="Girar para a esquerda">⟲</button><button class="round" data-k="d" aria-label="Girar para a direita">⟳</button></div>
   <div id="rcsPad" hidden><button data-r="0,1" aria-label="RCS frente">▲</button><button data-r="-1,0" aria-label="RCS esquerda">◀</button><button data-r="0,-1" aria-label="RCS trás">▼</button><button data-r="1,0" aria-label="RCS direita">▶</button></div>
-  <div id="ctlC"><button id="btnRcs" hidden>RCS</button><button id="btnLegs" hidden>Pés: fechados</button><button id="btnAim" title="Mira automática (V)">Mira: livre</button><button id="btnChute" hidden>Paraquedas</button><button id="btnStage">ESTÁGIO<small id="stNext"></small></button></div>
+  <div id="ctlC"><button id="btnHover" hidden>Hover: desligado</button><button id="btnRcs" hidden>RCS</button><button id="btnLegs" hidden>Pés: fechados</button><button id="btnAim" title="Mira automática (V)">Mira: livre</button><button id="btnChute" hidden>Paraquedas</button><button id="btnStage">ESTÁGIO<small id="stNext"></small></button></div>
   <div id="thrWrap" class="glass"><button id="btnEng" class="lever" role="switch" aria-checked="false" title="Liga/desliga todos os motores (E)" aria-label="Motores"><i></i><span id="engLbl">LIGAR</span></button><div class="gauges"><div class="gcol"><span class="eyebrow">Motor</span><div id="thrTrack"><div id="thrFill"></div></div><b id="thrPct">0%</b></div><div class="gcol"><span class="eyebrow">Comb.</span><div id="fuelTrack"><div id="fuelFill"></div></div><b id="fuelPct">100%</b></div></div><div class="mini"><button id="thrMax">MÁX</button><button id="thrCut">0</button></div></div>
   <div id="tip" class="glass" role="status"></div>
+  <div id="campWin" class="glass dlg" hidden role="dialog" aria-label="Missão cumprida"><p class="eyebrow">Campanha</p><h2 id="cwT">Missão cumprida ✓</h2><p id="cwB"></p><div class="cwBtns"><button class="primary" id="cwNext">Próxima missão</button><button id="cwStay">Continuar voando</button></div></div>
   <div id="deadBox" hidden><button id="btnRewind" class="primary">⟲ Voltar 30 s</button><button id="btnDRestart" class="glass">↻ Lançar de novo</button><button id="btnDHangar" class="glass">⌂ Voltar ao hangar</button></div>
   <div id="pop" class="glass" hidden><b id="popT"></b><span id="popS"></span><button id="popB"></button><button id="popX" aria-label="Fechar">✕</button></div>
   <div id="toast" class="glass"><h2 id="tTitle"></h2><p id="tBody"></p></div>
@@ -371,7 +399,7 @@ const PARTS={
   engMini:{n:'Motor Formiga',snd:'hyper',t:'eng',m:90,thrust:18000,ispV:315,ispA:240,gim:.12,w:.4,h:.45,cd:.9,k:.1,fl:'blue',d:'18 kN. Pequeno e leve: para sondas, landers e rovers.'},
   probe:{n:'Sonda',t:'cap',probe:true,m:300,w:.8,h:.7,torque:2500,cd:.4,k:.4,d:'Comando sem tripulante. Pilota satélites, sondas e rovers.'},
   shield:{n:'Escudo térmico',t:'shield',m:250,w:1,h:.3,cd:.9,k:.1,d:'Vai embaixo de tudo. Aguenta a reentrada no lugar da base da cápsula.'},
-  fair:{n:'Carenagem',t:'fair',m:250,w:1.3,h:2.2,cd:.12,k:.4,d:'Bico grande. No voo, toque nela para soltar as duas metades.'},
+  fair:{n:'Carenagem',t:'fair',m:250,w:1.3,h:2.2,cd:.12,k:.25,d:'Bico grande. No voo, toque nela para soltar as duas metades.'},
   beam:{n:'Estrutura',t:'beam',m:150,w:2,h:.4,cd:.9,k:.1,d:'Viga para montar plataformas, módulos e rovers.'},
   solar:{n:'Painel solar',t:'solar',m:80,w:.3,h:1,cd:.9,k:.1,d:'Vai do lado. No voo, toque nele para abrir as placas.'},
   legG:{n:'Pé grande',t:'leg',big:1.5,m:220,w:.4,h:1.5,cd:.9,k:.1,d:'Pé de pouso maior, para naves largas. Toque no voo para abrir.'},
@@ -388,10 +416,11 @@ const PARTS={
   coneR:{n:'Ogiva redonda',t:'cone',shape:'round',m:70,w:1,h:.6,cd:.25,k:.4,d:'Bico arredondado e curto.'},
   coneInc:{n:'Ogiva inclinada',t:'cone',shape:'slant',m:70,w:1,h:1,cd:.2,k:.4,d:'Bico inclinado, para propulsores laterais (vira o lado reto para o foguete).'},
   fus:{n:'Fuselagem',t:'fus',m:60,w:1,h:1,cd:.9,k:.1,d:'Casca leve e oca: liga peças e alonga o foguete sem peso.'},
-  fairBody:{n:'Carenagem (corpo)',t:'fair',shape:'body',m:150,w:1.3,h:1.2,cd:.9,k:.2,d:'Parte reta da carenagem, embaixo do bico. Toque no voo para soltar todas as partes.'},
+  fairBody:{n:'Carenagem (corpo)',t:'fair',shape:'body',m:150,w:1.3,h:1.2,cd:.9,k:.1,d:'Parte reta da carenagem, embaixo do bico. Toque no voo para soltar todas as partes.'},
   adapt:{n:'Adaptador',t:'adapt',top:1,m:120,w:1.5,h:.6,cd:.9,k:.1,d:'Liga uma peça de 3 m (embaixo) a uma de 2 m (em cima).'},
   beamV:{n:'Coluna',t:'beam',m:120,w:.4,h:2,cd:.9,k:.1,d:'Viga em pé para torres e módulos.'},
   solarG:{n:'Painel solar grande',t:'solar',big:1.7,m:180,w:.4,h:1.4,cd:.9,k:.1,d:'Painel maior. Toque no voo para abrir.'},
+  hover:{n:'Hover',t:'hover',m:160,w:.6,h:.35,cd:.9,k:.1,d:'Jatos de flutuar. Ligue o HOVER no voo: perto do chão (até 25 m) a nave flutua a uns 3 m e anda com ◀ ▶ em qualquer planeta ou Lua. Gasta um pouco de combustível.'},
   // ---- pacote Redstone + Atlas (foguetes dos anos 50/60) ----
   capMerc:{n:'Cápsula Mercury',t:'cap',chute:true,m:1300,w:1,h:1.45,torque:6000,cd:.35,k:.5,pack:1,d:'1 tripulante. Já tem paraquedas e escudo térmico embutidos.'},
   les:{n:'Torre de escape',snd:'les',t:'eng',les:true,solid:true,m:250,fuel:300,thrust:180000,ispV:200,ispA:185,gim:0,w:.45,h:1.7,cd:.3,k:.3,fl:'solid',pack:1,d:'Em cima da cápsula. Toque no voo: acende e arranca a cápsula do foguete. Toque de novo (apagada) para soltar a torre.'},
@@ -402,7 +431,7 @@ const PARTS={
   rdEng:{n:'Motor A-7',snd:'alc',t:'eng',m:700,thrust:210000,ispV:265,ispA:235,gim:.06,w:1,h:1.2,cd:.9,k:1.2,fin:1.6,fl:'kero',pack:1,d:'210 kN, com saia e aletas: o Redstone voa estável sem aletas extras.'},
   atAdapt:{n:'Adaptador Atlas',t:'adapt',top:.67,m:150,w:1.5,h:.8,cd:.9,k:.1,pack:1,d:'Ponta do Atlas: liga o tanque de 3 m à cápsula de 2 m.'},
   atTank:{n:'Tanque Atlas',t:'tank',m:1000,fuel:17000,w:1.5,h:3.8,cd:.9,k:.1,pack:1,d:'17 t num tanque-balão de aço fino: leve para o tamanho.'},
-  atBase:{n:'Base Atlas',t:'sep',atlas:true,m:300,w:1.5,h:.25,cd:.9,k:.1,pack:1,d:'Segura os motores XLR-89 embaixo do tanque Atlas. Ao separar, solta os motores laterais e o LR-105 do meio sobe e continua.'},
+  atBase:{n:'Base Atlas',t:'sep',atlas:true,m:300,w:1.5,h:.25,cd:.9,k:1.2,fin:2.2,pack:1,d:'Segura os motores XLR-89 embaixo do tanque Atlas. Ao separar, solta os motores laterais e o LR-105 do meio sobe e continua.'},
   atSus:{n:'Motor LR-105',t:'eng',sus:true,m:450,thrust:90000,ispV:315,ispA:215,gim:.08,w:.44,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor do meio (sustentador). Fica no foguete quando a Base Atlas solta.'},
   atBoost:{n:'Motor XLR-89',t:'eng',m:650,thrust:380000,ispV:290,ispA:255,gim:.06,w:.6,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor de reforço do Atlas (dois, nas pontas da Base Atlas). Cai junto com a base.'},
   srb:{n:'Propulsor sólido',t:'eng',solid:true,m:900,fuel:7000,thrust:260000,ispV:240,ispA:215,gim:0,w:.9,h:3.4,cd:.9,k:.1,fl:'solid',d:'Combustível e motor juntos. Depois de aceso, não desliga.'},
@@ -415,7 +444,7 @@ const EPS=0.02,ovl=(a0,a1,b0,b1)=>Math.min(a1,b1)-Math.max(a0,b0);
 const overlaps=(a,b)=>{if(typeof CH!=='undefined'&&CH.clip)return false;if(PARTS[a.type].t==='fair'||PARTS[b.type].t==='fair')return false;const A=box(a),B=box(b);return ovl(A.l,A.r,B.l,B.r)>EPS&&ovl(A.t,A.b,B.t,B.b)>EPS;};
 const below=(a,b)=>{const A=box(a),B=box(b);return Math.abs(A.b-B.t)<EPS&&ovl(A.l,A.r,B.l,B.r)>0.05;}; // b encosta embaixo de a
 const sideBy=(a,b)=>{const A=box(a),B=box(b);return(Math.abs(A.r-B.l)<EPS||Math.abs(B.r-A.l)<EPS)&&ovl(A.t,A.b,B.t,B.b)>0.1;};
-const sideOK=p=>['sepLat','leg','solar','wheel','rcs','paraL'].includes(PT(p).t);
+const sideOK=p=>['sepLat','leg','solar','wheel','rcs','paraL','hover'].includes(PT(p).t);
 const linked=(a,b)=>below(a,b)||below(b,a)||(sideBy(a,b)&&(sideOK(a)||sideOK(b)));
 const legSide=(p,ps)=>{const h=ps.find(q=>q!==p&&sideBy(p,q));return h?(Math.sign(p.x-h.x)||1):(Math.sign(p.x)||1);};
 const isSep=p=>PT(p).t==='sep'||PT(p).t==='sepLat';
@@ -453,11 +482,11 @@ function validate(ps){const errs=[],warns=[],bad=new Set();
     if(!P.solid&&!P.fuel&&!ps.some((q,j)=>seg[j]===seg[i]&&PT(q).t==='tank')){bad.add(p);errs.push(P.n+' sem tanque no mesmo estágio');}});
   const act=activeEng(ps).filter(i=>!PT(ps[i]).les),c=centerOfMass(ps),T=act.reduce((s,i)=>s+thrustAt(PT(ps[i]),1),0),twr=T/(c.m*G0);
   if(!act.length)(ps.some(p=>PT(p).t==='wheel')?warns:errs).push(ps.some(p=>PT(p).t==='wheel')?'Sem motor: é um rover, só anda com as rodas':'Nenhum motor com a saída livre para decolar');
-  else if(twr<1)errs.push('Empuxo ÷ peso = '+twr.toFixed(2)+': pesado demais para sair do chão');else if(twr<1.2)warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+': vai subir devagar e gastar muito');
+  else if(twr<1&&ps.some(p=>PT(p).t==='hover'))warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+' na Terra: aqui só flutua com o hover; na Lua decola fácil');else if(twr<1)errs.push('Empuxo ÷ peso = '+twr.toFixed(2)+': pesado demais para sair do chão');else if(twr<1.2)warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+': vai subir devagar e gastar muito');
   const crew=ci>=0&&!PT(ps[ci]).probe;if(crew&&!ps.some(p=>PT(p).t==='para'||PT(p).chute||PT(p).t==='paraL'))warns.push('Sem paraquedas: dá para subir, mas não para voltar');
   if(crew&&ps.some(q=>below(ps[ci],q)&&PT(q).t!=='sep'&&!(PT(q).jett&&ps.some(r=>below(q,r)&&PT(r).t==='sep'))))warns.push('Ponha um separador logo embaixo da cápsula: na volta o paraquedas solta o resto e desce só ela');
   if(act.length){const tx=act.reduce((s,i)=>s+ps[i].x*PT(ps[i]).thrust,0)/act.reduce((s,i)=>s+PT(ps[i]).thrust,0);if(Math.abs(tx-c.x)>0.06)warns.push('Empuxo fora do centro de massa: o foguete vai girar sozinho');}
-  if(ci>=0&&centerOfPressure(ps).y<c.y)warns.push('Instável: o centro de pressão está acima do centro de massa. Ponha aletas embaixo');
+  if(ci>=0&&!ps.some(p=>PT(p).t==='hover')&&centerOfPressure(ps).y<c.y)warns.push('Instável: o centro de pressão está acima do centro de massa. Ponha aletas embaixo');
   return{errs:[...new Set(errs)],warns,bad};}
 // simula a sequência de estágios para estimar o Δv de cada fase
 function plan(ps0){let ps=ps0.map(p=>({...p,fuel:fuelOf(p)}));const out=[];
@@ -574,6 +603,11 @@ function drawPart(ctx,type,cx,cy,u,frac,dw,dh,part){if(part&&part.half&&!ctx.__h
     const sy=y0+th,sh2=h-th,ex=w*.12;ctx.beginPath();ctx.moveTo(x,sy);ctx.lineTo(x+w,sy);ctx.lineTo(x+w+ex,y0+h+u*.25);ctx.lineTo(x-ex,y0+h+u*.25);ctx.closePath();ctx.fillStyle=cyl(ctx,x-ex,w+2*ex,...C);ctx.fill();ctx.save();ctx.clip();
     ctx.strokeStyle='rgba(20,30,50,.3)';ctx.lineWidth=Math.max(PXS*.5,u*.02);for(let k=1;k<10;k++){ctx.beginPath();ctx.moveTo(x+w*k/10,sy);ctx.lineTo(x-ex+(w+2*ex)*k/10,y0+h+u*.25);ctx.stroke();}shade(ctx,x-ex,sy,w+2*ex,sh2+u*.25);ctx.restore();ctx.beginPath();ctx.moveTo(x,sy);ctx.lineTo(x+w,sy);ctx.lineTo(x+w+ex,y0+h+u*.25);ctx.lineTo(x-ex,y0+h+u*.25);ctx.closePath();edge(ctx,u);
     const FC=SKINC.grafite;ctx.fillStyle=cyl(ctx,x,w,...FC);for(const s2 of[-1,1]){const bx=s2<0?x-ex*.6:x+w+ex*.6;ctx.beginPath();ctx.moveTo(bx,sy+sh2*.35);ctx.lineTo(bx+s2*w*.18,y0+h);ctx.lineTo(bx+s2*w*.18,y0+h+u*.25);ctx.lineTo(bx,y0+h+u*.25);ctx.closePath();ctx.fill();edge(ctx,u);}return;}
+  if(p.t==='hover'){const gl=part&&part.glow||0;if(gl>0){const gg=ctx.createLinearGradient(0,y0+h,0,y0+h+h*2.6);gg.addColorStop(0,'rgba(120,200,255,'+.85*gl+')');gg.addColorStop(1,'rgba(120,200,255,0)');ctx.fillStyle=gg;ctx.beginPath();ctx.moveTo(x+w*.12,y0+h);ctx.lineTo(x+w*.88,y0+h);ctx.lineTo(x+w*1.05,y0+h*3.6);ctx.lineTo(x-w*.05,y0+h*3.6);ctx.closePath();ctx.fill();}
+    ctx.fillStyle=cyl(ctx,x,w,...SKINC.grafite);ctx.beginPath();ctx.moveTo(x+w*.1,y0);ctx.lineTo(x+w*.9,y0);ctx.lineTo(x+w,y0+h*.7);ctx.lineTo(x+w*.92,y0+h);ctx.lineTo(x+w*.08,y0+h);ctx.lineTo(x,y0+h*.7);ctx.closePath();ctx.fill();edge(ctx,u);
+    ctx.fillStyle='#ffc23a';ctx.fillRect(x+w*.06,y0+h*.55,w*.88,h*.08);ctx.fillStyle=gl>0?'rgba(150,215,255,'+(.4+.6*gl)+')':'#1b2130';ctx.fillRect(x+w*.14,y0+h*.75,w*.72,h*.2);
+    ctx.strokeStyle='rgba(200,210,225,.6)';ctx.lineWidth=Math.max(PXS*.4,u*.01);for(let k=1;k<7;k++){ctx.beginPath();ctx.moveTo(x+w*(.14+.72*k/7),y0+h*.75);ctx.lineTo(x+w*(.14+.72*k/7),y0+h*.95);ctx.stroke();}
+    ctx.fillStyle='#8a929f';ctx.fillRect(x+w*.3,y0+h*.12,w*.4,h*.3);return;}
   if(p.t==='rcs'){ctx.fillStyle=cyl(ctx,x,w,...SKINC.prata);ctx.fillRect(x,y0+h*.15,w,h*.7);ctx.beginPath();ctx.rect(x,y0+h*.15,w,h*.7);edge(ctx,u);ctx.fillStyle='#2a2e37';
     ctx.fillRect(x-w*.18,cy-h*.08,w*.18,h*.16);ctx.fillRect(x+w,cy-h*.08,w*.18,h*.16);ctx.fillRect(cx-w*.14,y0,w*.28,h*.15);ctx.fillRect(cx-w*.14,y0+h*.85,w*.28,h*.15);ctx.fillStyle='#ffc23a';ctx.fillRect(x,cy-h*.03,w,h*.06);return;}
   if(p.t==='paraL'){ctx.fillStyle=cyl(ctx,x,w,...METAL);ctx.fillRect(x+w*.1,y0+h*.25,w*.8,h*.75);ctx.beginPath();ctx.moveTo(x+w*.1,y0+h*.3);ctx.bezierCurveTo(x+w*.1,y0,x+w*.9,y0,x+w*.9,y0+h*.3);ctx.closePath();ctx.fillStyle='#e8682a';ctx.fill();edge(ctx,u);
@@ -659,7 +693,7 @@ function drawCraft(ctx,ps,u,X,Y,sepAlpha,fairA=1){pxs(ctx);for(const p of ps){co
 let parts=[],hist=[],sym=false,drag=null,gest=null,uidN=1,view={u:40,ox:0,oy:0},sel=null,tab=0,lastWH=null;
 // abas como no SFS, cada uma da peça menor para a maior; o pacote Redstone/Atlas tem aba própria
 const CATS=[['Comando',['para','paraL','probe','capPingo','capDupla','shield']],['Tanques',['tankP','engBase','tankM','tankG','tankXG']],['Motores',['rcs','engIon','engMini','engVaga','engBeija','engFalcao','engJabuti','engCondor','engTita']],['Propulsores',['srbP','srb','liqb']],
-  ['Aerodinâmica',['coneR','cone','coneInc','aleta','fus','fairBody','fair']],['Estrutura',['sepLat','sep','adapt','beamV','beam']],['Pouso',['leg','legG','wheel','wheelG','solar','solarG']],['Redstone/Atlas',['retro','les','capMerc','rdSep','rdFus','rdEng','rdTank','atSus','atBoost','atBase','atAdapt','atTank']]];
+  ['Aerodinâmica',['coneR','cone','coneInc','aleta','fus','fairBody','fair']],['Estrutura',['sepLat','sep','adapt','beamV','beam']],['Pouso',['hover','leg','legG','wheel','wheelG','solar','solarG']],['Redstone/Atlas',['retro','les','capMerc','rdSep','rdFus','rdEng','rdTank','atSus','atBoost','atBase','atAdapt','atTank']]];
 const mk=(type,x,y)=>({uid:uidN++,type,x,y});
 function stackUp(list,x,bottom){let y=bottom;return list.slice().reverse().map(t=>{const h=PARTS[t].h;y-=h;return mk(t,x,y+h/2);});}
 function presetTwo(){const core=stackUp(['para','capPingo','sep','tankM','engVaga','sep','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;return[...core,a,b];}
@@ -672,9 +706,15 @@ function presetLunar(){const core=stackUp(['para','capPingo','sep','tankM','tank
   for(const sd of[-1,1]){add[sd]=[mk('leg',sd*(.5+.15),lo.y),mk('sepLat',sd*(.65+.125),low.y),mk('liqb',sd*(.9+.45),-1.7),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 // sonda sem tripulante: ogiva, sonda com motor próprio (estágio de chute), estágio superior e primeiro estágio
-function presetProbe(){const core=stackUp(['probe','tankP','engMini','sep','tankM','tankM','engVaga','sep','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;
+function presetProbe(){const core=stackUp(['probe','tankP','engMini','sep','tankM','tankM','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);for(const q of core)if(q.type==='tankG'||q.type==='aleta')q.w=1.5;const t=mk('engTita',0,-1+PARTS.engTita.h/2);
   // carenagem oca em volta da carga: corpo sobre o separador de cima + bico
-  const sp=core.filter(q=>q.type==='sep').reduce((m,q)=>q.y<m.y?q:m),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.2),{h:2.4}),fc=mk('fair',0,top-2.4-PARTS.fair.h/2);return[...core,a,b,fb,fc];}
+  const sp=core.filter(q=>q.type==='sep').reduce((m,q)=>q.y<m.y?q:m),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.2),{h:2.4}),fc=mk('fair',0,top-2.4-PARTS.fair.h/2);return[...core,t,fb,fc];}
+// pacote Redstone/Atlas e hover
+function presetMR(){return stackUp(['les','capMerc','retro','rdSep','rdFus','rdTank','rdEng'],0,-1);}
+function presetMA(){const core=stackUp(['les','capMerc','retro','rdSep','atAdapt','atTank','atBase'],0,-1),bb=box(core.find(q=>q.type==='atBase')).b,a=mk('atBoost',-.53,bb+.45),c=mk('atBoost',.53,bb+.45),su=mk('atSus',0,bb+.45);a.mir=c.uid;c.mir=a.uid;return[...core,a,c,su];}
+function presetExplorer(){const core=stackUp(['probe','tankP','engMini','rdSep','rdFus','rdTank','rdEng'],0,-1),sp=core.find(q=>q.type==='rdSep'),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.2),{w:1.2,h:2.4}),fc=Object.assign(mk('fair',0,0),{w:1.2,h:PARTS.fair.h*1.2/1.3});fc.y=top-2.4-fc.h/2;return[...core,fb,fc];}
+function presetHover(){const core=stackUp(['para','capPingo','sep','tankM','beam'],0,-1),bb=-1,e=mk('engVaga',0,bb+PARTS.engVaga.h/2),a=mk('hover',-.7,bb+PARTS.hover.h/2),b=mk('hover',.7,bb+PARTS.hover.h/2);a.mir=b.uid;b.mir=a.uid;return[...core,e,a,b];}
+const PRESETS={btnP1:presetTwo,btnP2:presetSides,btnP3:presetLunar,btnP4:presetProbe,btnP5:presetMR,btnP6:presetMA,btnP7:presetExplorer,btnP8:presetHover};
 function save(){hist.push(JSON.stringify(parts));if(hist.length>60)hist.shift();}
 const mobile=()=>matchMedia('(max-width:860px)').matches,landM=()=>matchMedia('(orientation:landscape) and (max-height:500px)').matches;
 const selPart=()=>parts.find(q=>q.uid===sel);
@@ -703,7 +743,7 @@ function snapPos(type,px,py,others,w,h){const d=PARTS[type];let best=null,bd=Mat
   const cand=(x,y,pen=0)=>{const p={type,w,h,x,y};if(others.some(o=>overlaps(p,o)))return;const dd=Math.hypot(x-px,y-py)+pen;if(dd<bd){bd=dd;best={x,y};}};
   for(const o of others){const B=box(o),od=PT(o);cand(o.x,B.t-h/2);cand(o.x,B.b+h/2);
     const xs=Math.round(px*40)/40;if(w<=(B.r-B.l)*.6&&ovl(xs-w/2,xs+w/2,B.l,B.r)>.15){cand(xs,B.b+h/2,.25);cand(xs,B.t-h/2,.25);}
-    if(['sepLat','leg','solar','wheel','rcs','paraL'].includes(d.t)||od.t==='sepLat')for(const y of[o.y,B.t+h/2,B.b-h/2,Math.round(py*4)/4]){if(ovl(y-h/2,y+h/2,B.t,B.b)<.2)continue;cand(B.l-w/2,y);cand(B.r+w/2,y);}}
+    if(['sepLat','leg','solar','wheel','rcs','paraL','hover'].includes(d.t)||od.t==='sepLat')for(const y of[o.y,B.t+h/2,B.b-h/2,Math.round(py*4)/4]){if(ovl(y-h/2,y+h/2,B.t,B.b)<.2)continue;cand(B.l-w/2,y);cand(B.r+w/2,y);}}
   return best;}
 const overCanvas=e=>document.elementFromPoint(e.clientX,e.clientY)===sc;
 function startDrag(e,info){e.preventDefault();const P=PARTS[info.type];drag={moved:false,...info,sx:e.clientX,sy:e.clientY,pos:null,lift:e.pointerType==='touch'?60:0,w:info.part?W(info.part):P.w,h:info.part?H(info.part):P.h};$('#selBar').hidden=true;
@@ -817,7 +857,8 @@ $('#feOk').onclick=()=>{$('#fuelEd').hidden=true;feP=null;};
 $('#btnSym').onclick=()=>{sym=!sym;$('#btnSym').classList.toggle('on',sym);$('#btnSym').setAttribute('aria-pressed',sym);drawEditor();};$('#btnSym').setAttribute('aria-pressed','false');
 $('#btnUndo').onclick=()=>{if(hist.length){parts=JSON.parse(hist.pop());refresh();}};
 $('#btnClear').onclick=()=>{save();parts=[];sel=null;refresh();};
-$('#btnP1').onclick=()=>{save();parts=presetTwo();sel=null;fitView();refresh();};$('#btnP2').onclick=()=>{save();parts=presetSides();sel=null;fitView();refresh();};$('#btnP3').onclick=()=>{save();parts=presetLunar();sel=null;fitView();refresh();};$('#btnP4').onclick=()=>{save();parts=presetProbe();sel=null;fitView();refresh();};
+for(const[id,fn]of Object.entries(PRESETS))$('#'+id).onclick=()=>{save();parts=fn();sel=null;$('#models').hidden=true;fitView();refresh();};
+$('#btnModels').onclick=()=>{$('#models').hidden=!$('#models').hidden;$('#camp').hidden=true;};$('#mdClose').onclick=()=>{$('#models').hidden=true;};
 addEventListener('keydown',e=>{if(flight.on||e.target.tagName==='INPUT')return;if(e.key==='Escape'&&!$('#saves').hidden){$('#saves').hidden=true;return;}if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();$('#btnUndo').onclick();}
   else if((e.key==='Delete'||e.key==='Backspace')&&sel!=null){e.preventDefault();$('#sDel').onclick();}else if(e.key==='Escape'){sel=null;refresh();}});
 addEventListener('resize',()=>{if(flight.on)return;if(lastWH){view.ox+=(sc.clientWidth-lastWH[0])/2;view.oy+=(sc.clientHeight-lastWH[1])/2;}lastWH=[sc.clientWidth,sc.clientHeight];refresh();});
@@ -895,7 +936,7 @@ function audioUpdate(m){if(!snd.ac)return;const t=snd.ac.currentTime,air=m.rails
     ion=m.ion||0,lvl=L*(body+(1-body)*inAir)*(1+1.1*near)*(1-.95*ion),fl=()=>.7+Math.random()*.6,heavy=Math.max(0,1-.6*m.blue-.45*(m.hyper||0)-.3*(m.alc||0));
   snd.sub.gn.gain.setTargetAtTime(lvl*1.4*heavy*fl(),t,.05);snd.rumble.gn.gain.setTargetAtTime(lvl*1.1*heavy*fl(),t,.04);snd.roar.gn.gain.setTargetAtTime(lvl*.7*fl(),t,.025);snd.mid.gn.gain.setTargetAtTime(lvl*.28*inAir*fl(),t,.03);
   snd.crack.gn.gain.setTargetAtTime(L*inAir*(1+near)*(m.kero*.9+m.blue*.3+(m.hyper||0)*.2+(m.alc||0)*.12)*(.5+Math.random()),t,.02);snd.crackS.gn.gain.setTargetAtTime(L*inAir*(1+near)*(m.solid*1.1+(m.les||0)*1.4)*(.5+Math.random()),t,.02);
-  snd.scream&&snd.scream.gn.gain.setTargetAtTime(L*(.25+inAir)*((m.les||0)*1.1+(m.hyper||0)*.12)*fl(),t,.03);snd.hum&&snd.hum.gn.gain.setTargetAtTime(L*ion*.05,t,.2);snd.rcsN&&snd.rcsN.gn.gain.setTargetAtTime((m.rcs||0)*(.06+.05*Math.random()),t,.02);
+  snd.scream&&snd.scream.gn.gain.setTargetAtTime(L*(.25+inAir)*((m.les||0)*1.1+(m.hyper||0)*.12)*fl(),t,.03);snd.hum&&snd.hum.gn.gain.setTargetAtTime(L*ion*.05,t,.2);snd.rcsN&&snd.rcsN.gn.gain.setTargetAtTime((m.rcs||0)*(.06+.05*Math.random())+(m.hov||0)*.05,t,.05);
   snd.hiss.gn.gain.setTargetAtTime(L*inAir*(.03+.1*m.blue+.16*(m.hyper||0)+.05*(m.alc||0)),t,.06); // no vácuo não há chiado de jato, só o ronco pela estrutura
   snd.drive.gain.setTargetAtTime(1+2.2*L*inAir*(.4+near),t,.08); // satura como microfone estourando
   const cam=m.cam??1;snd.post.gain.setTargetAtTime(.55*cam,t,.15);snd.lp.frequency.setTargetAtTime((220+11000*Math.pow(air,.8))*(.25+.75*Math.min(1,cam)),t,.12);snd.echoOut.gain.setTargetAtTime(.6*near*L,t,.2);
@@ -961,6 +1002,59 @@ const stars=(()=>{const r=rng(9);return Array.from({length:320},()=>[r(),r(),r()
 const flight={on:false};const cv=$('#sky'),g=cv.getContext('2d');
 let S,V,debris=[],particles=[],meteors=[],keys={},warp=1,WARPS=[1,2,3,5,50,100,500,1000,2500,10000,100000],sas=true,view2='flight',zoomUser=1,zs=0,VW=0,VH=0,DPR=1,camY=0,z=1,rot=0,camX=0,camYw=0;
 const map={s:1e-4,cx:0,cy:0,ox:0,oy:0};let pred=null;
+// ================= CAMPANHA =================
+let CAMP_CUR=null;
+const sp_=()=>Math.hypot(S.rvx,S.rvy),probeOnly=()=>!!(V.cap&&PT(V.cap).probe),onMoon=()=>S.dom===MOON_B&&V.ground&&sp_()<1;
+const CAMP=[
+ {id:'c1',t:'Primeiro salto',ship:'Mercury-Redstone',preset:()=>presetMR(),txt:'Como Alan Shepard em 1961: um arco até o espaço e volta, sem entrar em órbita.',steps:[
+  {id:'a',t:'Decolar',h:'Toque no motor A-7 para armar, acelerador no máximo e LIGAR.',done:()=>S.altE>5000},
+  {id:'b',t:'Passar dos 100 km',h:'Suba quase reto, inclinando só um pouco para a direita.',done:()=>S.altE>SPACE},
+  {id:'c',t:'Pousar em segurança',h:'No alto, ESTÁGIO solta o foguete. Mira para trás (escudo para frente) e o paraquedas abre sozinho se estiver armado.',done:()=>S.landedEarth}]},
+ {id:'c2',t:'Uma volta ao mundo',ship:'Mercury-Atlas',preset:()=>presetMA(),txt:'Como John Glenn em 1962: entre em órbita da Terra e volte.',steps:[
+  {id:'a',t:'Chegar ao espaço',h:'Arme os três motores do Atlas e suba inclinando até uns 45° perto dos 12 km.',done:()=>S.altE>SPACE},
+  {id:'b',t:'Entrar em órbita',h:'Solte a Base Atlas (ESTÁGIO) quando ela secar o empuxo; deite na horizontal até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'c',t:'Voltar e pousar',h:'Mira para trás e freie até o Pe cair abaixo de 40 km. Solte tudo, fique só com a cápsula.',done:()=>S.landedEarth}]},
+ {id:'c3',t:'Primeiro satélite',ship:'Explorer',preset:()=>presetExplorer(),txt:'Ponha uma sonda em órbita e abra os painéis solares.',steps:[
+  {id:'a',t:'Chegar ao espaço',h:'Arme o A-7 e suba inclinando aos poucos.',done:()=>S.altE>SPACE},
+  {id:'b',t:'Soltar a carenagem',h:'Acima de 60 km, ESTÁGIO ou toque na carenagem.',done:()=>!V.parts.some(q=>PT(q).t==='fair')},
+  {id:'c',t:'Órbita acima de 150 km',h:'Use o motor da sonda (Formiga) para subir o Pe acima de 150 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>150000},
+  {id:'d',t:'Sonda livre e aberta',h:'Solte o resto do foguete: a sonda abre os painéis sozinha.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
+ {id:'c4',t:'Até a Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande uma sonda até a gravidade da Lua.',steps:[
+  {id:'a',t:'Entrar em órbita',h:'Pe acima de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Navegar até a Lua',h:'Abra o mapa, toque na Lua e escolha Navegar.',done:()=>target===MOON_B},
+  {id:'c',t:'Entrar na gravidade da Lua',h:'Siga a linha verde até a mira laranja.',done:()=>S.dom===MOON_B}]},
+ {id:'c5',t:'Órbita da Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Chegue na Lua e freie para ficar presa em órbita dela.',steps:[
+  {id:'a',t:'Entrar na gravidade da Lua',h:'Órbita, Navegar até a Lua e siga a linha verde.',done:()=>S.dom===MOON_B},
+  {id:'b',t:'Ficar em órbita da Lua',h:'No ponto mais perto (Pe), Mira para trás e freie o que o mapa pedir.',done:()=>S.dom===MOON_B&&S.el&&S.el.bound&&S.el.pe>5000}]},
+ {id:'c6',t:'Passeio de hover',ship:'Hover',preset:()=>presetHover(),start:'moon',txt:'Você já começa pousado na Lua com o hover. Ande pelo chão de outro mundo.',steps:[
+  {id:'a',t:'Ligar o hover',h:'Botão HOVER embaixo: a nave sobe uns 3 m e flutua.',done:()=>!!V.hovOn},
+  {id:'b',t:'Andar 2 km',h:'Segure ◀ ou ▶ para andar flutuando.',done:()=>(S.hovDist||0)>2000},
+  {id:'c',t:'Pousar parado',h:'Pare, desligue o HOVER e a nave desce até o chão.',done:()=>(S.hovDist||0)>2000&&!V.hovOn&&onMoon()}]},
+ {id:'c7',t:'Pouso na Lua',ship:'Lunar',preset:()=>presetLunar(),txt:'Como a Apollo 11: chegue na Lua e pouse de pé.',steps:[
+  {id:'a',t:'Entrar em órbita',h:'Pe acima de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Entrar na gravidade da Lua',h:'Navegar até a Lua e siga a linha verde.',done:()=>S.dom===MOON_B},
+  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G), Mira para trás e freie. Toque o chão a menos de 8 m/s.',done:()=>onMoon()}]},
+ {id:'c8',t:'Volta para casa',ship:'Lunar',preset:()=>presetLunar(),txt:'Pouse na Lua e traga a cápsula de volta para a Terra.',steps:[
+  {id:'a',t:'Pousar na Lua',h:'Mesmo caminho da missão anterior.',done:()=>onMoon()},
+  {id:'b',t:'Voltar para a gravidade da Terra',h:'Decole, acelere para frente até escapar da Lua de volta.',done:()=>S.done.has('a')&&S.dom.earth},
+  {id:'c',t:'Pousar na Terra',h:'Só a cápsula, escudo para frente, paraquedas armado.',done:()=>S.landedEarth}]},
+ {id:'c9',t:'Rumo a Marte',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande a sonda até a gravidade de Marte. Use o tempo acelerado.',steps:[
+  {id:'a',t:'Entrar em órbita',h:'Pe acima de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Navegar até Marte',h:'No mapa, afaste até ver os planetas, toque em Marte e escolha Navegar.',done:()=>target&&target.n==='Marte'},
+  {id:'c',t:'Entrar na gravidade de Marte',h:'Acelere no ponto verde e siga até a mira.',done:()=>S.dom.n==='Marte'}]},
+];
+const campLoad=()=>{try{return JSON.parse(localStorage.getItem('orbita.camp')||'{}').done||[];}catch(e){return[];}},campSave=d=>{try{localStorage.setItem('orbita.camp',JSON.stringify({done:d}));}catch(e){}};
+function campUnlocked(i){const d=campLoad();return i===0||d.includes(CAMP[i-1].id)||d.includes(CAMP[i].id);}
+function renderCamp(){const d=campLoad();$('#cpList').innerHTML='';CAMP.forEach((c,i)=>{const li=document.createElement('li'),ok=campUnlocked(i),dn=d.includes(c.id);li.className=(dn?'done ':'')+(ok?'':'lock ')+(CAMP_CUR===c.id?'cur':'');
+  li.innerHTML='<span class="n">'+(dn?'✓':i+1)+'</span><div><b>'+c.t+'</b><small>'+c.txt+' · nave: '+c.ship+'</small></div>';const b=document.createElement('button');b.textContent=ok?(dn?'Jogar de novo':'Jogar'):'🔒';b.disabled=!ok;if(ok&&!dn)b.className='primary';b.onclick=()=>campStart(c.id);li.appendChild(b);$('#cpList').appendChild(li);});}
+function campStart(id){const c=CAMP.find(q=>q.id===id);CAMP_CUR=id;save();parts=c.preset();sel=null;$('#camp').hidden=true;$('#models').hidden=true;campBar();fitView();refresh();}
+function campBar(){const c=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);$('#campBar').hidden=!c;if(c)$('#cbTxt').innerHTML='<b>Missão '+(CAMP.indexOf(c)+1)+':</b> '+c.t+(c.start==='moon'?' · começa na Lua':'');}
+function campWin(c){$('#toast').classList.remove('on');const d=campLoad();if(!d.includes(c.id))d.push(c.id);campSave(d);const i=CAMP.indexOf(c),nx=CAMP[i+1];sfx('chime');$('#cwT').textContent='Missão cumprida ✓';$('#cwB').textContent=c.t+(nx?' · Próxima: '+nx.t:' · Você terminou a campanha!');$('#cwNext').hidden=!nx;$('#campWin').hidden=false;
+  $('#cwNext').onclick=()=>{$('#campWin').hidden=true;$('#mHangar').onclick();campStart(nx.id);};}
+$('#cwStay').onclick=()=>{$('#campWin').hidden=true;};
+$('#btnCamp').onclick=()=>{renderCamp();$('#camp').hidden=!$('#camp').hidden;$('#models').hidden=true;};$('#cpClose').onclick=()=>{$('#camp').hidden=true;};$('#cbOpen').onclick=()=>{renderCamp();$('#camp').hidden=false;};
+$('#cpFree').onclick=()=>{CAMP_CUR=null;campBar();$('#camp').hidden=true;};
+let MS=null; // missões ativas do voo (campanha ou modo livre)
 const MISSIONS=[
  {id:'lift',t:'Decolar',h:'1) Toque nos motores e propulsores para armar (luz amarela). 2) Ajuste o acelerador (barra da direita ou W). 3) Aperte LIGAR em cima dela (ou E). Suba até 10 km.',why:'O foguete só sai do chão quando o empuxo passa o peso. Até lá, as garras da torre seguram.',done:()=>S.altE>10000},
  {id:'space',t:'Chegar ao espaço',h:'Passe dos 100 km. A partir de 1 km, incline devagar para a direita até uns 45° perto dos 12 km.',why:'Por convenção internacional o espaço começa na Linha de Kármán, a 100 km. Subir reto gasta combustível à toa; deitar cedo demais queima no ar denso.',done:()=>S.altE>SPACE},
@@ -973,10 +1067,14 @@ function launch(){audioInit();musicStop(true);PHZ.ph={};PHZ.n=null;PHZ.rate=0;PH
   V=makeVessel(ps,c.x*UNIT,R+(bot-c.y)*UNIT,0,0,Math.PI/2);V.clamped=true;V.main=true;V.hold=Math.PI/2;if(!V.act.length)V.clamped=false;
   S={t:0,thr:0,count:null,liftT:-1,alt:0,altE:0,rvx:0,rvy:0,spaced:false,landedEarth:false,dead:false,done:new Set(),layer:-1,dom:EARTH_B,el:null,padParts:parts.map(p=>({...p}))};
   debris=[];particles=[];meteors=[];warp=1;view2='flight';snaps=[];snapT=0;$('#deadBox').hidden=true;zoomUser=1;zs=0;
-  $('#hangar').style.display='none';$('#flight').classList.add('on');flight.on=true;buildStrip();buildMissions();aimUI();leverUI();hidePop();toast('Pronto para decolar','Toque nos motores para armar, ajuste o acelerador e aperte LIGAR.');lastTs=0;requestAnimationFrame(loop);}
+  const cm=CAMP_CUR&&CAMP.find(c=>c.id===CAMP_CUR);MS=cm?cm.steps:MISSIONS;S.hover=false;S.rcs=false;$('#campWin').hidden=true;
+  $('#hangar').style.display='none';$('#flight').classList.add('on');flight.on=true;buildStrip();buildMissions();aimUI();leverUI();hidePop();
+  if(cm&&cm.start==='moon'){spawnOn(MOON_B);toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);}else if(cm)toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);else toast('Pronto para decolar','Toque nos motores para armar, ajuste o acelerador e aperte LIGAR.');lastTs=0;requestAnimationFrame(loop);}
+// começa pousado em outro mundo (missões da campanha)
+function spawnOn(B){const a=1.25,bp=B.pos(S.t),bv=B.vel(S.t),bot=Math.max(...V.parts.map(p=>box(p).b)),d=B.r+(bot-V.com.y)*UNIT+.05;V.x=bp[0]+d*Math.cos(a);V.y=bp[1]+d*Math.sin(a);V.vx=bv[0];V.vy=bv[1];V.hdg=a;V.om=0;V.hold=a;V.clamped=false;S.liftT=0;S.spaced=true;domain();}
 function makeVessel(ps,x,y,vx,vy,hdg,om){const v={parts:ps,x,y,vx,vy,hdg,om:om||0,lit:false,chute:0,armed:false,firing:[],q:0,com:centerOfMass(ps)};restructure(v);updateMass(v);return v;}
 function restructure(v){v.adj=graph(v.parts);v.seg=segments(v.parts,v.adj);v.act=activeEng(v.parts);v.cda=axialCdA(v.parts);v.sideA=v.parts.reduce((s,p)=>s+W(p)*H(p),0)*UNIT*UNIT;
-  v.cap=v.parts[capIdx(v.parts)];v.wheels=v.parts.filter(p=>PT(p).t==='wheel');v.solars=v.parts.filter(p=>PT(p).t==='solar');v.legs=v.parts.filter(p=>PT(p).t==='leg');v.paraL=v.parts.filter(p=>PT(p).t==='paraL');v.para=v.parts.find(p=>PT(p).t==='para'||PT(p).chute)||v.paraL[0];v.rcs=v.parts.filter(p=>PT(p).t==='rcs');v.groups=v.cap?stageGroups(v.parts,v.adj):[];}
+  v.cap=v.parts[capIdx(v.parts)];v.wheels=v.parts.filter(p=>PT(p).t==='wheel');v.solars=v.parts.filter(p=>PT(p).t==='solar');v.legs=v.parts.filter(p=>PT(p).t==='leg');v.paraL=v.parts.filter(p=>PT(p).t==='paraL');v.para=v.parts.find(p=>PT(p).t==='para'||PT(p).chute)||v.paraL[0];v.rcs=v.parts.filter(p=>PT(p).t==='rcs');v.hov=v.parts.filter(p=>PT(p).t==='hover');v.groups=v.cap?stageGroups(v.parts,v.adj):[];}
 // o centro de massa anda quando o combustível acaba: o corpo fica no lugar e só o ponto de referência se desloca
 function updateMass(v){const c=centerOfMass(v.parts),bx=(c.x-v.com.x)*UNIT,by=-(c.y-v.com.y)*UNIT,sn=Math.sin(v.hdg),cs=Math.cos(v.hdg);v.x+=bx*sn+by*cs;v.y+=-bx*cs+by*sn;v.com=c;v.m=c.m;v.I=inertia(v.parts,c);}
 const bodyToWorld=(v,ux,uy)=>{const bx=(ux-v.com.x)*UNIT,by=-(uy-v.com.y)*UNIT,sn=Math.sin(v.hdg),cs=Math.cos(v.hdg);return[v.x+bx*sn+by*cs,v.y-bx*cs+by*sn];};
@@ -1010,6 +1108,16 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
   v.gl=Math.hypot(Fx,Fy)/v.m/G0;
   if(v.ground&&v.wheels&&v.wheels.length&&ctl.drive!=null){const bp=dom.pos(S.t),bv=dom.vel(S.t),nx=v.x-bp[0],ny=v.y-bp[1],nn=Math.hypot(nx,ny),tx=-ny/nn,ty=nx/nn,vt=(v.vx-bv[0])*tx+(v.vy-bv[1])*ty,acc=ctl.drive?ctl.drive*2.5:-Math.sign(vt)*Math.min(Math.abs(vt)/dt,2),nv=Math.max(-11,Math.min(11,vt+acc*dt));v.vx+=(nv-vt)*tx;v.vy+=(nv-vt)*ty;
     for(const w of v.wheels){const r=Math.min(W(w),H(w))*.42*UNIT;w.rot=((w.rot||0)-nv*dt/r)%(Math.PI*2);}}
+  v.hovOn=false;for(const q of v.hov||[])q.glow=Math.max(0,(q.glow||0)-dt*2);
+  if(v.clamped&&v.hgt==null)v.hgt=0;if(ctl.hover&&v.hov&&v.hov.length&&v.hgt!=null&&v.hgt<25){const tot=Object.values(sf).reduce((a,b)=>a+b,0);
+    if(tot>0||CH.fuel){if(v.clamped){v.clamped=false;if(v.main&&S.liftT<0)S.liftT=S.t;}const bp=dom.pos(S.t),bv=dom.vel(S.t),nx=v.x-bp[0],ny=v.y-bp[1],nn=Math.hypot(nx,ny),ux=nx/nn,uy=ny/nn,tx=-uy,ty=ux,
+      gl=dom.mu/(nn*nn),vr=(v.vx-bv[0])*ux+(v.vy-bv[1])*uy,vt=(v.vx-bv[0])*tx+(v.vy-bv[1])*ty,H0=3,
+      aUp=Math.max(0,Math.min(3*gl+6,gl*(1+1.4*(H0-v.hgt)/H0)-2.2*vr)),aT=Math.max(-4,Math.min(4,((ctl.hover.dir||0)*18-vt)*1.6));
+      Fx+=(aUp*ux+aT*tx)*v.m;Fy+=(aUp*uy+aT*ty)*v.m;
+      // fica de pé: corrige a inclinação como um piloto automático
+      const up=Math.atan2(uy,ux),err=Math.atan2(Math.sin(up-v.hdg),Math.cos(up-v.hdg));tau+=(err*6-v.om*4)*v.I;
+      if(!CH.fuel){const use=Math.hypot(aUp,aT)*v.m/(320*G0)*dt;v.parts.forEach(p=>{if(p.fuel>0&&tot>0)p.fuel=Math.max(0,p.fuel-use*p.fuel/tot);});}
+      v.hovOn=true;for(const q of v.hov)q.glow=Math.min(1,(q.glow||0)+dt*4);if(v.main){S.hovDist=(S.hovDist||0)+Math.abs(vt)*dt;S.hovUsed=true;}}}
   if(v.clamped){if(Fx*axv[0]+Fy*axv[1]>v.m*G0*1.02){v.clamped=false;if(v.main){S.liftT=S.t;sfx('clamp');}}else{v.vx=v.vy=0;v.om=0;return;}}
   const[gx,gy]=G_(v.x,v.y,S.t);v.vx+=(Fx/v.m+gx)*dt;v.vy+=(Fy/v.m+gy)*dt;v.om=Math.max(-2.5,Math.min(2.5,v.om+tau/v.I*dt));v.hdg+=v.om*dt;v.x+=v.vx*dt;v.y+=v.vy*dt;
   contact(v,dom);}
@@ -1089,14 +1197,15 @@ const TURN_RATE=.25; // rad/s pedidos pelo piloto; o computador de bordo usa gim
 function tgtOm(user){if(user){V.hold=null;if(V.aim){V.aim=null;aimUI();}return user*TURN_RATE;}if(V.aim&&Math.hypot(S.rvx,S.rvy)>1)V.hold=Math.atan2(S.rvy,S.rvx)+(V.aim==='retro'?Math.PI:0);if(V.hold==null)V.hold=V.hdg;const e=Math.atan2(Math.sin(V.hold-V.hdg),Math.cos(V.hold-V.hdg));return Math.max(-TURN_RATE,Math.min(TURN_RATE,e*1.2));}
 function steer(user,dt){const err=tgtOm(user)-V.om;V.trim=Math.max(-1,Math.min(1,(V.trim||0)+err*dt*3)); // trim: compensa empuxo fora do centro
   return Math.max(-1,Math.min(1,err*4+V.trim));}
-function stepWorld(dt){S.t+=dt;const user=(keys.a?1:0)-(keys.d?1:0),drv=V.ground&&V.wheels&&V.wheels.length&&!V.clamped,turn=V.clamped||drv||!(user||sas||V.aim)?0:steer(user,dt),thr=warp>5?0:S.thr;
-  if(!S.dead)stepV(V,dt,{rot:turn,thr,rails:warp>5,master:!!S.master,drive:drv?user:null,rcs:S.rcs?RCST:null});for(const d of debris){if(!d.dead)stepV(d,dt,{rot:0,thr:0,rails:warp>5,drive:d.wheels&&d.wheels.length?0:null});d.t+=dt;}debris=debris.filter(d=>!d.dead);if(debris.length>40){const k=debris.findIndex(d=>!d.cap);debris.splice(k<0?0:k,1);}
+function stepWorld(dt){S.t+=dt;const user=(keys.a?1:0)-(keys.d?1:0),hovT=!!(S.hover&&V.hov&&V.hov.length&&(V.hgt??0)<25),drv=V.ground&&V.wheels&&V.wheels.length&&!V.clamped,turn=V.clamped||drv||!(user||sas||V.aim)?0:steer(user,dt),thr=warp>5?0:S.thr;
+  if(!S.dead)stepV(V,dt,{rot:hovT?0:turn,thr,rails:warp>5,master:!!S.master,drive:drv&&!hovT?user:null,rcs:S.rcs?RCST:null,hover:S.hover&&V.hov&&V.hov.length?{dir:user}:null});for(const d of debris){if(!d.dead)stepV(d,dt,{rot:0,thr:0,rails:warp>5,drive:d.wheels&&d.wheels.length?0:null});d.t+=dt;}debris=debris.filter(d=>!d.dead);if(debris.length>40){const k=debris.findIndex(d=>!d.cap);debris.splice(k<0?0:k,1);}
   for(const p of particles){const pr=Math.hypot(p.x,p.y),air=rhoAt(pr-R)/RHO0;if(p.type==='smoke'){const k=Math.exp(-1.4*Math.sqrt(air)*dt);p.vx*=k;p.vy*=k;p.vx+=p.x/pr*3*air*dt;p.vy+=p.y/pr*3*air*dt;}
     p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;p.size+=p.grow*dt*(p.type==='smoke'?Math.max(.15,Math.sqrt(air)):1);p.heat=Math.max(0,(p.heat||0)-dt*2.5);
     if(pr<R){const nx=p.x/pr,ny=p.y/pr,vr=p.vx*nx+p.vy*ny;p.x=nx*R;p.y=ny*R;p.vx-=vr*nx;p.vy-=vr*ny;if(!p.spread){p.spread=1;const s=(Math.random()<.5?-1:1)*(25+Math.random()*55);p.vx+=-ny*s;p.vy+=nx*s;}}}
   particles=particles.filter(p=>p.life>0);
   if(!S.dead){domain();if(S.altE>SPACE)S.spaced=true;if(V.ground&&S.spaced&&S.dom.earth&&Math.hypot(S.rvx,S.rvy)<1)S.landedEarth=true;}}
 function emit(real){
+  if(V&&V.hovOn&&!S.dead&&V.hgt<12){const bp=S.dom.pos(S.t),nx=V.x-bp[0],ny=V.y-bp[1],nn=Math.hypot(nx,ny),ux=nx/nn,uy=ny/nn;for(const q of V.hov){if(Math.random()>real*30)continue;const[qx,qy]=bodyToWorld(V,q.x,box(q).b),d=Math.hypot(qx-bp[0],qy-bp[1])-S.dom.r,gx=qx-ux*d,gy=qy-uy*d,sd=Math.random()<.5?-1:1,sp=8+Math.random()*14;particles.push({type:'smoke',x:gx,y:gy,vx:-uy*sd*sp+ux*2+(S.dom.vel(S.t)[0]),vy:ux*sd*sp+uy*2+(S.dom.vel(S.t)[1]),life:1.2+Math.random(),max:2.2,size:.8,grow:2.5,v:Math.floor(Math.random()*4),heat:0,spread:1});}}
   if(S.rcs&&V.rcs&&V.rcs.length&&(RCST.x||RCST.y||keys.a||keys.d)&&!S.dead){const sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),ax=[cs,sn],px=[sn,-cs];for(const q of V.rcs){const[qx,qy]=bodyToWorld(V,q.x,q.y),dx=-(RCST.x*px[0]+RCST.y*ax[0])||(Math.random()-.5),dy=-(RCST.x*px[1]+RCST.y*ax[1])||(Math.random()-.5);
     for(let k=0;k<2;k++)particles.push({type:'smoke',x:qx,y:qy,vx:V.vx+dx*30+(Math.random()-.5)*6,vy:V.vy+dy*30+(Math.random()-.5)*6,life:.5,max:.5,size:.4,grow:3,v:k%4,heat:0,spread:1});}}for(const v of[V,...debris]){if(v.dead)continue;const sn=Math.sin(v.hdg),cs=Math.cos(v.hdg),ax=-cs,ay=-sn,px=-ay,py=ax;
   for(const f of v.firing){const P=PT(f.p),[ex,ey]=bodyToWorld(v,f.p.x,f.p.y+P.h/2),nw=P.w*UNIT*(P.solid||P.lock?.7:.9),air=f.air,n=Math.ceil(real*60*(v.main?3:1.5));
@@ -1116,7 +1225,7 @@ function vLoad(o){o.firing=[];restructure(o);return o;}
 function snapshot(){return JSON.stringify({S:{...S,done:[...S.done],dom:null,el:null,lastDom:null},V:vSnap(V),D:debris.slice(-20).map(vSnap),warp,target:target?target.n:null,phz:{...PHZ,ph:{...PHZ.ph}},rdv:rdv?{...rdv,b:rdv.b.n}:null});}
 function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.done)};V=vLoad(o.V);aimUI();leverUI();debris=o.D.map(vLoad);particles=[];meteors=[];warp=o.warp>5?1:o.warp;target=BODIES.find(b=>b.n===o.target)||null;if(o.phz){Object.assign(PHZ,o.phz);}rdv=o.rdv?{...o.rdv,b:BODIES.find(b=>b.n===o.rdv.b)}:null;if(rdv&&!rdv.b)rdv=null;S.dead=false;domain();pred=null;zs=0;buildMissions();$('#deadBox').hidden=true;}
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
-async function saveGame(){try{const cur=MISSIONS.find(m=>!S.done.has(m.id));await stSaveGame({snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
+async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
@@ -1127,7 +1236,8 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
     if(S.probeDep&&S.t>=S.probeDep){S.probeDep=0;if(V.cap&&PT(V.cap).probe){V.cap.dep=true;sfx('clamp');tip(innerWidth/2,innerHeight*.4,'Sonda abrindo painéis solares e antena');}}
     for(const v of[V,...debris])if(v.legs)for(const q of v.legs){const tg=q.dep?1:0;q.depT=q.depT??tg;if(q.depT!==tg)q.depT=Math.max(0,Math.min(1,q.depT+(tg?1:-1)*real/.9));}
     emit(real);const li=layerAt(S.altE);if(S.dom.earth&&li!==S.layer){if(li>S.layer&&li>0){layerBanner(li);if(S.layer>=0)sfx('chime');}S.layer=li;}
-    for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
+    if(CAMP_CUR){const cm=CAMP.find(c=>c.id===CAMP_CUR),m=MS.find(q=>!S.done.has(q.id));if(m&&m.done()){S.done.add(m.id);sfx('chime');buildMissions();const nx=MS.find(q=>!S.done.has(q.id));if(nx)toast(m.t+' ✓','Agora: '+nx.t+'. '+nx.h);else campWin(cm);}}
+    else for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
     if(S.dom!==S.lastDom){const ci=S.lastDom&&capInfo();if(ci&&!ci.hit)toast('Na gravidade '+S.dom.de,ci.bound?'Você já está preso numa órbita aqui.':'A '+Math.round(ci.v)+' m/s você passa reto (escape aqui: '+Math.round(ci.esc)+' m/s). Para ficar: Mira para trás e freie '+Math.round(ci.dv)+' m/s no Pe.');S.lastDom=S.dom;}}
   else{stepWorldDead(real);$('#deadBox').hidden=false;$('#btnRewind').hidden=!snaps.length;}
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
@@ -1172,7 +1282,7 @@ let tipT=null;
 function tip(cx,cy,t,off){const el=$('#tip');el.textContent=t;el.className='glass on'+(off?' off':'');const w=el.offsetWidth;el.style.left=Math.max(8,Math.min(innerWidth-w-8,cx-w/2))+'px';el.style.top=Math.max(8,cy-56)+'px';clearTimeout(tipT);tipT=setTimeout(()=>el.classList.remove('on'),1400);}
 // RCS: setas seguram para andar de lado/frente/trás (teclado: I J K L)
 const RCST={x:0,y:0};
-function rcsUI(){const has=!!(V&&V.rcs&&V.rcs.length&&!S.dead);$('#btnRcs').hidden=!has;$('#btnRcs').classList.toggle('on',!!S.rcs);$('#rcsPad').hidden=!(has&&S.rcs);}
+function rcsUI(){{const hb=$('#btnHover'),has=!!(V&&V.hov&&V.hov.length&&!S.dead);hb.hidden=!has;hb.classList.toggle('on',!!S.hover);hb.textContent='Hover: '+(S.hover?(V&&V.hovOn?'flutuando · ◀ ▶ anda':'ligado (desça até 25 m)'):'desligado');}const has=!!(V&&V.rcs&&V.rcs.length&&!S.dead);$('#btnRcs').hidden=!has;$('#btnRcs').classList.toggle('on',!!S.rcs);$('#rcsPad').hidden=!(has&&S.rcs);}
 function setMaster(on){if(!V||S.dead)return;S.master=on;const ar=V.act.map(i=>V.parts[i]).filter(q=>q.on);leverUI();if(on&&ar.length&&(S.thr>0||ar.some(locked)))sfx('ignite');
   const r=$('#btnEng').getBoundingClientRect(),lit=V.parts.some(q=>q.lit&&q.fuel>0);tip(r.left+r.width/2,r.top,on?(ar.length?(S.thr>0?'Ignição ✓':'Ignição ✓ · suba o acelerador'):'Nenhum motor armado: toque nos motores'):(lit?'Normais desligados · propulsor continua':'Motores desligados'),!on);}
 // toque perto de uma nave solta que tenha comando: oferece trocar o controle para ela
@@ -1180,7 +1290,7 @@ function tapDebris(cx,cy,wx,wy){const W0=[V.x+wx,V.y+wy];void W0;let best=null,b
   if(!best||bd>Math.max(40,vesselLen(best)*z*.6)){hidePop();return;}showPop(cx,cy,PT(best.cap).probe?'Sonda separada':'Nave separada','controlada por '+PT(best.cap).n.toLowerCase(),'Controlar esta nave',false,()=>{switchTo(best);hidePop();});}
 function switchTo(d){debris=debris.filter(x=>x!==d);V.main=false;V.t=0;debris.push(V);V=d;V.main=true;V.hold=null;restructure(V);updateMass(V);domain();zs=0;aimUI();leverUI();tip(innerWidth/2,innerHeight*.35,'Controlando: '+PT(V.cap).n);}
 function toggleLegs(cx,cy){if(!V||!V.legs.length||S.dead)return;const open=!V.legs.every(p=>p.dep);V.legs.forEach(p=>p.dep=open);sfx('clamp');tip(cx??innerWidth/2,cy??innerHeight*.5,open?'Pés de pouso abertos ✓':'Pés de pouso fechados');}
-$('#btnLegs').onclick=()=>toggleLegs();$('#btnRcs').onclick=()=>{S.rcs=!S.rcs;rcsUI();};
+$('#btnLegs').onclick=()=>toggleLegs();$('#btnRcs').onclick=()=>{S.rcs=!S.rcs;rcsUI();};$('#btnHover').onclick=()=>{S.hover=!S.hover;sfx('clamp');if(S.hover)tip(innerWidth/2,innerHeight*.45,'Hover ligado: perto do chão a nave flutua; ◀ ▶ para andar');rcsUI();};
 document.querySelectorAll('#rcsPad button').forEach(b=>{const[x,y]=b.dataset.r.split(',').map(Number),on=e=>{e.preventDefault();RCST.x=x;RCST.y=y;},off=()=>{RCST.x=RCST.y=0;};b.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,off));});
 function engKey(){setMaster(!S.master);}
 function leverUI(){const b=$('#btnEng'),on=!!(S&&S.master);b.classList.toggle('on',on);b.setAttribute('aria-checked',on);$('#engLbl').textContent=on?'LIGADOS':'LIGAR';}
@@ -1189,8 +1299,8 @@ let lbTimer,tTimer;
 function layerBanner(i){const L=LAYERS[i];$('#lbAlt').textContent=(L.a/1000)+' a '+(L.b>=1e7?'10.000':L.b/1000)+' km';$('#lbName').textContent=L.n;$('#lbFact').textContent=L.f;$('#layerFact').innerHTML='<b style="color:var(--ink)">'+L.n+'</b> · '+L.f;$('#layerBox').classList.add('on');const rl=$('#rLayer');rl.classList.remove('flash');void rl.offsetWidth;rl.classList.add('flash');clearTimeout(lbTimer);lbTimer=setTimeout(()=>$('#layerBox').classList.remove('on'),mobile()?3500:7000);}
 function toast(t,b){const el=$('#toast');$('#tTitle').textContent=t;$('#tBody').textContent=b;el.classList.add('on');el.classList.remove('full');el.classList.toggle('mini',mobile()||landM());clearTimeout(tTimer);tTimer=setTimeout(()=>el.classList.remove('on'),mobile()?3500:8000);}
 $('#toast').onclick=()=>{const el=$('#toast');if(el.classList.contains('mini')||!el.classList.contains('full')){el.classList.remove('mini');el.classList.add('full');clearTimeout(tTimer);tTimer=setTimeout(()=>el.classList.remove('on'),9000);}else el.classList.remove('on');};
-function buildMissions(){const cur=MISSIONS.find(m=>!S.done.has(m.id));$('#missions').innerHTML=MISSIONS.map(m=>'<li class="'+(S.done.has(m.id)?'done':'')+(m===cur?' cur':'')+'"><i>'+(S.done.has(m.id)?'✓':'○')+'</i><span><b>'+m.t+'</b><small>'+m.h+'</small></span></li>').join('');
-  $('#chipT').textContent=cur?cur.t:'Todas cumpridas';$('#whyTxt').textContent=cur?'Por quê: '+cur.why:'';}
+function buildMissions(){const L=MS||MISSIONS,cur=L.find(m=>!S.done.has(m.id));$('#missions').innerHTML=L.map(m=>'<li class="'+(S.done.has(m.id)?'done':'')+(m===cur?' cur':'')+'"><i>'+(S.done.has(m.id)?'✓':'○')+'</i><span><b>'+m.t+'</b><small>'+m.h+'</small></span></li>').join('');
+  $('#chipT').textContent=cur?cur.t:'Todas cumpridas';$('#whyTxt').textContent=cur&&cur.why?'Por quê: '+cur.why:'';}
 const STRIP_TOP=150000,spos=a=>Math.sqrt(Math.max(0,Math.min(a,STRIP_TOP))/STRIP_TOP);
 function buildStrip(){$('#strip').innerHTML=LAYERS.filter(l=>l.a<STRIP_TOP).map(l=>'<div class="sl" style="bottom:'+spos(l.a)*100+'%;height:'+(spos(Math.min(l.b,STRIP_TOP))-spos(l.a))*100+'%;background:'+l.c+'"><span>'+l.n+'</span></div>').join('')+'<div class="km" style="bottom:'+spos(SPACE)*100+'%"><span>100 km · espaço</span></div><i id="mark"></i>';}
 function fmt(v){const a=Math.abs(v);return a>=1e9?(v/1e9).toFixed(2)+' Gm':a>=1e6?(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:0})+' km':a>=1e4?(v/1e3).toFixed(1)+' km':Math.round(v)+' m';}
@@ -1219,7 +1329,7 @@ addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys[k]=false;if('ijkl'
 let thrTimer;function thrHold(k){clearInterval(thrTimer);thrTimer=setInterval(()=>{if(!keys[k]){clearInterval(thrTimer);return;}setThr(S.thr+(k==='w'?.02:-.02));},30);}
 function setThr(v){const was=S.thr;S.thr=Math.max(0,Math.min(1,v));if(was===0&&S.thr>0&&V&&S.master&&V.act.some(i=>V.parts[i].on)&&!S.dead)sfx('ignite');}
 // quanto cada tipo de motor contribui para o som (pesado pelo empuxo)
-function engineMix(){const m0=engineMix0();m0.rcs=S&&S.rcs&&V&&V.rcs&&V.rcs.length&&(RCST.x||RCST.y)&&!S.dead?1:0;return m0;}
+function engineMix(){const m0=engineMix0();m0.hov=V&&V.hovOn&&!S.dead?1:0;m0.rcs=S&&S.rcs&&V&&V.rcs&&V.rcs.length&&(RCST.x||RCST.y)&&!S.dead?1:0;return m0;}
 function engineMix0(){const m={e:0,kero:0,solid:0,blue:0,hyper:0,alc:0,ion:0,les:0,rcs:0,air:Math.min(1,rhoAt(S.altE)/RHO0),q:V.q||0,alt:S.altE,rails:warp>5,cam:view2==='map'?.12:Math.max(.1,Math.min(1.5,Math.pow(zoomUser,.5)))};if(S.dead||!V.firing.length)return m;let T=0;
   for(const v of[V,...debris])for(const f of v.firing){const P=PT(f.p),w=P.thrust*f.th*(v===V?1:.35),fam=P.snd||P.fl;T+=w;m[fam]=(m[fam]||0)+w;}const Tm=V.firing.reduce((s,f)=>s+PT(f.p).thrust,0);m.e=Math.min(1,T/Math.max(1,Tm));for(const k of['kero','solid','blue','hyper','alc','ion','les'])m[k]/=T||1;return m;}
 document.querySelectorAll('#ctlL [data-k]').forEach(b=>{const k=b.dataset.k;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;b.setPointerCapture(e.pointerId);});['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,()=>keys[k]=false));});
@@ -1560,7 +1670,8 @@ $('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick
     const fl=x.createLinearGradient(0,u*2.4,0,u*2.4+u*7);fl.addColorStop(0,'rgba(255,245,215,1)');fl.addColorStop(.3,'rgba(255,170,70,.85)');fl.addColorStop(1,'rgba(255,90,30,0)');x.fillStyle=fl;x.beginPath();x.moveTo(-u*.32,u*2.4);x.quadraticCurveTo(0,u*(9+Math.random()),u*.32,u*2.4);x.fill();
     let yy=-u*2.4;for(const tp of['capPingo','tankM','engVaga']){const P=PARTS[tp];drawPart(x,tp,0,yy+P.h*u/2,u,tp==='tankM'?1:null);yy+=P.h*u;}x.restore();if(!still)requestAnimationFrame(fr);}
   requestAnimationFrame(fr);
-  $('#btnStart').onclick=()=>{audioInit();musicStart();el.classList.add('out');setTimeout(()=>{on=false;el.hidden=true;},950);};})();
+  $('#btnStart').onclick=()=>{audioInit();musicStart();el.classList.add('out');setTimeout(()=>{on=false;el.hidden=true;},950);};
+  $('#btnCampI').onclick=()=>{$('#btnStart').onclick();renderCamp();$('#camp').hidden=false;};})();
 cheatsUI();buildCatalog();{const c=lsGet('orbita.cur');if(Array.isArray(c)&&c.length)loadParts(c);else parts=presetTwo();}fitView();refresh();
 
 // ================= AUTO-TESTE DA FÍSICA =================
