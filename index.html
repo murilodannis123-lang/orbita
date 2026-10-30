@@ -442,9 +442,9 @@ const PARTS={
   rdTank:{n:'Tanque Redstone',t:'tank',m:900,fuel:10000,w:1,h:3.2,cd:.9,k:.1,pack:1,d:'10 t de combustível. Tanque longo e fino do Redstone.'},
   rdEng:{n:'Motor A-7',snd:'alc',t:'eng',m:700,thrust:210000,ispV:265,ispA:235,gim:.06,w:1,h:1.2,cd:.9,k:1.2,fin:1.6,fl:'kero',pack:1,d:'210 kN, com saia e aletas: o Redstone voa estável sem aletas extras.'},
   atAdapt:{n:'Adaptador Atlas',t:'adapt',top:.67,m:150,w:1.5,h:.8,cd:.9,k:.1,pack:1,d:'Ponta do Atlas: liga o tanque de 3 m à cápsula de 2 m.'},
-  atTank:{n:'Tanque Atlas',t:'tank',m:1000,fuel:17000,w:1.5,h:3.8,cd:.9,k:.1,pack:1,d:'17 t num tanque-balão de aço fino: leve para o tamanho.'},
+  atTank:{n:'Tanque Atlas',t:'tank',m:1000,fuel:23000,w:1.5,h:3.8,cd:.9,k:.1,pack:1,d:'23 t num tanque-balão de aço fino: leve para o tamanho.'},
   atBase:{n:'Base Atlas',t:'sep',atlas:true,m:300,w:1.5,h:.25,cd:.9,k:1.2,fin:2.2,pack:1,d:'Segura os motores XLR-89 embaixo do tanque Atlas. Ao separar, solta os motores laterais e o LR-105 do meio sobe e continua.'},
-  atSus:{n:'Motor LR-105',t:'eng',sus:true,m:450,thrust:90000,ispV:315,ispA:215,gim:.08,w:.44,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor do meio (sustentador). Fica no foguete quando a Base Atlas solta.'},
+  atSus:{n:'Motor LR-105',t:'eng',sus:true,m:450,thrust:190000,ispV:315,ispA:215,gim:.08,w:.44,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor do meio (sustentador). Fica no foguete quando a Base Atlas solta.'},
   atBoost:{n:'Motor XLR-89',t:'eng',m:650,thrust:380000,ispV:290,ispA:255,gim:.06,w:.6,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor de reforço do Atlas (dois, nas pontas da Base Atlas). Cai junto com a base.'},
   srb:{n:'Propulsor sólido',t:'eng',solid:true,m:900,fuel:7000,thrust:260000,ispV:240,ispA:215,gim:0,w:.9,h:3.4,cd:.9,k:.1,fl:'solid',d:'Combustível e motor juntos. Depois de aceso, não desliga.'},
 };
@@ -1080,9 +1080,9 @@ const CAMP=[
   {id:'c',t:'Soltar a torre',h:'Ela solta sozinha quando apaga, e o paraquedas fica armado.',done:()=>!V.parts.some(q=>PT(q).les)},
   {id:'d',t:'Pousar de paraquedas',h:'Espere o paraquedas abrir e descer até o chão.',done:()=>S.aborted&&S.dom.earth&&V.ground&&Math.hypot(S.rvx,S.rvy)<1}]},
  {id:'c2',t:'Uma volta ao mundo',ship:'Mercury-Atlas',preset:()=>presetMA(),txt:'Como John Glenn em 1962: entre em órbita da Terra e volte.',steps:[
-  {id:'a',t:'Chegar ao espaço',h:'Arme os três motores do Atlas e suba inclinando até uns 45° perto dos 12 km.',done:()=>S.altE>SPACE},
-  {id:'b',t:'Entrar em órbita',h:'Solte a Base Atlas (ESTÁGIO) quando ela secar o empuxo; deite na horizontal até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
-  {id:'c',t:'Voltar e pousar',h:'Mira para trás e freie até o Pe cair abaixo de 40 km. Solte tudo, fique só com a cápsula.',done:()=>S.landedEarth}]},
+  {id:'a',t:'Chegar ao espaço',h:'Arme os 3 motores do Atlas, acelerador no máximo e LIGAR. Vá inclinando aos poucos para a direita: uns 45° perto dos 15 km. Quando o tanque chegar em 40%, aperte ESTÁGIO para soltar a Base Atlas (o motor do meio continua).',done:()=>S.altE>SPACE},
+  {id:'b',t:'Entrar em órbita',h:'Quando o Ap passar de 110 km, desligue o motor e espere chegar perto do Ap. Aí deite na horizontal e acelere até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'c',t:'Voltar e pousar',h:'Mira para trás, solte o Atlas (ESTÁGIO) e toque no pacote retro para acender. Quando ele apagar, toque nele de novo para soltar (senão ele tampa o escudo). Arme o paraquedas e mantenha Mira para trás até o fim.',done:()=>S.landedEarth}]},
  {id:'c3',t:'Primeiro satélite',ship:'Explorer',preset:()=>presetExplorer(),txt:'Ponha uma sonda em órbita e abra os painéis solares.',steps:[
   {id:'a',t:'Chegar ao espaço',h:'Arme o A-7 e suba inclinando aos poucos.',done:()=>S.altE>SPACE},
   {id:'b',t:'Soltar a carenagem',h:'Acima de 60 km, ESTÁGIO ou toque na carenagem.',done:()=>!V.parts.some(q=>PT(q).t==='fair')},
@@ -1381,7 +1381,8 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
   // paraquedas aberto: acelera o tempo sozinho (×10) e volta ao normal perto do chão para você ver o pouso
   if(!S.dead&&chuteWarp()){if(!S.chAuto&&V.chute>.5&&S.altE>300&&warp<50){warp=50;S.chAuto=1;tip(innerWidth/2,innerHeight*.35,'Tempo ×50 na descida · volta ao normal perto do chão');}else if(S.chAuto===1&&S.altE<60&&warp>1){warp=1;S.chAuto=2;}}
   // torre de escape: some sozinha depois do estágio (como na Mercury) e depois de um aborto, quando apaga
-  if(!S.dead){const li=V.parts.findIndex(q=>PT(q).les);if(li>=0){const L=V.parts[li];
+  if(!S.dead&&!S.atlasTip&&V.parts.some(q=>q.type==='atBase')&&V.firing.length){const t2=V.parts.find(q=>q.type==='atTank');if(t2&&t2.fuel/capOf(t2)<.42){S.atlasTip=1;sfx('chime');toast('Hora de soltar a Base Atlas!','Aperte ESTÁGIO agora: os dois motores de reforço caem e o motor do meio continua sozinho, bem mais leve.');}}
+  if(!S.dead){const li=V.parts.findIndex(q=>PT(q).les);if(li>=0){const L=V.parts[li];if(!S.lesAuto&&!L.lit&&!S.aborted&&!S.lesHigh&&S.liftT>=0&&S.dom.earth&&S.altE>35000&&!(CAMP_CUR&&CAMP.find(c=>c.id===CAMP_CUR&&c.fail)&&!S.failT&&S.altE<40000)){S.lesHigh=1;S.lesAuto=S.t+.5;}
     if(S.lesAuto&&S.t>=S.lesAuto&&!L.lit){S.lesAuto=0;
       // descarte (como na Mercury): solta a torre e o motorzinho de alijamento queima menos de 1 s, puxando ela para o lado — não é o motor de escape
       L.jet=true;L.fuel=Math.min(L.fuel,capOf(L)*.06);L.on=L.lit=true;fire([li]);sfx('pyro');const d=debris.find(q=>q.parts.includes(L));
