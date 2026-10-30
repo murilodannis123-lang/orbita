@@ -1132,7 +1132,7 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
   else{stepWorldDead(real);$('#deadBox').hidden=false;$('#btnRewind').hidden=!snaps.length;}
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
   audioUpdate(engineMix());
-  predTimer-=real;if(predTimer<=0&&(view2==='map'||target||warp>5)){predTimer=view2==='map'?.25:1;pred=predict();steerTarget();}
+  predTimer-=real;if(predTimer<=0&&(view2==='map'||target||warp>5)){predTimer=view2==='map'?(V.firing.length?.15:.25):1;pred=predict();steerTarget();}
   if(!S.dead&&pred&&warp>5){const nx=pred.segs.find(q=>q.b!==S.dom&&q.t0>S.t);if(nx&&(nx.t0-S.t)/warp<3){setWarp(-1);if(warp<=50)tip(innerWidth/2,innerHeight*.3,'Tempo desacelerado: chegando na gravidade '+nx.b.de);}}
   if(!S.dead&&S.dom!==S.domW){if(S.domW&&warp>5){warp=5;}S.domW=S.dom;}
   if(!S.dead)realism(real);
@@ -1206,7 +1206,7 @@ function hud(){rcsUI();const sp=Math.hypot(S.rvx,S.rvy);$('#rLayer').textContent
   if(view2==='map'){const e=S.el,body=S.dom.de,ci=capInfo(),gnd=!e||V.ground||V.clamped,tryO=!!(S.dom.earth&&e&&e.bound&&e.pe<SPACE&&S.altE>15000&&!gnd);
     // status real da rota (não só a elipse de agora): se a previsão sai da gravidade, é isso que vale
     const nxt=pred&&!gnd?pred.segs.find(q=>q.b!==S.dom&&q.t0>S.t):null,leaves=e&&e.bound&&e.ap+S.dom.r>S.dom.soi;
-    const title=gnd?'Na superfície '+body:pred&&pred.hit===S.dom&&!(e&&e.bound&&e.pe>0)?'Rota de queda '+body.replace(/^d/,'n'):nxt&&!nxt.b.sun?'Rumo '+(nxt.b===MOON_B?'à Lua':nxt.b.earth?'à Terra':'a '+nxt.b.n)+' ✓':nxt||leaves||e&&!e.bound?'Saindo '+body:e.pe<0?'Suborbital: vai cair':'Em órbita '+body;
+    const title=gnd?'Na superfície '+body:ci?(ci.hit?'Rota de queda '+(S.dom===MOON_B?'na Lua':S.dom.em):ci.bound?'Em órbita '+body:'Passando '+(S.dom===MOON_B?'pela Lua':'por '+S.dom.n)):pred&&pred.hit===S.dom&&!(e&&e.bound&&e.pe>0)?'Rota de queda '+body.replace(/^d/,'n'):nxt&&!nxt.b.sun?'Rumo '+(nxt.b===MOON_B?'à Lua':nxt.b.earth?'à Terra':'a '+nxt.b.n)+' ✓':nxt||leaves||e&&!e.bound?'Saindo '+body:e.pe<0?'Suborbital: vai cair':'Em órbita '+body;
     const nums=gnd?'':e.bound&&!leaves?'Ap '+fmt(e.ap)+' · Pe '+(e.pe<0?'—':fmt(e.pe)):'Pe '+(e.pe<0?'—':fmt(e.pe));
     let line='';if(ci&&!ci.bound)line=ci.hit?'<span style="color:var(--bad)">Vai bater: freie antes</span>':'<span style="color:var(--bad)">Rápido demais</span>: freie '+Math.round(ci.dv)+' m/s no Pe';
     else if(guideTxt)line=guideTxt;else if(tryO){const ra=e.ap+R;line=e.ap<SPACE?'Suba o Ap acima de 100 km':'No Ap, acelere de lado ~'+Math.round(Math.sqrt(MU/ra)-Math.sqrt(MU*(2/ra-1/e.a)))+' m/s';}
@@ -1408,11 +1408,16 @@ function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.w
     g.setTransform(DPR*c,DPR*si,-DPR*si,DPR*c,DPR*sx,DPR*sy);g.globalAlpha=Math.max(0,k)*(day?.55:.8);g.drawImage(p.fl==='blue'||p.fl==='ion'?SPR.blue:p.fl==='plasma'?SPR.plasma:SPR.fire,-s*1.4,-s*.45,s*2.8,s*.9);}g.globalAlpha=1;g.globalCompositeOperation='source-over';
   if(!disc){for(const d of debris)drawVessel(d,day);if(!S.dead)drawVessel(V,day);}else if(!S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.translate(VW/2,camY);g.rotate(-(V.hdg-th));g.fillStyle='#ffb347';g.beginPath();g.moveTo(0,-9);g.lineTo(6,7);g.lineTo(-6,7);g.closePath();g.fill();}
   if(earthNear&&!disc)drawClouds(true,viewM);
-  if(target&&!S.dead){const tp=target.pos(S.t),[sx,sy]=toScreen(tp[0],tp[1]),rr=target.r*z,on=sx>-rr&&sy>-rr&&sx<VW+rr&&sy<VH+rr&&rr>3;g.setTransform(DPR,0,0,DPR,0,0);
-    const d=Math.hypot(V.x-tp[0],V.y-tp[1])-target.r,ap=pred&&(target===MOON_B||target.planet)?(pred.segs.find(q=>q.b===target)):null,eta=ap?' · chega em '+fmtT(ap.t0-S.t):'';
+  if(target&&!S.dead){
+    // a seta aponta para o PONTO DE ENCONTRO (fixo) até a rota já entrar na gravidade do alvo; aí passa a apontar para ele
+    const enc=S.dom===target||pred&&pred.segs.some(q=>q.b===target),usePt=rdv&&rdv.b===target&&!enc,eh=earthH(S.t),
+      tp=usePt?(rdv.frame==='terra'?rdv.P:[rdv.P[0]-eh[0],rdv.P[1]-eh[1]]):target.pos(S.t),tName=usePt?'Ponto de encontro':target.n,tR=usePt?0:target.r,
+      [sx,sy]=toScreen(tp[0],tp[1]),rr=Math.max(tR*z,usePt?6:0),on=sx>-rr&&sy>-rr&&sx<VW+rr&&sy<VH+rr&&rr>3;g.setTransform(DPR,0,0,DPR,0,0);
+    if(on&&usePt){g.strokeStyle='#ffb347';g.lineWidth=2;g.beginPath();g.arc(sx,sy,8,0,7);g.stroke();}
+    const d=Math.hypot(V.x-tp[0],V.y-tp[1])-tR,ap=pred&&(target===MOON_B||target.planet)?(pred.segs.find(q=>q.b===target)):null,eta=ap?' · chega em '+fmtT(ap.t0-S.t):'';
     if(!on){const cx2=VW/2,cy2=VH*.5,a=Math.atan2(sy-cy2,sx-cx2),m=56,ex2=Math.max(m,Math.min(VW-m,cx2+Math.cos(a)*VW)),ey2=Math.max(m+60,Math.min(VH-m-120,cy2+Math.sin(a)*VH));
-      g.save();g.translate(ex2,ey2);g.rotate(a);g.fillStyle='#5ee2a0';g.beginPath();g.moveTo(14,0);g.lineTo(-6,-9);g.lineTo(-2,0);g.lineTo(-6,9);g.closePath();g.fill();g.restore();
-      g.font='600 12px IBM Plex Sans, system-ui, sans-serif';g.textAlign=ex2>VW/2?'right':'left';g.fillStyle='rgba(2,4,10,.55)';const tx2=ex2+(ex2>VW/2?-18:18),txt2=target.n+' · '+fmt(d)+eta,tw=g.measureText(txt2).width;g.fillRect(ex2>VW/2?tx2-tw-4:tx2-4,ey2-10,tw+8,18);g.fillStyle='#5ee2a0';g.fillText(txt2,tx2,ey2+4);g.textAlign='left';}}
+      g.save();g.translate(ex2,ey2);g.rotate(a);g.fillStyle=usePt?'#ffb347':'#5ee2a0';g.beginPath();g.moveTo(14,0);g.lineTo(-6,-9);g.lineTo(-2,0);g.lineTo(-6,9);g.closePath();g.fill();g.restore();
+      g.font='600 12px IBM Plex Sans, system-ui, sans-serif';g.textAlign=ex2>VW/2?'right':'left';g.fillStyle='rgba(2,4,10,.55)';const tx2=ex2+(ex2>VW/2?-18:18),txt2=tName+' · '+fmt(d)+(usePt?'':eta),tw=g.measureText(txt2).width;g.fillRect(ex2>VW/2?tx2-tw-4:tx2-4,ey2-10,tw+8,18);g.fillStyle=usePt?'#ffb347':'#5ee2a0';g.fillText(txt2,tx2,ey2+4);g.textAlign='left';}}
   if(S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.fillStyle='rgba(255,107,107,.16)';g.fillRect(0,0,VW,VH);}}
 // ================= MAPA ESTELAR =================
 let guideTxt='';
@@ -1441,8 +1446,10 @@ function drawMap(real){const t=S.t,[ex,ey]=earthH(t);map.cx=ex+V.x+map.ox;map.cy
   if(pred&&!V.clamped){const SEGC={Terra:'#4fd1ff',Lua:'#f0f0ff',Sol:'#ffd27a'};
     const toHel=(b,px,py,tt)=>{if(b===S.dom&&!b.sun&&!b.earth){const[nx,ny]=b===MOON_B?(([a,c])=>[ex+a,ey+c])(moonPos(t)):planetPos(b.planet,t),[cx,cy]=b.pos(tt);return[nx+px-cx,ny+py-cy];}
       if(b.earth||b===MOON_B)return[ex+px,ey+py];const[hx,hy]=earthH(tt);return[hx+px,hy+py];};
-    pred.segs.forEach((sg,i)=>{const b=sg.b,pt=(px,py,tt)=>{const[hx,hy]=toHel(b,px,py,tt);return[X(hx),Y(hy)];};
-      g.strokeStyle=SEGC[b.n]||'#ff9ad5';g.lineWidth=2;g.setLineDash([7,5]);g.beginPath();sg.pts.forEach(([px,py,tt],k)=>{const q=pt(px,py,tt);k?g.lineTo(...q):g.moveTo(...q);});g.stroke();g.setLineDash([]);
+    pred.__first=0;pred.segs.forEach((sg,i)=>{const b=sg.b,pt=(px,py,tt)=>{const[hx,hy]=toHel(b,px,py,tt);return[X(hx),Y(hy)];};
+      // só o que ainda vai acontecer: a linha sempre começa na nave (a previsão é refeita a cada instante, então corta o trecho já voado)
+      const vis=sg.pts.filter(q=>q[2]>=S.t);if(!vis.length)return;if(!pred.__first){pred.__first=1;vis.unshift([V.x,V.y,S.t]);}
+      g.strokeStyle=SEGC[b.n]||'#ff9ad5';g.lineWidth=2;g.setLineDash([7,5]);g.beginPath();vis.forEach(([px,py,tt],k)=>{const q=pt(px,py,tt);k?g.lineTo(...q):g.moveTo(...q);});g.stroke();g.setLineDash([]);
       if(i>0){const[px,py,tt]=sg.pts[0],q=pt(px,py,tt);dot(q[0],q[1],SEGC[b.n]||'#ff9ad5');lab(b.sun?'Escapa '+pred.segs[i-1].b.de:'Entra na gravidade '+b.de,q[0],q[1],5,SEGC[b.n]||'#ff9ad5',7);}
       if(b!==S.dom&&!b.sun&&!b.earth&&sg.at){const ta=sg.at[2],[gx,gy]=b===MOON_B?(([a,c])=>[ex+a,ey+c])(moonPos(ta)):planetPos(b.planet,ta),rr=Math.max(b.r*s,4);
         g.strokeStyle='rgba(240,240,255,.6)';g.setLineDash([3,3]);g.beginPath();g.arc(X(gx),Y(gy),rr,0,7);g.stroke();g.setLineDash([]);lab(b.n+' na passagem',X(gx),Y(gy),rr,'rgba(240,240,255,.75)',5);}
@@ -1507,9 +1514,15 @@ function planGuide(X,Y,ex,ey,lab,dot){const b=target;if(!b)return;const e=S.el;
   if(enc){const br=enc.at?segBrake(enc):null,tIn=enc.t0-S.t;
     guideTxt='<b style="color:var(--good)">Encontro ✓</b> '+(tIn>1?'· entra na gravidade '+b.de+' em '+fmtT(tIn):'')+(br&&pred.hit!==b?'<br>Passa a '+fmt(br.alt)+(br.vrel>br.esc?' · freie <b>'+Math.round(br.dv)+' m/s</b> no ponto laranja para ficar':' · já fica presa'):pred.hit===b?'<br>Rota bate '+b.em+': freie antes':'');return;}
   if(!sent&&b===MOON_B){const r=rdv.r0,thb=Math.atan2(rdv.P[1],rdv.P[0])+Math.PI,bx=X(ex+r*Math.cos(thb)),by=Y(ey+r*Math.sin(thb));
-    {const A=(r+MOON.a)/2,c=A-r,thp=thb+Math.PI,cx=ex+c*Math.cos(thp),cy=ey+c*Math.sin(thp),Bm=Math.sqrt(r*MOON.a);g.save();g.translate(X(cx),Y(cy));g.rotate(-thp);g.strokeStyle='rgba(94,226,160,.45)';g.lineWidth=1.5;g.setLineDash([6,6]);g.beginPath();g.ellipse(0,0,A*map.s,Bm*map.s,0,Math.PI,0,true);g.stroke();g.setLineDash([]);g.restore();}
-    g.strokeStyle='#5ee2a0';g.lineWidth=2.5;g.beginPath();g.arc(bx,by,7,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Acelere aqui ~+'+Math.round(rdv.dv)+' m/s',bx,by,8,'#5ee2a0',9);
-    guideTxt='No ponto verde, acelere para frente até a rota chegar na mira';return;}
+    // trajeto verde: da SUA nave até a mira (órbita que sai tangente de onde você está e passa pelo ponto)
+    const r1=Math.hypot(V.x,V.y),r2=Math.hypot(rdv.P[0],rdv.P[1]),th1=Math.atan2(V.y,V.x),thP=Math.atan2(rdv.P[1],rdv.P[0]),dth=((th1-thP)%(2*Math.PI)+2*Math.PI)%(2*Math.PI),den=r2*Math.cos(dth)-r1,ec=den<0?(r1-r2)/den:-1;
+    let nowTxt='';
+    if(ec>=0&&!V.ground&&!V.clamped&&S.altE>SPACE*.6){const pp=r1*(1+ec),pts=[];let okp=true;
+      for(let k=0;k<=90;k++){const nu=dth*k/90,dd=1+ec*Math.cos(nu);if(dd<=.02){okp=false;break;}const rr2=pp/dd,th=th1-nu;pts.push([X(ex+rr2*Math.cos(th)),Y(ey+rr2*Math.sin(th))]);}
+      if(okp){g.strokeStyle='rgba(94,226,160,.85)';g.lineWidth=2;g.setLineDash([7,6]);g.beginPath();pts.forEach(([qx,qy],k)=>k?g.lineTo(qx,qy):g.moveTo(qx,qy));g.stroke();g.setLineDash([]);}
+      if(okp){const vp=Math.sqrt(MU*(1+ec)/r1),vx=vp*Math.sin(th1),vy=-vp*Math.cos(th1),dv=Math.hypot(vx-S.rvx,vy-S.rvy);lab('Daqui: acelere ~'+Math.round(dv)+' m/s',X(ex+V.x),Y(ey+V.y),12,'#5ee2a0',9);nowTxt='Linha verde: se acelerar <b>~'+Math.round(dv)+' m/s</b> para frente agora, sua nave vai direto até a mira';}}
+    g.strokeStyle='#5ee2a0';g.lineWidth=2;g.beginPath();g.arc(bx,by,6,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Mais barato aqui: +'+Math.round(rdv.dv)+' m/s',bx,by,8,'#5ee2a0',9);
+    guideTxt=nowTxt||'Espere a nave chegar perto do ponto verde e acelere para frente';return;}
   if(!sent){const bx=X(ex+rdv.r0*Math.cos(rdv.thb)),by=Y(ey+rdv.r0*Math.sin(rdv.thb));g.strokeStyle='#5ee2a0';g.lineWidth=2.5;g.beginPath();g.arc(bx,by,7,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Acelere aqui ~+'+Math.round(rdv.dv)+' m/s',bx,by,8,'#5ee2a0',9);
     guideTxt='No ponto verde (perto da Terra), acelere para frente ~'+Math.round(rdv.dv)+' m/s';return;}
   const cr=rdvCross(),ok=cr&&Math.abs(Math.atan2(Math.sin(Math.atan2(cr.hy,cr.hx)-Math.atan2(rdv.P[1],rdv.P[0])),Math.cos(Math.atan2(cr.hy,cr.hx)-Math.atan2(rdv.P[1],rdv.P[0]))))<=1.4;
