@@ -1240,12 +1240,11 @@ $('#mFs').onclick=()=>{$('#drawer').classList.remove('open');goFull();};$('#mMap
 function toggleMap(){hidePop();if(view2==='map'){view2='flight';zoomUser=1;zs=0;}else enterMap(Math.min(VW,VH)*.4/(S.dom.r+Math.max(S.alt,S.el&&S.el.bound?Math.min(S.el.ap,MOON.a):0)));}
 function enterMap(s){view2='map';map.ox=map.oy=0;MI.t=performance.now();map.s=s;pred=predict();}
 // zoom contínuo: afastando muito vira mapa estelar; aproximando do foguete volta ao voo
-function zoomBy(k){if(view2==='map'){map.s=Math.max(Math.min(VW,VH)/(2*35*AU),map.s*k);const lim=Math.min(VW,VH)*.5/S.dom.r;
-    if(map.s>lim){view2='flight';zs=map.s;zoomUser=map.s/baseZ();}}
+function zoomBy(k){if(view2==='map'){map.s=Math.max(Math.min(VW,VH)/(2*35*AU),Math.min(map.s*k,Math.min(VW,VH)*2/S.dom.r));}
   else{let nz=Math.min(20*baseZ(),baseZ()*zoomUser*k);const zr=10/Math.max(12,vesselLen(V)),zv=.36*VH/Math.max(1,S.alt);
     // pula o trecho vazio (foguete virou um ponto e o chão ainda não aparece): afastando, vai direto até o planeta/Lua aparecer
     if(zv<zr&&nz<zr&&nz>zv)nz=k<1?zv:zr;
-    zoomUser=nz/baseZ();if(nz*S.dom.r<Math.min(VW,VH)*.09)enterMap(nz);}}
+    nz=Math.max(nz,.04*Math.min(VW,VH)/(Math.max(0,S.alt)+S.dom.r));zoomUser=nz/baseZ();}}
 cv.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(-e.deltaY*.0015));},{passive:false});
 const ptrs=new Map();let pinch0=0;
 let tap=null;
@@ -1373,7 +1372,7 @@ function drawBodyGround(B,bp){const th=Math.atan2(camYw-bp[1],camX-bp[0]),span=M
       g.beginPath();for(let k=i0;k<=i1;k++){const a2=ang(k);g.lineTo(cx+B.r*Math.cos(a2),cy+B.r*Math.sin(a2));}for(let k=i1;k>=i0;k--){const a2=ang(k),r=B.r-tap(k);g.lineTo(cx+r*Math.cos(a2),cy+r*Math.sin(a2));}g.closePath();
       const wg=g.createRadialGradient(cx,cy,B.r-wd,cx,cy,B.r);wg.addColorStop(0,'#0e2f5a');wg.addColorStop(.8,'#1a4f8c');wg.addColorStop(1,'#2f74b8');g.fillStyle=wg;g.fill();}}
   ring(B.r-depth,B.r,0,N);g.strokeStyle=B.earth?'rgba(150,200,255,.5)':'rgba(255,255,255,.4)';g.lineWidth=2/z;g.stroke();}
-function drawDisc(B,bp){const rr=B.r*z,[sx,sy]=toScreen(bp[0],bp[1]);g.setTransform(DPR,0,0,DPR,0,0);if(B.earth||B===MOON_B)return planetDisc(B,sx,sy,rr,Math.PI/2);
+function drawDisc(B,bp){const rr=B.r*z,[sx,sy]=toScreen(bp[0],bp[1]);g.setTransform(DPR,0,0,DPR,0,0);if(rr<30){g.font='12px IBM Plex Sans, system-ui, sans-serif';g.fillStyle='rgba(233,237,247,.8)';g.textAlign='left';g.fillText(B.n,sx+Math.max(3,rr)+5,sy+4);}if(B.earth||B===MOON_B)return planetDisc(B,sx,sy,Math.max(2.5,rr),Math.PI/2);
   const pl=g.createRadialGradient(sx-rr*.35,sy-rr*.35,rr*.1,sx,sy,rr);pl.addColorStop(0,B.col);pl.addColorStop(1,'#15171d');g.fillStyle=pl;g.beginPath();g.arc(sx,sy,rr,0,7);g.fill();}
 // nuvens geradas por trecho do planeta (mesmo lugar sempre), em qualquer ponto da volta e em qualquer zoom
 function drawClouds(front,viewM){const th=Math.atan2(camYw,camX),span=Math.min(Math.PI,(VW+VH)/z/R*.75+.002),tile=viewM>250000?60000:viewM>40000?12000:2500,i0=Math.floor((th-span)*R/tile),i1=Math.ceil((th+span)*R/tile);
@@ -1461,12 +1460,13 @@ function drawMap(real){const t=S.t,[ex,ey]=earthH(t);map.cx=ex+V.x+map.ox;map.cy
   const vx=X(ex+V.x),vy=Y(ey+V.y);g.save();g.translate(vx,vy);g.rotate(-(V.hdg-Math.PI/2));g.fillStyle='#ffb347';g.strokeStyle='#02040a';g.lineWidth=1.5;g.beginPath();g.moveTo(0,-10);g.lineTo(6,7);g.lineTo(-6,7);g.closePath();g.fill();g.stroke();g.restore();lab('Você',vx,vy,9,'#ffb347',10);mapHits.push({f:'foguete',x:vx,y:vy,r:8});
   const scl=[1e3,1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,1e12].find(v=>v*s>60)||1e12,bw=scl*s,f0=$('#ctlL').getBoundingClientRect(),bx=24,by=Math.min(VH-110,f0.top-30);g.strokeStyle='rgba(233,237,247,.6)';g.fillStyle='rgba(233,237,247,.75)';g.lineWidth=1.5;g.beginPath();g.moveTo(bx,by);g.lineTo(bx+bw,by);g.moveTo(bx,by-4);g.lineTo(bx,by+4);g.moveTo(bx+bw,by-4);g.lineTo(bx+bw,by+4);g.stroke();
   g.font='12px IBM Plex Sans, system-ui, sans-serif';g.textAlign='left';g.fillText(fmt(scl)+' · escala 1:10',bx,by-8);placeLabels(LB,[[bx,by-22,bx+130,by+6]]);}
+const LBM=new Map();
 function placeLabels(LB,extra){g.font='12px IBM Plex Sans, system-ui, sans-serif';g.textAlign='left';const cr=cv.getBoundingClientRect(),boxes=[...extra];
   for(const id of['#read','#topR','#mapUI','#thrWrap','#ctlL','#ctlC','#toast','#pop','#warpHint']){const el=$(id);if(!el||el.hidden||!el.offsetParent)continue;const r=el.getBoundingClientRect();if(r.width)boxes.push([r.left-cr.left-4,r.top-cr.top-4,r.right-cr.left+4,r.bottom-cr.top+4]);}
   const hit=(a)=>a[0]<4||a[1]<4||a[2]>VW-4||a[3]>VH-4||boxes.some(b=>a[0]<b[2]&&a[2]>b[0]&&a[1]<b[3]&&a[3]>b[1]);
   LB.sort((a,b)=>b.pr-a.pr);for(const L of LB){const w=g.measureText(L.t).width,h=14,o=L.r+5;
     const cands=[[L.x+o,L.y-h/2],[L.x-o-w,L.y-h/2],[L.x-w/2,L.y-o-h],[L.x-w/2,L.y+o],[L.x+o,L.y-h*1.5],[L.x+o,L.y+h*.5],[L.x-o-w,L.y-h*1.5],[L.x-o-w,L.y+h*.5],[L.x+o,L.y-h*2.6],[L.x+o,L.y+h*1.6]];
-    const c=cands.map(([x,y])=>[x,y,x+w,y+h]).find(a=>!hit(a));if(!c)continue;boxes.push(c);
+    const key=L.t.replace(/[\d.,]+/g,'#'),last=LBM.get(key),A=cands.map(([x,y])=>[x,y,x+w,y+h]);let ci=last!=null&&A[last]&&!hit(A[last])?last:A.findIndex(a=>!hit(a));if(ci<0){if(last==null)continue;ci=last;}LBM.set(key,ci);const c=A[ci];boxes.push(c);
     g.fillStyle='rgba(2,4,10,.55)';g.fillRect(c[0]-3,c[1]-1,w+6,h+2);g.fillStyle=L.col;g.fillText(L.t,c[0],c[1]+h-3);}}
 // rota até a Lua: janela de saída (transferência de Hohmann), ponto da queima e onde a Lua vai estar
 // encontro = a PRÓXIMA vez que a rota mais se aproxima da Lua (primeiro mínimo local), com interpolação entre os pontos
@@ -1501,7 +1501,7 @@ function steerTarget(){const b=target,now=S.t;
   if(pred&&pred.segs.some(q=>q.b===b))return; // já tem encontro: mantém como está
   const c=rdvCross();if(!c){stop();return;}
   const thP=Math.atan2(rdv.P[1],rdv.P[0]),thC=Math.atan2(c.hy,c.hx);if(Math.abs(Math.atan2(Math.sin(thC-thP),Math.cos(thC-thP)))>1.4){stop();return;}
-  const dur=c.tt-now;if(dur<30)return;
+  const dur=c.tt-now;if(dur<30)return;const nm=b===MOON_B?'Lua':b.n;if(PHZ.n===nm&&Math.abs(c.tt-(PHZ.t0+PHZ.dur))<Math.max(120,.015*dur))return;
   const n=b===MOON_B?'Lua':b.n,base=b===MOON_B?MOON.th0+MOON.w*c.tt:b.planet.th0+2*Math.PI*c.tt/b.planet.T;
   phBake(now);const cur=PHZ.ph[n]||0,diff=Math.atan2(Math.sin(thC-base-cur),Math.cos(thC-base-cur));
   const wn=b===MOON_B?Math.abs(MOON.w):2*Math.PI/b.planet.T,mx=100*wn;PHZ.n=n;PHZ.t0=now;PHZ.dur=dur;PHZ.rate=Math.max(-mx,Math.min(mx,diff/dur));}
