@@ -806,8 +806,13 @@ function presetProbe(){const core=stackUp(['probe','tankP','engMini','sep','tank
 // pacote Redstone/Atlas e hover
 function presetMR(){return stackUp(['les','capMerc','retro','rdSep','rdFus','rdTank','rdEng'],0,-1);}
 function presetMA(){const core=stackUp(['les','capMerc','retro','rdSep','atAdapt','atTank','atBase'],0,-1),bb=box(core.find(q=>q.type==='atBase')).b,a=mk('atBoost',-.53,bb+.45),c=mk('atBoost',.53,bb+.45),su=mk('atSus',0,bb+.45);a.mir=c.uid;c.mir=a.uid;return[...core,a,c,su];}
-function presetExplorer(){const core=stackUp(['probe','tankP','engMini','rdSep','rdFus','rdTank','rdEng'],0,-1),sp=core.find(q=>q.type==='rdSep'),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.2),{w:1.2,h:2.4}),fc=Object.assign(mk('fair',0,0),{w:1.2,h:PARTS.fair.h*1.2/1.3});fc.y=top-2.4-fc.h/2;return[...core,fb,fc];}
+function presetExplorer(){const core=stackUp(['probe','tankP','engVaga','rdSep','rdFus','rdTank','rdEng'],0,-1),sp=core.find(q=>q.type==='rdSep'),top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.2),{w:1.2,h:2.4}),fc=Object.assign(mk('fair',0,0),{w:1.2,h:PARTS.fair.h*1.2/1.3});fc.y=top-2.4-fc.h/2;return[...core,fb,fc];}
 function presetHover(){const core=stackUp(['para','capPingo','sep','tankM','beam'],0,-1),bb=-1,e=mk('engVaga',0,bb+PARTS.engVaga.h/2),a=mk('hover',-.7,bb+PARTS.hover.h/2),b=mk('hover',.7,bb+PARTS.hover.h/2);a.mir=b.uid;b.mir=a.uid;return[...core,e,a,b];}
+// foguete lunar completo com a nave do rover em cima (Terra → Lua → rover)
+function presetRoverFull(){const core=stackUp(['para','capPingo','sep','tankM','tankM','roverBay','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
+  const bay=core.find(p=>p.type==='roverBay'),add={},low=core.find(p=>p.type==='tankG'&&box(p).b>-2.2);
+  for(const sd of[-1,1]){add[sd]=[mk('legG',sd*(.5+.2),bay.y),mk('sepLat',sd*(.65+.125),low.y),mk('liqb',sd*(.9+.45),-1.7),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
+  add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 function presetRover(){const core=stackUp(['para','capPingo','sep','tankM','roverBay','engFalcao'],0,-1),bay=core.find(q=>q.type==='roverBay'),L=[];
   for(const sd of[-1,1]){const l=mk('legG',sd*(.5+.2),bay.y);l.dep=true;l.depT=1;L.push(l);}L[0].mir=L[1].uid;L[1].mir=L[0].uid;return[...core,...L];}
 const PRESETS={btnP1:presetTwo,btnP2:presetSides,btnP3:presetLunar,btnP4:presetProbe,btnP5:presetMR,btnP6:presetMA,btnP7:presetExplorer,btnP8:presetHover,btnP9:presetRover};
@@ -1127,7 +1132,7 @@ const CAMP=[
  {id:'c3',t:'Primeiro satélite',ship:'Explorer',preset:()=>presetExplorer(),txt:'Ponha uma sonda em órbita e abra os painéis solares.',steps:[
   {id:'a',t:'Chegar ao espaço',h:'Arme o A-7 e suba inclinando aos poucos.',done:()=>S.altE>SPACE},
   {id:'b',t:'Soltar a carenagem',h:'Acima de 60 km, ESTÁGIO ou toque na carenagem.',done:()=>!V.parts.some(q=>PT(q).t==='fair')},
-  {id:'c',t:'Órbita acima de 150 km',h:'Use o motor da sonda (Formiga) para subir o Pe acima de 150 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>150000},
+  {id:'c',t:'Órbita acima de 150 km',h:'Solte o Redstone e use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 160 km, espere chegar no Ap e acelere de novo até o Pe passar de 150 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>150000},
   {id:'d',t:'Sonda livre e aberta',h:'Solte o resto do foguete: a sonda abre os painéis sozinha.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
  {id:'c4',t:'Até a Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande uma sonda até a gravidade da Lua.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Pe acima de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
@@ -1148,6 +1153,12 @@ const CAMP=[
   {id:'a',t:'Pousar na Lua',h:'Mesmo caminho da missão anterior.',done:()=>onMoon()},
   {id:'b',t:'Voltar para a gravidade da Terra',h:'Decole, acelere para frente até escapar da Lua de volta.',done:()=>S.done.has('a')&&S.dom.earth},
   {id:'c',t:'Pousar na Terra',h:'Só a cápsula, escudo para frente, paraquedas armado.',done:()=>S.landedEarth}]},
+ {id:'c8r',t:'Rover na Lua',ship:'Lunar com rover',preset:()=>presetRoverFull(),txt:'Como a Apollo 15: leve um rover da Terra até a Lua, pouse e saia dirigindo.',steps:[
+  {id:'a',t:'Entrar em órbita',h:'Pe acima de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Entrar na gravidade da Lua',h:'No mapa, toque na Lua, Navegar e siga a linha verde.',done:()=>S.dom===MOON_B},
+  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G), Mira para trás e freie. Toque o chão a menos de 8 m/s.',done:()=>onMoon()},
+  {id:'d',t:'Soltar o rover',h:'Toque em 🚗 SOLTAR ROVER: a porta vira rampa e o rover desce.',done:()=>!!S.roverOut},
+  {id:'e',t:'Dirigir 300 m',h:'Segure ◀ ou ▶ e explore a Lua.',done:()=>(S.rovDist||0)>300}]},
  {id:'c9',t:'Rumo a Marte',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande a sonda até a gravidade de Marte. Use o tempo acelerado.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Pe acima de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Navegar até Marte',h:'No mapa, afaste até ver os planetas, toque em Marte e escolha Navegar.',done:()=>target&&target.n==='Marte'},
@@ -1294,6 +1305,9 @@ function deathTip(){const w=S.dWhy,v=Math.round(S.dImp||0),para=!!V.para,les=V.p
     if(!V.chute)return 'O paraquedas não abriu: você precisa armá-lo (toque nele ou no botão Paraquedas) antes de cair. Ele abre sozinho abaixo de 9 km quando a velocidade baixa.'+ab;
     return 'O paraquedas abriu tarde demais e você bateu a '+v+' m/s. Arme ele mais cedo, ainda bem alto, e não acelere o tempo perto do chão.'+ab;}
   return 'Use ⟲ Voltar 30 s para tentar de novo um pouco antes do erro.';}
+// pacote retro: solta sozinho quando a cápsula volta para a atmosfera (abaixo de 130 km, descendo), se não estiver queimando
+function retroAuto(){if(S.dead||!V||!V.cap||!S.dom.earth||S.liftT<0||S.altE>130000)return;const ri=V.parts.findIndex(q=>q.type==='retro');if(ri<0)return;const q=V.parts[ri];if(q.lit&&q.fuel>0)return;
+  const bp=S.dom.pos(S.t),vr=((V.x-bp[0])*S.rvx+(V.y-bp[1])*S.rvy)/Math.hypot(V.x-bp[0],V.y-bp[1]);if(vr>-20||(S.el&&S.el.pe>70000)||V.parts.some(p=>PT(p).t==='eng'&&!PT(p).jett&&!PT(p).les))return;fire([ri]);sfx('pyro');tip(innerWidth/2,innerHeight*.4,'Pacote retro solto sozinho: o escudo térmico fica livre ✓');}
 function doAbort(){const tp=V.parts.find(q=>PT(q).les);if(S.dead)return;if((!tp||tp.lit)&&V.cap){S.aborted=true;S.abortT=S.t;try{speechSynthesis.cancel();}catch(e){}$('#alarm').hidden=true;$('#btnAbort').hidden=true;if(!capOnly())abortCut();if(V.para){V.armed=true;}sfx('pyro');S.dng=null;tip(innerWidth/2,innerHeight*.4,V.para?'Cápsula solta e paraquedas armado ✓':'Cápsula solta ✓ (sem paraquedas: freie com o motor)');return;}if(!tp||tp.lit)return;tp.on=tp.lit=true;sfx('ignite');S.shake=Math.max(S.shake||0,10);try{speechSynthesis.cancel();}catch(e){}$('#alarm').hidden=true;S.aborted=true;S.abortT=S.t;S.lesAuto=0;if(!capOnly())abortCut();tip(innerWidth/2,innerHeight*.4,'ESCAPE! Torre acesa e cápsula solta');}
 function abortCut(){if(!V.cap)return;const rp=V.parts.find(q=>below(V.cap,q)&&PT(q).jett),cut=box(rp||V.cap).b,keep=V.parts.filter(q=>box(q).b<=cut+EPS),rest=V.parts.filter(q=>!keep.includes(q));if(!rest.length)return;
   const adj=graph(rest),c=comps(rest,adj),g={};rest.forEach((q,i)=>{(g[c[i]]??=[]).push(q);});fire([],{keep,drop:Object.values(g)});}
@@ -1423,6 +1437,7 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
   // paraquedas aberto: acelera o tempo sozinho (×10) e volta ao normal perto do chão para você ver o pouso
   if(!S.dead&&chuteWarp()){if(!S.chAuto&&V.chute>.5&&S.altE>300&&warp<50){warp=50;S.chAuto=1;tip(innerWidth/2,innerHeight*.35,'Tempo ×50 na descida · volta ao normal perto do chão');}else if(S.chAuto===1&&S.altE<60&&warp>1){warp=1;S.chAuto=2;}}
   // torre de escape: some sozinha depois do estágio (como na Mercury) e depois de um aborto, quando apaga
+  retroAuto();
   if(!S.dead&&!S.atlasTip&&V.parts.some(q=>q.type==='atBase')&&V.firing.length){const t2=V.parts.find(q=>q.type==='atTank');if(t2&&t2.fuel/capOf(t2)<.42){S.atlasTip=1;sfx('chime');toast('Hora de soltar a Base Atlas!','Aperte ESTÁGIO agora: os dois motores de reforço caem e o motor do meio continua sozinho, bem mais leve.');}}
   if(!S.dead){const li=V.parts.findIndex(q=>PT(q).les);if(li>=0){const L=V.parts[li];if(!S.lesAuto&&!L.lit&&!S.aborted&&!S.lesHigh&&S.liftT>=0&&S.dom.earth&&S.altE>35000&&!(CAMP_CUR&&CAMP.find(c=>c.id===CAMP_CUR&&c.fail)&&!S.failT&&S.altE<40000)){S.lesHigh=1;S.lesAuto=S.t+.5;}
     if(S.lesAuto&&S.t>=S.lesAuto&&!L.lit){S.lesAuto=0;
