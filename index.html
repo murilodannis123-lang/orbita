@@ -296,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 47</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 48</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -827,7 +827,7 @@ function presetProbe(){const core=stackUp(['probe','sep','tankP','engMini','sep'
 // pacote Redstone/Atlas e hover
 function presetMR(){return stackUp(['les','capMerc','retro','rdSep','rdFus','rdTank','rdEng'],0,-1);}
 function presetMA(){const core=stackUp(['les','capMerc','retro','rdSep','atAdapt','atTank','atBase'],0,-1),bb=box(core.find(q=>q.type==='atBase')).b,a=mk('atBoost',-.53,bb+.45),c=mk('atBoost',.53,bb+.45),su=mk('atSus',0,bb+.45);a.mir=c.uid;c.mir=a.uid;const tb=box(core.find(q=>q.type==='atTank')),fx=(PARTS.atTank.w+PARTS.aletaL.w)/2,fy=tb.b-PARTS.aletaL.h/2-.05,fl=mk('aletaL',-fx,fy),fr=mk('aletaL',fx,fy);fl.mir=fr.uid;fr.mir=fl.uid;return[...core,fl,fr,a,c,su];}
-function presetExplorer(){const core=stackUp(['probe','sep','tankP','aleta','engVaga','rdSep','rdFus','rdTank','aleta','rdEng'],0,-1),al=core.find(q=>q.type==='aleta'),top=box(al).t,hh=box(al).t-box(core[0]).t+.1,fb=Object.assign(mk('fairBody',0,top-hh/2),{w:1.2,h:hh}),fc=Object.assign(mk('fair',0,0),{w:1.2,h:PARTS.fair.h*1.2/1.3});fc.y=top-hh-fc.h/2;return[...core,fb,fc];}
+function presetExplorer(){const core=stackUp(['probe','sep','tankP','aleta','engVaga','rdSep','rdFus','rdTank','aleta','rdEng'],0,-1),tk=core.find(q=>q.type==='tankP'),pr=core.find(q=>q.type==='probe'),top=box(tk).t,hh=top-box(pr).t+.12,fb=Object.assign(mk('fairBody',0,top-hh/2),{w:1.15,h:hh}),fc=Object.assign(mk('fair',0,0),{w:1.15,h:PARTS.fair.h*.75});fc.y=top-hh-fc.h/2;return[...core,fb,fc];}
 function presetHover(){const core=stackUp(['para','capPingo','sep','tankM','beam'],0,-1),bb=-1,e=mk('engFalcao',0,bb+PARTS.engFalcao.h/2),a=mk('hover',-.7,bb+PARTS.hover.h/2),b=mk('hover',.7,bb+PARTS.hover.h/2);a.mir=b.uid;b.mir=a.uid;return[...core,e,a,b];}
 // foguete lunar completo com a nave do rover em cima (Terra → Lua → rover)
 function presetRoverFull(){const core=stackUp(['para','capPingo','sep','tankM','tankM','roverBay','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
@@ -1152,9 +1152,9 @@ const CAMP=[
   {id:'c',t:'Voltar e pousar',h:'Mira para trás, solte o Atlas (ESTÁGIO) e toque no pacote retro para acender. Quando ele apagar, toque nele de novo para soltar (senão ele tampa o escudo). Arme o paraquedas e mantenha Mira para trás até o fim.',done:()=>S.landedEarth}]},
  {id:'c3',t:'Primeiro satélite',ship:'Explorer',preset:()=>presetExplorer(),txt:'Ponha uma sonda em órbita e abra os painéis solares.',steps:[
   {id:'a',t:'Chegar ao espaço',h:'Arme o A-7, LIGAR e toque em MIRA até SUBIDA (curva de gravidade: reto até 1 km, depois vai deitando sozinho). Quando o A-7 apagar, deixe o acelerador no máximo e aperte ESTÁGIO: o motor de cima acende junto.',done:()=>S.altE>SPACE},
-  {id:'b',t:'Soltar a carenagem',h:'Acima de 60 km, ESTÁGIO ou toque na carenagem.',done:()=>!V.parts.some(q=>PT(q).t==='fair')},
-  {id:'c',t:'Órbita acima de 150 km',h:'Solte o Redstone e use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 160 km, espere chegar no Ap e acelere de novo até o Pe passar de 150 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>150000},
-  {id:'d',t:'Sonda livre e aberta',h:'Por último, aperte ESTÁGIO para soltar a sonda do motor: sozinha, ela abre os painéis.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
+  {id:'b',t:'Órbita acima de 150 km',h:'Com o Redstone solto, use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 160 km, espere chegar no Ap e acelere de novo até o Pe passar de 150 km. O satélite viaja protegido dentro da carenagem.',done:()=>S.dom.earth&&S.el&&S.el.pe>150000},
+  {id:'c',t:'Abrir a carenagem e soltar o satélite',h:'Em órbita, aperte ESTÁGIO: a carenagem lá em cima abre em duas metades e o satélite sai sozinho.',done:()=>!V.parts.some(q=>PT(q).t==='fair')&&probeOnly()&&V.parts.length<=4},
+  {id:'d',t:'Painéis abertos',h:'Solto, o satélite abre os painéis solares sozinho.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
  {id:'c4',t:'Até a Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande uma sonda até a gravidade da Lua.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Toque em MIRA até aparecer SUBIDA: o foguete sobe reto, inclina uns graus a 1 km e vai deitando sozinho (curva de gravidade). Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Navegar até a Lua',h:'Abra o mapa, toque na Lua e escolha Navegar.',done:()=>target===MOON_B},
@@ -1355,7 +1355,7 @@ function crash(v,imp,why){if(v.main){S.dWhy=why||(S.dom&&S.dom.earth?'impacto':'
   v.dead=true;const bv=S.dom.vel(S.t);boomAt({x:v.x,y:v.y,vx:bv[0]+(v.vx-bv[0])*.2,vy:bv[1]+(v.vy-bv[1])*.2},v.main?1:.45);if(!v.main)sfx('boom');}
 function stage(){if(!V||S.dead)return;const hasF=V.parts.some(q=>PT(q).t==='fair');
   // como no SFS/vida real: a carenagem sai quando já não há ar (acima de ~60 km), antes de soltar a carga
-  if(hasF&&!V.clamped&&(!S.dom.earth||S.altE>60000)){releaseFair();tip(innerWidth/2,innerHeight*.4,'Carenagem solta ✓');return;}
+  if(hasF&&!V.clamped&&(!S.dom.earth||S.altE>60000)){releaseFair();const orb=S.el&&S.el.bound&&S.el.pe>SPACE,pay=V.groups.length===1&&V.parts.some(q=>PT(q).probe);if(pay&&orb){S.payRel=S.t+.9;tip(innerWidth/2,innerHeight*.4,'Carenagem aberta ✓ soltando o satélite…');}else{tip(innerWidth/2,innerHeight*.4,'Carenagem solta ✓');if(pay)setTimeout(()=>toast('Satélite preso até a órbita','Ele não tem motor para chegar lá sozinho. Quando o Pe passar de 100 km, aperte ESTÁGIO de novo para soltar.'),60);}return;}
   if(V.groups.length)fire(V.groups[0]);}
 function releaseFair(){const n0=debris.length;fire(V.parts.map((q,k)=>PT(q).t==='fair'?k:-1).filter(k=>k>=0));
   const sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),px=[sn,-cs];for(const d of debris.splice(n0)){if(!d.parts.every(q=>PT(q).t==='fair')){debris.push(d);continue;}
@@ -1394,7 +1394,7 @@ function fire(idx,pre){const fired_w=ix=>ix.map(i=>V.parts[i]).filter(Boolean).m
     for(let k=0;k<16;k++){const sd=k%2?1:-1,sp=4+Math.random()*10;particles.push({type:'smoke',x:sx2+px2*sd*Math.random()*1.5,y:sy2+py2*sd*Math.random()*1.5,vx:V.vx+px2*sd*sp+(Math.random()-.5)*3,vy:V.vy+py2*sd*sp+(Math.random()-.5)*3,life:1.5+Math.random()*2*(.3+air),max:3.5,size:1.2,grow:2.5+3*air,v:k%4,heat:.3,spread:1});}}
   V.vx+=jx;V.vy+=jy;
   {const L=keep.find(q=>PT(q).les),free=!keep.some(q=>PT(q).t==='eng'&&!PT(q).les&&!PT(q).jett);if(L&&!L.lit&&free&&V.parts!==keep)S.lesAuto=S.t+1;}
-  {const cp=keep.find(q=>PT(q).t==='cap');const alone=cp&&keep.every(q=>q===cp||!['tank','eng'].includes(PT(q).t));if(cp&&PT(cp).probe&&alone&&!cp.dep&&(!S.dom.earth||S.altE>SPACE*.7))S.probeDep=S.t+1.5;if(cp&&PT(cp).probe&&keep.length<=8&&!S.probeTold){S.probeTold=true;setTimeout(()=>toast('Sonda solta ✓','Agora você pilota só a sonda. Ela tem motor próprio: use para ir até a Lua ou outro planeta.'),50);}}
+  {const cp=keep.find(q=>PT(q).t==='cap');const alone=cp&&keep.every(q=>q===cp||!['tank','eng'].includes(PT(q).t));if(cp&&PT(cp).probe&&alone&&!cp.dep&&(!S.dom.earth||S.altE>SPACE*.7))S.probeDep=S.t+1.5;if(cp&&PT(cp).probe&&alone&&!S.probeTold){S.probeTold=true;setTimeout(()=>toast('Satélite solto ✓','Agora ele voa sozinho, sem motor, e abre os painéis solares para pegar energia do Sol.'),50);}}
   V.parts=keep;restructure(V);updateMass(V);sfx('pyro');const nxt=propAct(V).filter(i=>!PT(V.parts[i]).jett);
   // como no SFS/KSP: se você estava acelerando, o motor do próximo estágio acende junto (com ele empurrando, o estágio não vira cambalhota no ar)
   if(nxt.length&&!nxt.some(i=>V.parts[i].on)&&S.master&&S.thr>0){for(const i of nxt)V.parts[i].on=true;sfx('ignite');tip(innerWidth/2,innerHeight*.4,'Estágio solto ✓ · '+PT(V.parts[nxt[0]]).n+' aceso');}
@@ -1415,7 +1415,7 @@ function gravTurnHold(){const bp=S.dom.pos(S.t),up=Math.atan2(V.y-bp[1],V.x-bp[0
 function tgtOm(user){if(user){V.hold=null;if(V.aim){V.aim=null;aimUI();}return user*TURN_RATE;}if(V.aim==='grav')V.hold=gravTurnHold();else if(V.aim&&Math.hypot(S.rvx,S.rvy)>1)V.hold=Math.atan2(S.rvy,S.rvx)+(V.aim==='retro'?Math.PI:0);if(V.hold==null)V.hold=V.hdg;const e=Math.atan2(Math.sin(V.hold-V.hdg),Math.cos(V.hold-V.hdg));return Math.max(-TURN_RATE,Math.min(TURN_RATE,e*1.2));}
 function steer(user,dt){const err=tgtOm(user)-V.om;V.trim=Math.max(-1,Math.min(1,(V.trim||0)+err*dt*3)); // trim: compensa empuxo fora do centro
   return Math.max(-1,Math.min(1,err*4+V.trim));}
-function stepWorld(dt){S.t+=dt;const user=(keys.a?1:0)-(keys.d?1:0),hovT=!!(S.hover&&V.hov&&V.hov.length&&(V.hgt??0)<25),drv=V.ground&&V.wheels&&V.wheels.length&&!V.clamped,turn=V.clamped||drv||!(user||sas||V.aim)?0:steer(user,dt),thr=warp>5?0:S.thr;
+function stepWorld(dt){S.t+=dt;if(S.payRel&&S.t>=S.payRel){S.payRel=0;if(!S.dead&&V.groups.length)fire(V.groups[0]);}const user=(keys.a?1:0)-(keys.d?1:0),hovT=!!(S.hover&&V.hov&&V.hov.length&&(V.hgt??0)<25),drv=V.ground&&V.wheels&&V.wheels.length&&!V.clamped,turn=V.clamped||drv||!(user||sas||V.aim)?0:steer(user,dt),thr=warp>5?0:S.thr;
   if(!S.dead&&V.sink)stepSink(V,dt);else if(!S.dead)stepV(V,dt,{rot:hovT?0:turn,thr,rails:warp>5&&!chuteWarp(),master:!!S.master,drive:drv&&!hovT?user:null,rcs:S.rcs?RCST:null,hover:S.hover&&V.hov&&V.hov.length?{dir:user}:null});for(const d of debris){if(d.sink&&!d.dead)stepSink(d,dt);else if(!d.dead)stepV(d,dt,{rot:0,thr:0,rails:warp>5&&!chuteWarp(),drive:d.wheels&&d.wheels.length?0:null});d.t+=dt;}debris=debris.filter(d=>!d.dead);if(debris.length>40){const k=debris.findIndex(d=>!d.cap&&!d.keep);debris.splice(k<0?0:k,1);}
   for(const p of particles)if(p.type==='chunk'){const[gx,gy]=gravity(p.x,p.y,S.t);p.vx+=gx*dt;p.vy+=gy*dt;p.rot=(p.rot||0)+(p.spin||0)*dt;p.heat=Math.max(0,(p.heat||0)-dt*.35);}
   stepWater(dt);stepImpacts(dt);
@@ -1449,7 +1449,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=47;
+const GAME_VER=48;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
