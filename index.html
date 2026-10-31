@@ -103,7 +103,6 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #btnRcs{padding:8px 12px;background:rgba(7,11,22,.6);font-size:13px}#btnRcs.on{border-color:var(--orbit);color:var(--orbit)}#rcsPad{position:absolute;right:calc(130px + env(safe-area-inset-right,0px));bottom:calc(90px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;z-index:6}#rcsPad[hidden]{display:none}#rcsPad button{padding:0;font-size:16px;background:rgba(7,11,22,.6);border-color:rgba(79,209,255,.5);color:var(--orbit)}#rcsPad [data-r='0,1']{grid-area:1/2}#rcsPad [data-r='-1,0']{grid-area:2/1}#rcsPad [data-r='0,-1']{grid-area:3/2}#rcsPad [data-r='1,0']{grid-area:2/3}
 #btnLegs{padding:8px 12px;background:rgba(7,11,22,.6);backdrop-filter:blur(8px);font-size:13px;white-space:nowrap}#btnLegs.on{border-color:var(--good);color:var(--good)}
 #btnAim{padding:8px 12px;background:rgba(7,11,22,.6);backdrop-filter:blur(8px);font-size:13px;white-space:nowrap}#btnAim.on{border-color:var(--orbit);color:var(--orbit)}
-#aimRow{display:flex;gap:6px;align-items:center}#aimRow[hidden]{display:none}#btnAim.pend{border-style:dashed;border-color:#ffd23f;color:#ffd23f}#btnAimOk{padding:8px 12px;font-size:13px;white-space:nowrap;background:#ffd23f;color:#0b0f1d;border-color:#ffd23f;font-weight:700}
 #btnChute{padding:8px 12px;background:rgba(7,11,22,.6);backdrop-filter:blur(8px);font-size:13px}
 #btnChute.armed{border-color:var(--accent);color:var(--accent)}#btnChute.open{border-color:var(--good);color:var(--good)}
 #thrWrap{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px}
@@ -297,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 50</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 51</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -316,7 +315,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   <div id="mapUI"><div id="mapInfo" class="glass" title="Toque para esconder"></div><button id="mapCenter" class="glass" hidden>◎ Centralizar</button><button id="miBtn" class="glass" hidden aria-label="Mostrar informações da órbita">ⓘ Órbita</button></div>
   <div id="ctlL"><button class="round" data-k="a" aria-label="Girar para a esquerda">⟲</button><button class="round" data-k="d" aria-label="Girar para a direita">⟳</button></div>
   <div id="rcsPad" hidden><button data-r="0,1" aria-label="RCS frente">▲</button><button data-r="-1,0" aria-label="RCS esquerda">◀</button><button data-r="0,-1" aria-label="RCS trás">▼</button><button data-r="1,0" aria-label="RCS direita">▶</button></div>
-  <div id="ctlC"><button id="btnHover" hidden>Hover: desligado</button><button id="btnRover" hidden>🚗 Soltar rover</button><button id="btnRamp" hidden>Rampa: fechada</button><button id="btnRcs" hidden>RCS</button><button id="btnLegs" hidden>Pés: fechados</button><span id="aimRow"><button id="btnAim" title="Mira automática (V)">Mira: livre</button><button id="btnAimOk" hidden>✓ Confirmar</button></span><button id="btnChute" hidden>Paraquedas</button><button id="btnStage">ESTÁGIO<small id="stNext"></small></button></div>
+  <div id="ctlC"><button id="btnHover" hidden>Hover: desligado</button><button id="btnRover" hidden>🚗 Soltar rover</button><button id="btnRamp" hidden>Rampa: fechada</button><button id="btnRcs" hidden>RCS</button><button id="btnLegs" hidden>Pés: fechados</button><button id="btnChute" hidden>Paraquedas</button><button id="btnStage">ESTÁGIO<small id="stNext"></small></button></div>
   <div id="thrWrap" class="glass"><button id="btnEng" class="lever" role="switch" aria-checked="false" title="Liga/desliga todos os motores (E)" aria-label="Motores"><i></i><span id="engLbl">LIGAR</span></button><div class="gauges"><div class="gcol"><span class="eyebrow">Motor</span><div id="thrTrack"><div id="thrFill"></div></div><b id="thrPct">0%</b></div><div class="gcol"><span class="eyebrow">Comb.</span><div id="fuelTrack"><div id="fuelFill"></div></div><b id="fuelPct">100%</b></div></div><div class="mini"><button id="thrMax">MÁX</button><button id="thrCut">0</button></div></div>
   <div id="tip" class="glass" role="status"></div>
   <div id="campWin" class="glass dlg" hidden role="dialog" aria-label="Missão cumprida"><p class="eyebrow" id="cwE">Campanha</p><h2 id="cwT">Missão cumprida ✓</h2><p id="cwB"></p><div id="cwS" class="cwStats" hidden></div><div class="cwBtns"><button class="primary" id="cwNext">Próxima missão</button><button class="glass" id="cwHangar">⌂ Voltar ao hangar</button><button id="cwStay">Continuar aqui</button><button id="cwHome">Tela inicial</button></div></div>
@@ -342,7 +341,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <div><div class="eyebrow">Trapaças <span class="cheatFlag" hidden style="color:var(--accent)">● ativas</span></div><div class="cheatsBox"></div></div>
     <div><div class="eyebrow">Missões</div><ul id="missions"></ul><p id="whyTxt" style="font-size:13px;color:var(--muted);margin:8px 0 0"></p></div>
     <div><div class="eyebrow">Camada atual</div><p id="layerFact" style="font-size:13px;color:var(--muted);margin:4px 0 0"></p></div>
-    <div class="keys"><div class="eyebrow">Teclado</div><kbd>A</kbd> <kbd>D</kbd> girar · <kbd>W</kbd> <kbd>S</kbd> motor · <kbd>Z</kbd> máximo · <kbd>X</kbd> corta · <kbd>E</kbd> ignição (alavanca) · toque no motor arma · <kbd>Espaço</kbd> estágio (ou toque numa peça do estágio) · <kbd>G</kbd> pés de pouso · <kbd>V</kbd> mira (Enter confirma) · <kbd>R</kbd> volta 30 s · <kbd>P</kbd> paraquedas · <kbd>M</kbd> mapa · <kbd>T</kbd> estabilizador · <kbd>,</kbd> <kbd>.</kbd> tempo · roda do mouse ou pinça: zoom</div>
+    <div class="keys"><div class="eyebrow">Teclado</div><kbd>A</kbd> <kbd>D</kbd> girar · <kbd>W</kbd> <kbd>S</kbd> motor · <kbd>Z</kbd> máximo · <kbd>X</kbd> corta · <kbd>E</kbd> ignição (alavanca) · toque no motor arma · <kbd>Espaço</kbd> estágio (ou toque numa peça do estágio) · <kbd>G</kbd> pés de pouso · <kbd>R</kbd> volta 30 s · <kbd>P</kbd> paraquedas · <kbd>M</kbd> mapa · <kbd>T</kbd> estabilizador · <kbd>,</kbd> <kbd>.</kbd> tempo · roda do mouse ou pinça: zoom</div>
   </aside>
 </div>
 
@@ -1141,48 +1140,48 @@ const CAMP=[
  {id:'c1',t:'Primeiro salto',ship:'Mercury-Redstone',preset:()=>presetMR(),txt:'Como Alan Shepard em 1961: um arco até o espaço e volta, sem entrar em órbita.',steps:[
   {id:'a',t:'Decolar',h:'Toque no motor A-7 para armar, acelerador no máximo e LIGAR.',done:()=>S.altE>5000},
   {id:'b',t:'Passar dos 100 km',h:'Suba quase reto, inclinando só um pouco para a direita.',done:()=>S.altE>SPACE},
-  {id:'c',t:'Pousar em segurança',h:'No alto, ESTÁGIO solta o foguete. Mira para trás (escudo para frente) e o paraquedas abre sozinho se estiver armado.',done:()=>S.landedEarth}]},
+  {id:'c',t:'Pousar em segurança',h:'No alto, ESTÁGIO solta o foguete. vire o bico para a marca laranja (escudo para frente) e o paraquedas abre sozinho se estiver armado.',done:()=>S.landedEarth}]},
  {id:'c1b',t:'Emergência!',ship:'Mercury-Redstone',preset:()=>presetMR(),fail:{alt:6500},txt:'Mais um voo de teste do Redstone. Fique esperto: se algo der errado, a torre de escape salva você.',steps:[
   {id:'a',t:'Decolar',h:'Arme o A-7, acelerador no máximo e LIGAR.',done:()=>S.altE>2000},
   {id:'b',t:'Ejetar com a torre de escape',h:'Deu FALHA: aperte ABORTAR ou toque na torre de escape.',done:()=>!!S.aborted},
   {id:'c',t:'Soltar a torre',h:'Ela solta sozinha quando apaga, e o paraquedas fica armado.',done:()=>!V.parts.some(q=>PT(q).les)},
   {id:'d',t:'Pousar de paraquedas',h:'Espere o paraquedas abrir e descer até o chão.',done:()=>S.aborted&&S.dom.earth&&V.ground&&Math.hypot(S.rvx,S.rvy)<1}]},
  {id:'c2',t:'Uma volta ao mundo',ship:'Mercury-Atlas',preset:()=>presetMA(),txt:'Como John Glenn em 1962: entre em órbita da Terra e volte.',steps:[
-  {id:'a',t:'Chegar ao espaço',h:'Arme os 3 motores do Atlas, acelerador no máximo e LIGAR. Toque em MIRA até SUBIDA e em CONFIRMAR: o foguete sobe reto, inclina uns graus a 1 km e vai deitando sozinho (curva de gravidade; o painel mostra o ângulo ideal). Quando o tanque chegar em 40%, aperte ESTÁGIO para soltar a Base Atlas.',done:()=>S.altE>SPACE},
+  {id:'a',t:'Chegar ao espaço',h:'Arme os 3 motores do Atlas, acelerador no máximo e LIGAR. Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o tanque chegar em 40%, aperte ESTÁGIO para soltar a Base Atlas.',done:()=>S.altE>SPACE},
   {id:'b',t:'Entrar em órbita',h:'Quando o Ap passar de 110 km, desligue o motor e espere chegar perto do Ap. Aí deite na horizontal e acelere até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
-  {id:'c',t:'Voltar e pousar',h:'Mira para trás, solte o Atlas (ESTÁGIO) e toque no pacote retro para acender. Quando ele apagar, toque nele de novo para soltar (senão ele tampa o escudo). Arme o paraquedas e mantenha Mira para trás até o fim.',done:()=>S.landedEarth}]},
+  {id:'c',t:'Voltar e pousar',h:'Vire o bico para a marca laranja (contra o movimento), solte o Atlas (ESTÁGIO) e toque no pacote retro para acender. Quando ele apagar, toque nele de novo para soltar (senão ele tampa o escudo). Arme o paraquedas e mantenha o bico na marca laranja até o fim.',done:()=>S.landedEarth}]},
  {id:'c3',t:'Primeiro satélite',ship:'Explorer',preset:()=>presetExplorer(),txt:'Ponha uma sonda em órbita e abra os painéis solares.',steps:[
-  {id:'a',t:'Chegar ao espaço',h:'Arme o A-7, LIGAR e toque em MIRA até SUBIDA e em CONFIRMAR (curva de gravidade: reto até 1 km, depois vai deitando sozinho). Quando o A-7 apagar, deixe o acelerador no máximo e aperte ESTÁGIO: o motor de cima acende junto.',done:()=>S.altE>SPACE},
+  {id:'a',t:'Chegar ao espaço',h:'Arme o A-7, LIGAR. Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o A-7 apagar, deixe o acelerador no máximo e aperte ESTÁGIO: o motor de cima acende junto.',done:()=>S.altE>SPACE},
   {id:'b',t:'Órbita acima de 120 km',h:'Com o Redstone solto, use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 140 km, espere chegar no Ap e acelere de novo até o Pe passar de 120 km. O satélite viaja protegido dentro da carenagem.',done:()=>S.dom.earth&&S.el&&S.el.pe>120000},
   {id:'c',t:'Abrir a carenagem e soltar o satélite',h:'Em órbita, aperte ESTÁGIO: a carenagem lá em cima abre em duas metades e o satélite sai sozinho.',done:()=>!V.parts.some(q=>PT(q).t==='fair')&&probeOnly()&&V.parts.length<=4},
   {id:'d',t:'Painéis abertos',h:'Solto, o satélite abre os painéis solares sozinho.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
  {id:'c4',t:'Até a Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande uma sonda até a gravidade da Lua.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Toque em MIRA até aparecer SUBIDA e depois em CONFIRMAR (dá para escolher ainda na plataforma): o foguete sobe reto, inclina uns graus a 1 km e vai deitando sozinho (curva de gravidade). Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Navegar até a Lua',h:'Abra o mapa, toque na Lua e escolha Navegar.',done:()=>target===MOON_B},
   {id:'c',t:'Entrar na gravidade da Lua',h:'Siga a linha verde até a mira laranja.',done:()=>S.dom===MOON_B}]},
  {id:'c5',t:'Órbita da Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Chegue na Lua e freie para ficar presa em órbita dela.',steps:[
   {id:'a',t:'Entrar na gravidade da Lua',h:'Órbita, Navegar até a Lua e siga a linha verde.',done:()=>S.dom===MOON_B},
-  {id:'b',t:'Ficar em órbita da Lua',h:'No ponto mais perto (Pe), Mira para trás e freie o que o mapa pedir.',done:()=>S.dom===MOON_B&&S.el&&S.el.bound&&S.el.pe>5000}]},
+  {id:'b',t:'Ficar em órbita da Lua',h:'No ponto mais perto (Pe), vire para a marca laranja e freie o que o mapa pedir.',done:()=>S.dom===MOON_B&&S.el&&S.el.bound&&S.el.pe>5000}]},
  {id:'c6',t:'Passeio de rover',ship:'Lunar com rover',preset:()=>presetRover(),start:'moon',txt:'Você já começa pousado na Lua, com um rover guardado na baia da nave. Solte ele e dirija pelo chão de outro mundo, como na Apollo 15.',steps:[
   {id:'a',t:'Soltar o rover',h:'Toque em 🚗 SOLTAR ROVER (ou na baia do rover): a porta vira rampa e o rover desce.',done:()=>!!S.roverOut},
   {id:'b',t:'Dirigir 500 m',h:'Segure ◀ ou ▶ para andar. Na Lua tudo é leve: vá com calma nas descidas.',done:()=>(S.rovDist||0)>500},
   {id:'c',t:'Guardar o rover',h:'Dirija de volta até o pé da rampa e toque em ⬆ GUARDAR O ROVER: ele sobe e entra na baia.',done:()=>(S.rovDist||0)>500&&!V.isRover&&(S.roverHome||(!!S.rover&&Math.hypot(S.rover.x-V.x,S.rover.y-V.y)<20))}]},
  {id:'c7',t:'Pouso na Lua',ship:'Lunar',preset:()=>presetLunar(),txt:'Como a Apollo 11: chegue na Lua e pouse de pé.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Toque em MIRA até aparecer SUBIDA e depois em CONFIRMAR (dá para escolher ainda na plataforma): o foguete sobe reto, inclina uns graus a 1 km e vai deitando sozinho (curva de gravidade). Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Entrar na gravidade da Lua',h:'Navegar até a Lua e siga a linha verde.',done:()=>S.dom===MOON_B},
-  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G), Mira para trás e freie. Toque o chão a menos de 8 m/s.',done:()=>onMoon()}]},
+  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G), vire para a marca laranja e freie. Toque o chão a menos de 8 m/s.',done:()=>onMoon()}]},
  {id:'c8',t:'Volta para casa',ship:'Lunar',preset:()=>presetLunar(),txt:'Pouse na Lua e traga a cápsula de volta para a Terra.',steps:[
   {id:'a',t:'Pousar na Lua',h:'Mesmo caminho da missão anterior.',done:()=>onMoon()},
   {id:'b',t:'Voltar para a gravidade da Terra',h:'Decole, acelere para frente até escapar da Lua de volta.',done:()=>S.done.has('a')&&S.dom.earth},
   {id:'c',t:'Pousar na Terra',h:'Só a cápsula, escudo para frente, paraquedas armado.',done:()=>S.landedEarth}]},
  {id:'c8r',t:'Rover na Lua',ship:'Lunar com rover',preset:()=>presetRoverFull(),txt:'Como a Apollo 15: leve um rover da Terra até a Lua, pouse e saia dirigindo.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Toque em MIRA até aparecer SUBIDA e depois em CONFIRMAR (dá para escolher ainda na plataforma): o foguete sobe reto, inclina uns graus a 1 km e vai deitando sozinho (curva de gravidade). Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Entrar na gravidade da Lua',h:'No mapa, toque na Lua, Navegar e siga a linha verde.',done:()=>S.dom===MOON_B},
-  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G), Mira para trás e freie. Toque o chão a menos de 8 m/s.',done:()=>onMoon()},
+  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G), vire para a marca laranja e freie. Toque o chão a menos de 8 m/s.',done:()=>onMoon()},
   {id:'d',t:'Soltar o rover',h:'Toque em 🚗 SOLTAR ROVER: a porta vira rampa e o rover desce.',done:()=>!!S.roverOut},
   {id:'e',t:'Dirigir 300 m',h:'Segure ◀ ou ▶ e explore a Lua.',done:()=>(S.rovDist||0)>300}]},
  {id:'c9',t:'Rumo a Marte',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande a sonda até a gravidade de Marte. Use o tempo acelerado.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Toque em MIRA até aparecer SUBIDA e depois em CONFIRMAR (dá para escolher ainda na plataforma): o foguete sobe reto, inclina uns graus a 1 km e vai deitando sozinho (curva de gravidade). Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Navegar até Marte',h:'No mapa, afaste até ver os planetas, toque em Marte e escolha Navegar.',done:()=>target&&target.n==='Marte'},
   {id:'c',t:'Entrar na gravidade de Marte',h:'Acelere no ponto verde e siga até a mira.',done:()=>S.dom.n==='Marte'}]},
 ];
@@ -1221,8 +1220,8 @@ const MISSIONS=[
  {id:'space',t:'Chegar ao espaço',h:'Passe dos 100 km. A partir de 1 km, incline devagar para a direita até uns 45° perto dos 12 km.',why:'Por convenção internacional o espaço começa na Linha de Kármán, a 100 km. Subir reto gasta combustível à toa; deitar cedo demais queima no ar denso.',done:()=>S.altE>SPACE},
  {id:'orbit',t:'Entrar em órbita',h:'Deite quase na horizontal e acelere até o perigeu (Pe, no mapa) passar de 100 km.',why:'Órbita é cair e errar o chão: o que segura você é a velocidade de lado, uns 2.200 m/s aqui.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
  {id:'moon',t:'Rumo à Lua',h:'Em órbita, abra o mapa. Quando a Lua estiver um pouco à frente, acelere para frente até o apogeu alcançar a órbita da Lua.',why:'A Lua passa a puxar mais que a Terra quando você entra na esfera de influência dela, a uns 6.600 km do centro dela nesta escala.',done:()=>S.dom===MOON_B},
- {id:'land',t:'Pousar na Lua',h:'Abra os pés de pouso (toque neles ou G), use Mira para trás e o motor para frear. Toque o chão a menos de 8 m/s, de pé.',why:'Na Lua não tem ar: nada de paraquedas, só o motor freia. Os pés seguram a nave em pé no chão irregular, como no módulo lunar Eagle da Apollo 11.',done:()=>S.dom===MOON_B&&V.ground&&Math.hypot(S.rvx,S.rvy)<1},
- {id:'home',t:'Voltar para casa',h:'Vire contra o movimento e freie até o perigeu cair abaixo de 40 km. Solte tudo e fique só com a cápsula, escudo térmico para frente (Mira para trás). No ar, toque no paraquedas.',why:'Para descer você freia: menos velocidade baixa o outro lado da órbita até ele tocar o ar, que faz o resto.',done:()=>S.landedEarth},
+ {id:'land',t:'Pousar na Lua',h:'Abra os pés de pouso (toque neles ou G), vire para a marca laranja e use o motor para frear. Toque o chão a menos de 8 m/s, de pé.',why:'Na Lua não tem ar: nada de paraquedas, só o motor freia. Os pés seguram a nave em pé no chão irregular, como no módulo lunar Eagle da Apollo 11.',done:()=>S.dom===MOON_B&&V.ground&&Math.hypot(S.rvx,S.rvy)<1},
+ {id:'home',t:'Voltar para casa',h:'Vire contra o movimento e freie até o perigeu cair abaixo de 40 km. Solte tudo e fique só com a cápsula, escudo térmico para frente (bico na marca laranja). No ar, toque no paraquedas.',why:'Para descer você freia: menos velocidade baixa o outro lado da órbita até ele tocar o ar, que faz o resto.',done:()=>S.landedEarth},
 ];
 function launch(){rauStop();audioInit();musicStop(true);PHZ.ph={};PHZ.n=null;PHZ.rate=0;PHZ.dur=0;rdv=null;const ps=parts.map(p=>({...p,fuel:fuelOf(p),on:false}));const c=centerOfMass(ps),bot=Math.max(...ps.map(p=>box(p).b));
   V=makeVessel(ps,c.x*UNIT,R+(bot-c.y)*UNIT,0,0,Math.PI/2);V.clamped=true;V.main=true;V.hold=Math.PI/2;if(!propAct(V).length)V.clamped=false;
@@ -1294,12 +1293,12 @@ function contact(v,dom){const bp=dom.pos(S.t),sn=Math.sin(v.hdg),cs=Math.cos(v.h
     if(spd<=12&&!near&&!v.clamped&&S.liftT>=0&&S.t-S.liftT>4&&Math.abs(Math.atan2(v.y,v.x)-Math.PI/2)*R>130){if(wet){if(v.main)splash(v.x,v.y,Math.min(1,.3+spd/14));else sinkStart(v,spd);}else if(v.main)crater(v.x,v.y,.3,true);else if(spd>2)dustRing(v.x,v.y,.3);}}
   if(mh>=0)return;const n=Math.hypot(ux,uy);ux/=n;uy/=n;v.x-=ux*mh;v.y-=uy*mh;const bv=dom.vel(S.t),rvx=v.vx-bv[0],rvy=v.vy-bv[1];
   if(rvx*ux+rvy*uy<0){const imp=roll?-(rvx*ux+rvy*uy):Math.hypot(rvx,rvy);if(imp>(dom.earth?12:legsDown?10:8)&&!CH.crash){crash(v,imp);return;}if(roll){const vn=rvx*ux+rvy*uy;v.vx-=vn*ux;v.vy-=vn*uy;}else{v.vx=bv[0];v.vy=bv[1];}v.om*=.3;}}
-function burnUp(v){if(v.main){S.dWhy='calor';S.dShield=!!v.shield;}boomAt(v,v.main?.8:.35);if(v.main){S.dead=true;sfx('boom');toast('Queimou na reentrada','A estrutura passou de 1.250 °C. Desça só com a cápsula e com o escudo térmico (a base dela) virado para frente: use Mira para trás.');}v.dead=true;
+function burnUp(v){if(v.main){S.dWhy='calor';S.dShield=!!v.shield;}boomAt(v,v.main?.8:.35);if(v.main){S.dead=true;sfx('boom');toast('Queimou na reentrada','A estrutura passou de 1.250 °C. Desça só com a cápsula e com o escudo térmico (a base dela) virado para frente: vire o bico para a marca laranja.');}v.dead=true;
   for(let i=0;i<(v.main?120:30);i++){const a=Math.random()*7,s2=Math.random()*60;particles.push({type:i%2?'fire':'smoke',fl:'plasma',x:v.x,y:v.y,vx:v.vx*.6+Math.cos(a)*s2,vy:v.vy*.6+Math.sin(a)*s2,life:i%2?1:6,max:i%2?1:6,size:6,grow:6,v:i%4,heat:1});}}
 const CH_DROGUE=420,CH_MAIN=140;
 // abrir com o topo virado para onde a nave vai (de cabeça para baixo) joga o paraquedas contra o vento e as cordas enroscam; girando rápido também
 function chuteTangle(v){const sp=Math.hypot(v.vx,v.vy);if(sp<5)return false;const nose=(v.vx*Math.cos(v.hdg)+v.vy*Math.sin(v.hdg))/sp,risk=Math.min(1,Math.max(0,(nose-.15)/.55)+Math.max(0,(Math.abs(v.om)-1)/1.5));return Math.random()<risk*.95;}
-function tangleMsg(st){sfx('pyro');toast('Paraquedas embaraçou!',st===1?'Abriu com a cápsula de cabeça para baixo e as cordas enroscaram. O principal abre de reserva abaixo de 3 km.':'As cordas do principal enroscaram: vai bater rápido. Na próxima, abra com a base da cápsula para baixo (Mira para trás).');}
+function tangleMsg(st){sfx('pyro');toast('Paraquedas embaraçou!',st===1?'Abriu com a cápsula de cabeça para baixo e as cordas enroscaram. O principal abre de reserva abaixo de 3 km.':'As cordas do principal enroscaram: vai bater rápido. Na próxima, abra com a base da cápsula para baixo (bico na marca laranja).');}
 // abrir o paraquedas na hora (toque nele, na cápsula ou no botão); rápido demais rasgaria
 // solta tudo o que está embaixo da cápsula (módulo de serviço), como a Soyuz faz antes da reentrada
 // aborto com a torre: corta tudo que está abaixo da cápsula (e do pacote retro), com ou sem separador
@@ -1309,20 +1308,20 @@ function dangerCheck(){if(S.dead||V.clamped||V.sink||S.liftT<0||S.hover){S.dng=n
   const lim=V.shield?2600:1250,temp=V.temp??15,dtg=S.t-(S.dgT??S.t),rate=dtg>0?(temp-(S.dgTemp??temp))/dtg:0;if(dtg>.25||S.dgT==null){S.dgT=S.t;S.dgTemp=temp;}S.dgRate=dtg>.25?rate:(S.dgRate||0);
   const les=V.parts.some(q=>PT(q).les&&!q.lit);let d=null;
   // calor
-  if(temp>lim*.78&&(S.dgRate||0)>0){const left=(lim-temp)/Math.max(1,S.dgRate);if(left<18||temp>lim*.9)d={k:'calor',left,t:'⚠ SUPERAQUECIMENTO',b:les?'ABORTE AGORA ou vire o escudo térmico para frente':'Vire o escudo térmico para frente (Mira para trás) e solte o que sobrar'};}
+  if(temp>lim*.78&&(S.dgRate||0)>0){const left=(lim-temp)/Math.max(1,S.dgRate);if(left<18||temp>lim*.9)d={k:'calor',left,t:'⚠ SUPERAQUECIMENTO',b:les?'ABORTE AGORA ou vire o escudo térmico para frente':'Vire o escudo térmico para frente (bico na marca laranja) e solte o que sobrar'};}
   // impacto
   if(!d&&!V.ground&&V.hgt!=null){const bp=S.dom.pos(S.t),nx=V.x-bp[0],ny=V.y-bp[1],nn=Math.hypot(nx,ny),vr=(S.rvx*nx+S.rvy*ny)/nn,h=Math.max(0,V.hgt),g0=S.dom.mu?S.dom.mu/(nn*nn):9.81,vi=Math.sqrt(vr*vr+2*g0*h),tti=h/Math.max(1,-vr),slowing=V.chStg===2&&-vr<22,braking=V.firing.length&&S.thr>.3;
-    if(-vr>14&&vi>15&&tti<10&&!slowing&&!braking)d={k:'impacto',left:tti,t:'⚠ IMPACTO IMINENTE',b:les?'ABORTE: a torre arranca a cápsula e o paraquedas abre':V.para&&!V.chute&&!V.ripped&&S.dom.earth?'ABORTE: solta a cápsula e arma o paraquedas':'Freie com o motor (Mira para trás e acelere)!'};}
+    if(-vr>14&&vi>15&&tti<10&&!slowing&&!braking)d={k:'impacto',left:tti,t:'⚠ IMPACTO IMINENTE',b:les?'ABORTE: a torre arranca a cápsula e o paraquedas abre':V.para&&!V.chute&&!V.ripped&&S.dom.earth?'ABORTE: solta a cápsula e arma o paraquedas':'Freie com o motor (bico na marca laranja e acelere)!'};}
   if(d){if(!S.dng){warp=1;sfx('alarm');say(les||(V.para&&S.dom.earth&&d.k==='impacto')?'Abortar! Abortar!':d.k==='calor'?'Superaquecimento!':'Impacto iminente! Freie!');S.shake=Math.max(S.shake||0,3);}S.dngLast=S.t;S.dng=d;return d;}
   if(S.dng&&S.t-(S.dngLast||0)<1)return S.dng;S.dng=null;return null;}
 // dica depois de uma falha: olha o que aconteceu e diz o que fazer diferente
 function deathTip(){const w=S.dWhy,v=Math.round(S.dImp||0),para=!!V.para,les=V.parts.some(q=>PT(q).les),legs=!!(V.legs&&V.legs.length),cap=!!V.cap;
   const ab=les?' Se aparecer IMPACTO IMINENTE, aperte ABORTAR: a torre puxa a cápsula para longe e o paraquedas abre sozinho.':'';
   if(w==='falha')return 'Quando tocar o alarme de FALHA, aperte ABORTAR (ou toque na torre de escape) em até 8 segundos.';
-  if(w==='calor')return S.dShield?'Mesmo com o escudo para frente, você entrou íngreme demais. Faça a reentrada mais deitada: freie só até o Pe ficar entre 30 e 50 km.':'O escudo térmico não estava virado para a frente. Solte tudo, fique só com a cápsula e use Mira para trás antes de chegar a 70 km.';
+  if(w==='calor')return S.dShield?'Mesmo com o escudo para frente, você entrou íngreme demais. Faça a reentrada mais deitada: freie só até o Pe ficar entre 30 e 50 km.':'O escudo térmico não estava virado para a frente. Solte tudo, fique só com a cápsula e vire o bico para a marca laranja antes de chegar a 70 km.';
   if(w==='tombou')return 'Abra os pés de pouso (toque neles ou G) antes de tocar o chão e desça reto e devagar, a menos de 5 m/s.';
   if(w==='mar')return (para?'Você bateu no mar a '+v+' m/s. Arme o paraquedas antes de descer: ele abre sozinho abaixo de 9 km e a cápsula boia a menos de 12 m/s.':'Sem paraquedas a cápsula afunda. No hangar, coloque um paraquedas em cima da cápsula.')+ab;
-  if(w==='impactoFora')return 'Fora da Terra não há ar para paraquedas: freie com o motor (Mira para trás e acelere) e toque a menos de 8 m/s, com os pés abertos'+(legs?'':' (coloque pés de pouso no hangar)')+'.';
+  if(w==='impactoFora')return 'Fora da Terra não há ar para paraquedas: freie com o motor (bico na marca laranja e acelere) e toque a menos de 8 m/s, com os pés abertos'+(legs?'':' (coloque pés de pouso no hangar)')+'.';
   if(w==='impacto'){if(!cap)return 'Para voltar inteiro precisa de uma cápsula com paraquedas.';if(!para)return 'Sem paraquedas não dá para pousar na Terra a '+v+' m/s. No hangar, coloque um paraquedas em cima da cápsula.'+ab;
     if(!V.chute)return 'O paraquedas não abriu: você precisa armá-lo (toque nele ou no botão Paraquedas) antes de cair. Ele abre sozinho abaixo de 9 km quando a velocidade baixa.'+ab;
     return 'O paraquedas abriu tarde demais e você bateu a '+v+' m/s. Arme ele mais cedo, ainda bem alto, e não acelere o tempo perto do chão.'+ab;}
@@ -1352,7 +1351,7 @@ function explode(x,y,vx,vy,k=1){const air=S&&S.dom&&S.dom.earth?Math.min(1,rhoAt
 function boomAt(v,k){explode(v.x,v.y,v.vx,v.vy,k);if(S&&k>=.8){S.booms=(S.booms||[]).concat([.35,.8,1.4].map((d,i)=>({t:S.t+d,x:v.x+(Math.random()-.5)*12,y:v.y+(Math.random()-.5)*12,vx:v.vx,vy:v.vy,k:.35-.08*i})));}}
 function crash(v,imp,why){if(v.main){S.dWhy=why||(S.dom&&S.dom.earth?'impacto':'impactoFora');S.dImp=imp;}if(S.dom&&S.dom.earth&&why!=='falha'&&why!=='tombou'&&!v.sink&&Math.hypot(v.x,v.y)-R<60){const a=Math.atan2(v.y,v.x);if(!landAt(a)){sinkStart(v,imp||20);return;}
     const E=.5*(v.m||2000)*Math.pow(imp||20,2),rr=Math.max(1.2,Math.min(16,1.0*Math.pow(E/1e6,.3))),k=Math.max(.4,Math.min(3.5,rr/3));crater(v.x,v.y,k,false,rr);makeWreck(v,k);}
-  if(v.main){S.dead=true;sfx('boom');if(why==='falha')toast('O foguete explodiu','Faltou ejetar. Quando der FALHA, aperte ABORTAR na hora: a torre arranca a cápsula para longe da explosão.');else if(why==='tombou')toast('Tombou','Sem os pés de pouso abertos a nave caiu de lado. Abra os pés (toque neles ou G) antes de tocar o chão.');else toast('Bum.','Bateu a '+Math.round(imp)+' m/s. '+(S.dom.earth?'Acima de 12 m/s a cápsula não aguenta. Freie antes, abra o paraquedas e desça devagar.':'Na Lua não há ar: freie com o motor (Mira para trás) e toque a menos de 8 m/s, ou 10 com os pés abertos.'));}
+  if(v.main){S.dead=true;sfx('boom');if(why==='falha')toast('O foguete explodiu','Faltou ejetar. Quando der FALHA, aperte ABORTAR na hora: a torre arranca a cápsula para longe da explosão.');else if(why==='tombou')toast('Tombou','Sem os pés de pouso abertos a nave caiu de lado. Abra os pés (toque neles ou G) antes de tocar o chão.');else toast('Bum.','Bateu a '+Math.round(imp)+' m/s. '+(S.dom.earth?'Acima de 12 m/s a cápsula não aguenta. Freie antes, abra o paraquedas e desça devagar.':'Na Lua não há ar: freie com o motor (bico na marca laranja) e toque a menos de 8 m/s, ou 10 com os pés abertos.'));}
   v.dead=true;const bv=S.dom.vel(S.t);boomAt({x:v.x,y:v.y,vx:bv[0]+(v.vx-bv[0])*.2,vy:bv[1]+(v.vy-bv[1])*.2},v.main?1:.45);if(!v.main)sfx('boom');}
 function stage(){if(!V||S.dead)return;const hasF=V.parts.some(q=>PT(q).t==='fair');
   // como no SFS/vida real: a carenagem sai quando já não há ar (acima de ~60 km), antes de soltar a carga
@@ -1406,14 +1405,26 @@ function domain(){S.dom=domBody(V.x,V.y,S.t);const bp=S.dom.pos(S.t),bv=S.dom.ve
 const TURN_RATE=.25; // rad/s pedidos pelo piloto; o computador de bordo usa gimbal e giroscópio para chegar nisso
 // curva de gravidade (gravity turn): sobe reto, inclina poucos graus a ~1 km e depois segue a velocidade — a gravidade vai deitando o bico.
 // perto de 100 km fica deitado (0°) para ganhar velocidade de órbita. Em mundo sem ar a curva é bem mais rápida.
-function gtTip(){if(S.gtTold||S.liftT<0||S.t-S.liftT<2||!S.dom.earth||V.aim==='grav'||S.altE>8000)return;S.gtTold=1;let seen=false;try{seen=!!localStorage.getItem('orbita.gtTip');localStorage.setItem('orbita.gtTip','1');}catch(e){}if(!seen)toast('Curva de gravidade','Foguete de verdade não sobe a 45°: sobe reto, inclina poucos graus a ~1 km e vai deitando até 0° perto do espaço. Toque em MIRA até SUBIDA, depois em CONFIRMAR, e ele faz isso sozinho; o painel mostra o ângulo ideal.');}
+// marcas de direção em volta da nave (tipo o navball do KSP, simplificado): verde = para onde está indo,
+// laranja = contrário (frear), branca = para onde o bico aponta. Mostram o caminho, mas quem gira é o jogador.
+function drawDirMarks(){if(V.clamped||V.ground)return;const sp=Math.hypot(S.rvx,S.rvy);if(sp<4)return;
+  const[cx,cy]=toScreen(V.x,V.y);let t=1e9,bt=-1e9;for(const q of V.parts){const b=box(q);t=Math.min(t,b.t);bt=Math.max(bt,b.b);}
+  const r=Math.max(44,Math.min(Math.min(VW,VH)*.36,(bt-t)*UNIT*z*.55+18)),sc=a=>[Math.cos(a+rot),-Math.sin(a+rot)],pro=Math.atan2(S.rvy,S.rvx),k=Math.min(1,(sp-4)/10);
+  g.setTransform(DPR,0,0,DPR,0,0);g.save();g.globalAlpha=.85*k;g.lineWidth=1.5;g.strokeStyle='rgba(255,255,255,.14)';g.beginPath();g.arc(cx,cy,r,0,7);g.stroke();
+  const mark=(a,col,kind)=>{const[dx,dy]=sc(a),x=cx+dx*r,y=cy+dy*r;g.strokeStyle=col;g.fillStyle=col;g.lineWidth=2;
+    if(kind==='pro'){g.beginPath();g.arc(x,y,6,0,7);g.stroke();g.beginPath();g.arc(x,y,1.8,0,7);g.fill();for(const o of[0,Math.PI/2,-Math.PI/2]){const[ux,uy]=sc(a+o);g.beginPath();g.moveTo(x+ux*6,y+uy*6);g.lineTo(x+ux*10,y+uy*10);g.stroke();}}
+    else if(kind==='retro'){g.beginPath();g.arc(x,y,6,0,7);g.stroke();for(const o of[Math.PI/4,-Math.PI/4,3*Math.PI/4,-3*Math.PI/4]){const[ux,uy]=sc(a+o);g.beginPath();g.moveTo(x+ux*2,y+uy*2);g.lineTo(x+ux*9,y+uy*9);g.stroke();}}
+    else{const[nx,ny]=sc(a),px=-ny,py=nx;g.beginPath();g.moveTo(x+nx*7,y+ny*7);g.lineTo(x-nx*4+px*5,y-ny*4+py*5);g.lineTo(x-nx*4-px*5,y-ny*4-py*5);g.closePath();g.fill();}};
+  mark(pro+Math.PI,'#ff9a3c','retro');mark(pro,'#5ee2a0','pro');mark(V.hdg,'#ffffff','nose');g.restore();
+  if(!S.dmTold&&S.liftT>=0&&S.t-S.liftT>6){S.dmTold=1;let seen=false;try{seen=!!localStorage.getItem('orbita.dmTip');localStorage.setItem('orbita.dmTip','1');}catch(e){}if(!seen)toast('Marcas em volta da nave','Verde: para onde você está indo. Laranja: o contrário (vire o bico para ela para frear). Triângulo branco: para onde o bico aponta. Gire com os botões para alinhar.');}}
+function gtTip(){if(S.gtTold||S.liftT<0||S.t-S.liftT<2||!S.dom.earth||S.altE>8000)return;S.gtTold=1;let seen=false;try{seen=!!localStorage.getItem('orbita.gtTip');localStorage.setItem('orbita.gtTip','1');}catch(e){}if(!seen)toast('Curva de gravidade','Foguete de verdade não sobe a 45°: sobe reto, inclina poucos graus a ~1 km e vai deitando até 0° perto do espaço. O painel mostra seu ângulo e o ideal: gire com os botões para seguir. Inclinou cedo demais, o foguete cai; tarde demais, gasta combustível à toa.');}
 function idealPitch(alt,air){const H=air?75000:18000,k0=air?1000:300;if(alt<k0)return 90;return Math.max(0,90*Math.pow(Math.max(0,1-(alt-k0)/H),1.25));}
 function gravTurnHold(){const bp=S.dom.pos(S.t),up=Math.atan2(V.y-bp[1],V.x-bp[0]),alt=S.alt,air=!!S.dom.earth,sp=Math.hypot(S.rvx,S.rvy),k0=air?1000:300;
   if(alt<k0||sp<40)return up;
   // programa de inclinação (ângulo ideal pela altitude), mas no ar grosso o bico não se afasta da velocidade (ângulo de ataque pequeno)
   const aT=(90-idealPitch(alt,air))*Math.PI/180,pro=Math.atan2(S.rvy,S.rvx),aP=Math.max(0,Math.min(Math.PI/2,Math.atan2(Math.sin(up-pro),Math.cos(up-pro)))),q=V.q||0,
     lim=(q>25000?4:q>10000?7:q>2000?14:90)*Math.PI/180,a=Math.max(aP-lim,Math.min(aP+lim,aT));return up-Math.max(0,Math.min(Math.PI/2,a));}
-function tgtOm(user){if(user){V.hold=null;if(V.aim){V.aim=null;aimUI();}return user*TURN_RATE;}if(V.aim==='grav')V.hold=gravTurnHold();else if(V.aim&&Math.hypot(S.rvx,S.rvy)>1)V.hold=Math.atan2(S.rvy,S.rvx)+(V.aim==='retro'?Math.PI:0);if(V.hold==null)V.hold=V.hdg;const e=Math.atan2(Math.sin(V.hold-V.hdg),Math.cos(V.hold-V.hdg));return Math.max(-TURN_RATE,Math.min(TURN_RATE,e*1.2));}
+function tgtOm(user){if(user){V.hold=null;if(V.aim){V.aim=null;aimUI();}return user*TURN_RATE;}if(V.hold==null)V.hold=V.hdg;const e=Math.atan2(Math.sin(V.hold-V.hdg),Math.cos(V.hold-V.hdg));return Math.max(-TURN_RATE,Math.min(TURN_RATE,e*1.2));}
 function steer(user,dt){const err=tgtOm(user)-V.om;V.trim=Math.max(-1,Math.min(1,(V.trim||0)+err*dt*3)); // trim: compensa empuxo fora do centro
   return Math.max(-1,Math.min(1,err*4+V.trim));}
 function stepWorld(dt){S.t+=dt;if(S.payRel&&S.t>=S.payRel){S.payRel=0;if(!S.dead&&V.groups.length)fire(V.groups[0]);}const user=(keys.a?1:0)-(keys.d?1:0),hovT=!!(S.hover&&V.hov&&V.hov.length&&(V.hgt??0)<25),drv=V.ground&&V.wheels&&V.wheels.length&&!V.clamped,turn=V.clamped||drv||!(user||sas||V.aim)?0:steer(user,dt),thr=warp>5?0:S.thr;
@@ -1446,11 +1457,11 @@ let lastTs=0,predTimer=0,snaps=[],snapT=0;
 function vSnap(v){const c={};for(const k in v)if(!['cap','para','firing','adj','seg','act','groups'].includes(k))c[k]=v[k];c.parts=v.parts.map(p=>({...p}));return c;}
 function vLoad(o){o.firing=[];restructure(o);return o;}
 function snapshot(){return JSON.stringify({S:{...S,done:[...S.done],dom:null,el:null,lastDom:null},V:vSnap(V),D:debris.slice(-20).map(vSnap),warp,target:target?target.n:null,phz:{...PHZ,ph:{...PHZ.ph}},rdv:rdv?{...rdv,b:rdv.b.n}:null});}
-function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.done)};V=vLoad(o.V);aimPend=undefined;aimUI();leverUI();debris=o.D.map(vLoad);particles=[];meteors=[];warp=o.warp>5?1:o.warp;target=BODIES.find(b=>b.n===o.target)||null;if(o.phz){Object.assign(PHZ,o.phz);}rdv=o.rdv?{...o.rdv,b:BODIES.find(b=>b.n===o.rdv.b)}:null;if(rdv&&!rdv.b)rdv=null;S.dead=false;domain();pred=null;zs=0;buildMissions();$('#deadBox').hidden=true;}
+function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.done)};V=vLoad(o.V);aimUI();leverUI();debris=o.D.map(vLoad);particles=[];meteors=[];warp=o.warp>5?1:o.warp;target=BODIES.find(b=>b.n===o.target)||null;if(o.phz){Object.assign(PHZ,o.phz);}rdv=o.rdv?{...o.rdv,b:BODIES.find(b=>b.n===o.rdv.b)}:null;if(rdv&&!rdv.b)rdv=null;S.dead=false;domain();pred=null;zs=0;buildMissions();$('#deadBox').hidden=true;}
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=50;
+const GAME_VER=51;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -1463,7 +1474,7 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
     if(CAMP_CUR){const cm=CAMP.find(c=>c.id===CAMP_CUR),m=MS.find(q=>!S.done.has(q.id));if(m&&m.done()){S.done.add(m.id);sfx('chime');buildMissions();const nx=MS.find(q=>!S.done.has(q.id));if(nx)toast(m.t+' ✓','Agora: '+nx.t+'. '+nx.h);else if(S.dom.earth&&V.ground&&V.cap&&!S.hover){S.pendWin=cm;S.pendAt=S.t;}else campWin(cm);}}
     else for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
     rescueTick();roverTick(real);gtTip();
-    if(S.dom!==S.lastDom){const ci=S.lastDom&&capInfo();if(ci&&!ci.hit)toast('Na gravidade '+S.dom.de,ci.bound?'Você já está preso numa órbita aqui.':'A '+Math.round(ci.v)+' m/s você passa reto (escape aqui: '+Math.round(ci.esc)+' m/s). Para ficar: Mira para trás e freie '+Math.round(ci.dv)+' m/s no Pe.');S.lastDom=S.dom;}}
+    if(S.dom!==S.lastDom){const ci=S.lastDom&&capInfo();if(ci&&!ci.hit)toast('Na gravidade '+S.dom.de,ci.bound?'Você já está preso numa órbita aqui.':'A '+Math.round(ci.v)+' m/s você passa reto (escape aqui: '+Math.round(ci.esc)+' m/s). Para ficar: vire para a marca laranja e freie '+Math.round(ci.dv)+' m/s no Pe.');S.lastDom=S.dom;}}
   else{stepWorldDead(real);if(!S.tipShown&&(S.t-(S.deadAt??(S.deadAt=S.t))>.8)){S.tipShown=1;$('#deadTip').textContent='💡 Dica: '+deathTip();}$('#deadBox').hidden=!S.tipShown;$('#btnRewind').hidden=!snaps.length;}
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
   audioUpdate(engineMix());
@@ -1511,7 +1522,7 @@ function realism(real){const sp=Math.hypot(S.rvx,S.rvy),h=S.altE,inAir=S.dom.ear
   S.gs=(S.gs??1)+((V.ground||V.clamped?1:V.gl||0)-(S.gs??1))*Math.min(1,real*4);
   $('#rMG').textContent=(inAir&&!V.clamped?'M '+M.toFixed(2).replace('.',','):'—')+' · '+S.gs.toFixed(1).replace('.',',')+' G';
   const T=V.temp??15,show=T>120;$('#rowT').hidden=!show;if(show){const el=$('#rTemp');el.textContent=Math.round(T).toLocaleString('pt-BR')+' °C'+(V.shield?' · escudo ✓':' · sem escudo');el.className=T>(V.shield?2200:1000)?'hot':T>700?'warm':'';$('#rowT span').textContent=V.shield?'Escudo térmico':'Casco';
-    if(T>850&&!V.shield&&!S.hotWarn){S.hotWarn=true;toast('Casco quase queimando','Vire o escudo térmico (base da cápsula) para frente: Mira para trás. Só a cápsula aguenta a reentrada.');}if(T<900)S.hotWarn=false;}
+    if(T>850&&!V.shield&&!S.hotWarn){S.hotWarn=true;toast('Casco quase queimando','Vire o escudo térmico (base da cápsula) para frente: bico na marca laranja. Só a cápsula aguenta a reentrada.');}if(T<900)S.hotWarn=false;}
   $('#blk').hidden=!(V.plasma>.35);
   {const bp=S.dom.pos(S.t),dx=V.x-bp[0],dy=V.y-bp[1],vz=(dx*S.rvx+dy*S.rvy)/Math.hypot(dx,dy),sh=!V.clamped&&!V.ground&&(!S.dom.earth&&S.alt<60000||S.dom.earth&&V.chute>0);$('#rowVS').hidden=!sh;if(sh){const el=$('#rVS');el.textContent=(vz>0?'+':'')+Math.round(vz)+' m/s';el.style.color=vz<-(S.dom.earth?12:8)&&S.alt<2000?'var(--bad)':'';}}}
 function stepWorldDead(real){S.t+=real;stepWater(real);stepImpacts(real);for(const p of particles){if(p.type==='chunk'){const[gx,gy]=gravity(p.x,p.y,S.t);p.vx+=gx*real;p.vy+=gy*real;p.rot=(p.rot||0)+(p.spin||0)*real;p.heat=Math.max(0,(p.heat||0)-real*.35);if(Math.random()<real*10&&p.heat>.05)particles.push({type:'smoke',dark:true,x:p.x,y:p.y,vx:p.vx*.2,vy:p.vy*.2,life:2.5,max:3,size:1+p.size*.6,grow:1.6,heat:p.heat*.6,v:Math.floor(Math.random()*6),rot:Math.random()*6.28});const pr=Math.hypot(p.x-S.dom.pos(S.t)[0],p.y-S.dom.pos(S.t)[1]);if(pr<S.dom.r){p.vx=S.dom.vel(S.t)[0];p.vy=S.dom.vel(S.t)[1];p.spin=0;}}
@@ -1529,12 +1540,9 @@ function predict(){let x=V.x,y=V.y,vx=V.vx,vy=V.vy,t=S.t;const e=S.el,d0=S.dom,s
 // ================= INTERFACE DO VOO =================
 let popT=null;
 const AIMS=[null,'grav','pro','retro'],AIMN={grav:'subida',pro:'para frente',retro:'para trás'};
-let aimPend,aimPendT=0;const AIMTIP={retro:'Apontando contra o movimento: acelere para frear',grav:'Curva de gravidade: sobe reto, inclina uns graus a 1 km e vai deitando sozinho até 0° perto do espaço',pro:'Apontando a favor do movimento'};
-function aimUI(){const b=$('#btnAim'),ok=$('#btnAimOk'),pd=aimPend!==undefined;b.textContent='Mira: '+(pd?(aimPend?AIMN[aimPend]:'livre')+'?':(V.aim?AIMN[V.aim]:'livre'));b.classList.toggle('on',!pd&&!!V.aim);b.classList.toggle('pend',pd);ok.hidden=!pd;}
-// escolher só mostra a opção; o foguete só muda depois de CONFIRMAR (passar por uma mira não mexe nele)
-function cycleAim(){if(!V||S.dead)return;const base=aimPend!==undefined?aimPend:(V.aim||null);aimPend=AIMS[(AIMS.indexOf(base)+1)%AIMS.length];if(aimPend===(V.aim||null))aimPend=undefined;aimPendT=performance.now();aimUI();}
-function aimOk(){if(!V||S.dead||aimPend===undefined)return;V.aim=aimPend;aimPend=undefined;V.hold=null;aimUI();if(V.aim)tip(innerWidth/2,innerHeight*.45,AIMTIP[V.aim]);else tip(innerWidth/2,innerHeight*.45,'Mira livre: você controla');}
-$('#btnAim').onclick=cycleAim;$('#btnAimOk').onclick=aimOk;
+// sem mira automática: quem aponta o foguete é o jogador (as marcas em volta da nave mostram para onde ir)
+function aimUI(){if(V)V.aim=null;}
+
 function showPop(cx,cy,title,sub,btn,off,fn){const el=$('#pop');$('#popT').textContent=title;$('#popS').textContent=sub;const b=$('#popB');b.textContent=btn;b.className=off?'off':'';b.disabled=!fn;b.onclick=fn;el.hidden=false;
   const w=el.offsetWidth,h=el.offsetHeight;el.style.left=Math.max(8,Math.min(innerWidth-w-8,cx-w/2))+'px';el.style.top=Math.max(8,Math.min(innerHeight-h-8,cy-h-24))+'px';clearTimeout(popT);popT=setTimeout(hidePop,6000);}
 function hidePop(){$('#pop').hidden=true;}$('#popX').onclick=hidePop;
@@ -1549,7 +1557,7 @@ function setMaster(on){if(!V||S.dead)return;S.master=on;const ar=propAct(V).map(
 // toque perto de uma nave solta que tenha comando: oferece trocar o controle para ela
 function tapDebris(cx,cy,wx,wy){const W0=[V.x+wx,V.y+wy];void W0;let best=null,bd=1e9;for(const d of debris){if(d.dead||!d.cap)continue;const[sx,sy]=toScreen(d.x,d.y),dd=Math.hypot(sx-cx,sy-cy);if(dd<bd){bd=dd;best=d;}}
   if(!best||bd>Math.max(40,vesselLen(best)*z*.6)){hidePop();return;}showPop(cx,cy,PT(best.cap).probe?'Sonda separada':'Nave separada','controlada por '+PT(best.cap).n.toLowerCase(),'Controlar esta nave',false,()=>{switchTo(best);hidePop();});}
-function switchTo(d){debris=debris.filter(x=>x!==d);V.main=false;V.t=0;debris.push(V);V=d;V.main=true;V.hold=null;restructure(V);updateMass(V);domain();zs=0;aimPend=undefined;aimUI();leverUI();tip(innerWidth/2,innerHeight*.35,'Controlando: '+PT(V.cap).n);}
+function switchTo(d){debris=debris.filter(x=>x!==d);V.main=false;V.t=0;debris.push(V);V=d;V.main=true;V.hold=null;restructure(V);updateMass(V);domain();zs=0;aimUI();leverUI();tip(innerWidth/2,innerHeight*.35,'Controlando: '+PT(V.cap).n);}
 function toggleLegs(cx,cy){if(!V||!V.legs.length||S.dead)return;const open=!V.legs.every(p=>p.dep);V.legs.forEach(p=>p.dep=open);sfx('clamp');tip(cx??innerWidth/2,cy??innerHeight*.5,open?'Pés de pouso abertos ✓':'Pés de pouso fechados');}
 $('#btnLegs').onclick=()=>toggleLegs();$('#btnAbort').onclick=()=>doAbort();$('#btnRcs').onclick=()=>{S.rcs=!S.rcs;rcsUI();};$('#btnRover').onclick=()=>roverBtn();$('#btnRamp').onclick=()=>toggleRamp();$('#btnHover').onclick=()=>{S.hover=!S.hover;sfx('clamp');if(S.hover)tip(innerWidth/2,innerHeight*.45,'Hover ligado: perto do chão a nave flutua; ◀ ▶ para andar');rcsUI();};
 document.querySelectorAll('#rcsPad button').forEach(b=>{const[x,y]=b.dataset.r.split(',').map(Number),on=e=>{e.preventDefault();RCST.x=x;RCST.y=y;},off=()=>{RCST.x=RCST.y=0;};b.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,off));});
@@ -1572,7 +1580,7 @@ function hud(){rcsUI();const sp=Math.hypot(S.rvx,S.rvy);{const bp=S.dom.pos(S.t)
   $('#wVal').textContent='×'+warp;{const drv=V.ground&&V.wheels&&V.wheels.length&&!V.clamped,bs=document.querySelectorAll('#ctlL [data-k]');bs[0].textContent=drv?'◀':'⟲';bs[1].textContent=drv?'▶':'⟳';}
   $('#thrFill').style.height=S.thr*100+'%';$('#thrPct').textContent=Math.round(S.thr*100)+'%';
   const gr=V.groups[0];$('#btnStage').disabled=!gr||S.dead;$('#stNext').textContent=gr?(gr.some(i=>PT(V.parts[i]).t==='sepLat')?'soltar laterais':'soltar estágio'):'sem estágios';
-  const vr=(V.x*V.vx+V.y*V.vy)/Math.hypot(V.x,V.y),cb=$('#btnChute');cb.hidden=!V.para||V.chCut||!(V.chute>0||V.armed||(S.dom.earth&&S.altE<80000&&vr<-5&&!V.firing.length));$('#aimRow').hidden=false;if(aimPend!==undefined&&performance.now()-aimPendT>7000){aimPend=undefined;aimUI();}{const lb=$('#btnLegs'),on=V.legs.some(p=>p.dep);lb.hidden=!V.legs.length||V.clamped||(S.dom.earth&&S.altE>3000&&!on);lb.textContent='Pés: '+(on?'abertos':'fechados');lb.classList.toggle('on',on);}cb.className=V.chute>0?'open':V.armed?'armed':'';cb.textContent=V.chute>0?(V.ground?'✂ Cortar paraquedas':'Paraquedas: '+(V.chTangle?'embaraçado · ✂ cortar':V.chStg===2?'principal':'freio')):'Paraquedas: '+(V.armed?'armado':'abrir');
+  const vr=(V.x*V.vx+V.y*V.vy)/Math.hypot(V.x,V.y),cb=$('#btnChute');cb.hidden=!V.para||V.chCut||!(V.chute>0||V.armed||(S.dom.earth&&S.altE<80000&&vr<-5&&!V.firing.length));{const lb=$('#btnLegs'),on=V.legs.some(p=>p.dep);lb.hidden=!V.legs.length||V.clamped||(S.dom.earth&&S.altE>3000&&!on);lb.textContent='Pés: '+(on?'abertos':'fechados');lb.classList.toggle('on',on);}cb.className=V.chute>0?'open':V.armed?'armed':'';cb.textContent=V.chute>0?(V.ground?'✂ Cortar paraquedas':'Paraquedas: '+(V.chTangle?'embaraçado · ✂ cortar':V.chStg===2?'principal':'freio')):'Paraquedas: '+(V.armed?'armado':'abrir');
   $('#strip').hidden=view2==='map'||!S.dom.earth;$('#mark').style.bottom='calc('+spos(S.altE)*100+'% - 1px)';document.querySelectorAll('#strip .sl').forEach((el,i)=>el.classList.toggle('cur',i===layerAt(S.altE)));
   $('#mapUI').classList.toggle('on',view2==='map');$('#flight').classList.toggle('map',view2==='map');$('#layerBox').hidden=view2==='map';$('#mMap').textContent=view2==='map'?'Voltar ao voo':'Abrir mapa';
   if(view2==='map'){const e=S.el,body=S.dom.de,ci=capInfo(),gnd=!e||V.ground||V.clamped,tryO=!!(S.dom.earth&&e&&e.bound&&e.pe<SPACE&&S.altE>15000&&!gnd);
@@ -1584,7 +1592,7 @@ function hud(){rcsUI();const sp=Math.hypot(S.rvx,S.rvy);{const bp=S.dom.pos(S.t)
     else if(guideTxt)line=guideTxt;else if(tryO){const ra=e.ap+R;line=e.ap<SPACE?'Suba o Ap acima de 100 km':'No Ap, acelere de lado ~'+Math.round(Math.sqrt(MU/ra)-Math.sqrt(MU*(2/ra-1/e.a)))+' m/s';}
     const kind=title;mapInfoSet(kind,tryO||!!line&&(!!target||ci&&!ci.bound),'<b>'+title+'</b>'+(nums?' <span class="mi-n">'+nums+'</span>':'')+(line?'<div class="mi-l">'+line+'</div>':''));}}
 addEventListener('keydown',e=>{if(!flight.on)return;const k=e.key.toLowerCase();if(k===' ')e.preventDefault();if(e.repeat)return;keys[k]=true;
-  if(k==='w'||k==='s')thrHold(k);if(k==='z')setThr(1);if(k==='x')setThr(0);if(k===' ')stage();if(k==='e')engKey();if(k==='r')rewind();if(k==='v')cycleAim();if(k==='enter')aimOk();if(k==='g')toggleLegs();if(k==='p')chuteBtn();if(k==='m')toggleMap();if(k==='t')toggleSas();
+  if(k==='w'||k==='s')thrHold(k);if(k==='z')setThr(1);if(k==='x')setThr(0);if(k===' ')stage();if(k==='e')engKey();if(k==='r')rewind();if(k==='v'){}if(k==='g')toggleLegs();if(k==='p')chuteBtn();if(k==='m')toggleMap();if(k==='t')toggleSas();
   if(S.rcs&&'ijkl'.includes(k)&&k){const m={i:[0,1],k:[0,-1],j:[-1,0],l:[1,0]}[k];RCST.x=m[0];RCST.y=m[1];}
   if(k===',')setWarp(-1);if(k==='.')setWarp(1);if(k==='escape')$('#drawer').classList.remove('open');});
 addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys[k]=false;if('ijkl'.includes(k)&&k){RCST.x=RCST.y=0;}});
@@ -2306,6 +2314,7 @@ function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.w
     g.setTransform(DPR*c,DPR*si,-DPR*si,DPR*c,DPR*sx,DPR*sy);g.globalAlpha=Math.max(0,k)*(day?.55:.8);g.drawImage(p.fl==='blue'||p.fl==='ion'?SPR.blue:p.fl==='plasma'?SPR.plasma:SPR.fire,-s*1.4,-s*.45,s*2.8,s*.9);}g.globalAlpha=1;g.globalCompositeOperation='source-over';
   if(!disc){for(const d of debris)drawVessel(d,day);if(!S.dead)drawVessel(V,day);if(earthNear&&WATERF&&S.altE<3000){frame(camX,camYw);WATERF();}}else if(!S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.translate(VW/2,camY);g.rotate(-(V.hdg-th));g.fillStyle='#ffb347';g.beginPath();g.moveTo(0,-9);g.lineTo(6,7);g.lineTo(-6,7);g.closePath();g.fill();}
   if(earthNear&&!disc)drawClouds(true,viewM);
+  if(!disc&&!S.dead)drawDirMarks();
   if(target&&!S.dead){
     // a seta aponta para o PONTO DE ENCONTRO (fixo) até a rota já entrar na gravidade do alvo; aí passa a apontar para ele
     const enc=S.dom===target||pred&&pred.segs.some(q=>q.b===target),usePt=rdv&&rdv.b===target&&!enc,eh=earthH(S.t),
