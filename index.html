@@ -296,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 52</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 53</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -448,7 +448,7 @@ const PARTS={
   rdTank:{n:'Tanque Redstone',t:'tank',m:900,fuel:10000,w:1,h:3.2,cd:.9,k:.1,pack:1,d:'10 t de combustível. Tanque longo e fino do Redstone.'},
   rdEng:{n:'Motor A-7',snd:'alc',t:'eng',m:700,thrust:210000,ispV:265,ispA:235,gim:.06,w:1,h:1.2,cd:.9,k:1.2,fin:1.6,fl:'kero',pack:1,d:'210 kN, com saia e aletas: o Redstone voa estável sem aletas extras.'},
   atAdapt:{n:'Adaptador Atlas',t:'adapt',top:.67,m:150,w:1.5,h:.8,cd:.9,k:.1,pack:1,d:'Ponta do Atlas: liga o tanque de 3 m à cápsula de 2 m.'},
-  atTank:{n:'Tanque Atlas',t:'tank',m:1000,fuel:23000,w:1.5,h:3.8,cd:.9,k:.1,pack:1,d:'23 t num tanque-balão de aço fino: leve para o tamanho.'},
+  atTank:{n:'Tanque Atlas',t:'tank',m:1000,fuel:17500,w:1.5,h:3.8,cd:.9,k:.1,pack:1,d:'17,5 t num tanque-balão de aço fino: leve para o tamanho. Dá para a órbita, com pouca sobra.'},
   atBase:{n:'Base Atlas',t:'sep',atlas:true,m:300,w:1.5,h:.25,cd:.9,k:1.2,fin:2.2,pack:1,d:'Segura os motores XLR-89 embaixo do tanque Atlas. Ao separar, solta os motores laterais e o LR-105 do meio sobe e continua.'},
   atSus:{n:'Motor LR-105',t:'eng',sus:true,m:450,thrust:190000,ispV:315,ispA:215,gim:.08,w:.44,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor do meio (sustentador). Fica no foguete quando a Base Atlas solta.'},
   atBoost:{n:'Motor XLR-89',t:'eng',m:650,thrust:380000,ispV:290,ispA:255,gim:.06,w:.6,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor de reforço do Atlas (dois, nas pontas da Base Atlas). Cai junto com a base.'},
@@ -810,27 +810,28 @@ let parts=[],hist=[],sym=false,drag=null,gest=null,uidN=1,view={u:40,ox:0,oy:0},
 const CATS=[['Comando',['para','paraL','probe','capPingo','capDupla','shield']],['Tanques',['tankP','engBase','tankM','tankG','tankXG']],['Motores',['rcs','engIon','engMini','engVaga','engBeija','engFalcao','engJabuti','engCondor','engTita']],['Propulsores',['srbP','srb','liqb']],
   ['Aerodinâmica',['coneR','cone','coneInc','aleta','aletaL','fus','fairBody','fair']],['Estrutura',['sepLat','sep','adapt','beamV','beam']],['Pouso',['roverBay','roverCar','leg','legG','wheel','wheelG','solar','solarG','hover']],['Redstone/Atlas',['retro','les','capMerc','rdSep','rdFus','rdEng','rdTank','atSus','atBoost','atBase','atAdapt','atTank']]];
 const mk=(type,x,y)=>({uid:uidN++,type,x,y});
-function stackUp(list,x,bottom){let y=bottom;return list.slice().reverse().map(t=>{const h=PARTS[t].h;y-=h;return mk(t,x,y+h/2);});}
-function presetTwo(){const core=stackUp(['para','capPingo','sep','tankM','engVaga','sep','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;return[...core,a,b];}
+// 'tankG:2.2' = peça com altura própria (tanque mais curto/longo: o combustível acompanha o volume)
+function stackUp(list,x,bottom){let y=bottom;return list.slice().reverse().map(t0=>{const[t,hs]=String(t0).split(':'),h=hs?+hs:PARTS[t].h;y-=h;const q=mk(t,x,y+h/2);if(hs)q.h=h;return q;});}
+function presetTwo(){const core=stackUp(['para','capPingo','sep','tankM:0.25','engVaga','sep','tankG:1','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;return[...core,a,b];}
 function presetSides(){const ps=presetTwo(),low=ps.find(p=>p.type==='tankG'&&box(p).b>-2.2),out=[...ps],add={};
-  for(const s of[-1,1]){const sx=s*(.9+.45);add[s]=[mk('sepLat',s*(.65+.125),low.y),mk('srb',sx,-1.7),mk('cone',sx,-3.9)];out.push(...add[s]);}
+  for(const s of[-1,1]){const sx=s*(.9+.45);add[s]=[mk('sepLat',s*(.65+.125),low.y),Object.assign(mk('srb',sx,-1.3),{h:2.6}),mk('cone',sx,-3.1)];out.push(...add[s]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 // módulo lunar: cápsula + estágio de pouso com pés + 2 estágios de subida com laterais líquidos
-function presetLunar(){const core=stackUp(['para','capPingo','sep','tankM','tankM','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
+function presetLunar(){const core=stackUp(['para','capPingo','sep','tankM','tankM:0.8','engVaga','sep','tankG:1.6','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
   const up=core.filter(p=>p.type==='tankM'),lo=up.reduce((m,p)=>p.y>m.y?p:m),add={},low=core.find(p=>p.type==='tankG'&&box(p).b>-2.2);
   for(const sd of[-1,1]){add[sd]=[mk('leg',sd*(.5+.15),lo.y),mk('sepLat',sd*(.65+.125),low.y),mk('liqb',sd*(.9+.45),-1.7),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 // sonda sem tripulante: ogiva, sonda com motor próprio (estágio de chute), estágio superior e primeiro estágio
-function presetProbe(){const core=stackUp(['probe','sep','tankP','engMini','sep','tankM','tankM','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);for(const q of core)if(q.type==='tankG'||q.type==='aleta')q.w=1.5;const t=mk('engTita',0,-1+PARTS.engTita.h/2);
+function presetProbe(){const core=stackUp(['probe','sep','tankP:0.3','engMini','sep','tankG:1.4','tankG','aleta'],0,-1);for(const q of core)if(q.type==='tankG'||q.type==='aleta')q.w=1.5;const t=mk('engTita',0,-1+PARTS.engTita.h/2);
   // carenagem oca em volta da carga: corpo sobre o separador de cima + bico
-  const sp=core.filter(q=>q.type==='sep').sort((a,b)=>a.y-b.y)[1],top=box(sp).t,fb=Object.assign(mk('fairBody',0,top-1.35),{h:2.7}),fc=mk('fair',0,top-2.7-PARTS.fair.h/2);return[...core,t,fb,fc];}
+  const sp=core.filter(q=>q.type==='sep').sort((a,b)=>a.y-b.y)[1],top=box(sp).t,hh=top-box(core.find(q=>q.type==='probe')).t+.15,fb=Object.assign(mk('fairBody',0,top-hh/2),{h:hh}),fc=mk('fair',0,top-hh-PARTS.fair.h/2);return[...core,t,fb,fc];}
 // pacote Redstone/Atlas e hover
 function presetMR(){return stackUp(['les','capMerc','retro','rdSep','rdFus','rdTank','rdEng'],0,-1);}
 function presetMA(){const core=stackUp(['les','capMerc','retro','rdSep','atAdapt','atTank','atBase'],0,-1),bb=box(core.find(q=>q.type==='atBase')).b,a=mk('atBoost',-.53,bb+.45),c=mk('atBoost',.53,bb+.45),su=mk('atSus',0,bb+.45);a.mir=c.uid;c.mir=a.uid;const tb=box(core.find(q=>q.type==='atTank')),fx=(PARTS.atTank.w+PARTS.aletaL.w)/2,fy=tb.b-PARTS.aletaL.h/2-.05,fl=mk('aletaL',-fx,fy),fr=mk('aletaL',fx,fy);fl.mir=fr.uid;fr.mir=fl.uid;return[...core,fl,fr,a,c,su];}
-function presetExplorer(){const core=stackUp(['probe','sep','tankP','aleta','engVaga','rdSep','rdFus','rdTank','aleta','rdEng'],0,-1),tk=core.find(q=>q.type==='tankP'),pr=core.find(q=>q.type==='probe'),top=box(tk).t,hh=top-box(pr).t+.12,fb=Object.assign(mk('fairBody',0,top-hh/2),{w:1.15,h:hh}),fc=Object.assign(mk('fair',0,0),{w:1.15,h:PARTS.fair.h*.75});fc.y=top-hh-fc.h/2;return[...core,fb,fc];}
+function presetExplorer(){const core=stackUp(['probe','sep','tankP:0.6','aleta','engVaga','rdSep','rdFus','rdTank','aleta','rdEng'],0,-1),tk=core.find(q=>q.type==='tankP'),pr=core.find(q=>q.type==='probe'),top=box(tk).t,hh=top-box(pr).t+.12,fb=Object.assign(mk('fairBody',0,top-hh/2),{w:1.15,h:hh}),fc=Object.assign(mk('fair',0,0),{w:1.15,h:PARTS.fair.h*.75});fc.y=top-hh-fc.h/2;return[...core,fb,fc];}
 function presetHover(){const core=stackUp(['para','capPingo','sep','tankM','beam'],0,-1),bb=-1,e=mk('engFalcao',0,bb+PARTS.engFalcao.h/2),a=mk('hover',-.7,bb+PARTS.hover.h/2),b=mk('hover',.7,bb+PARTS.hover.h/2);a.mir=b.uid;b.mir=a.uid;return[...core,e,a,b];}
 // foguete lunar completo com a nave do rover em cima (Terra → Lua → rover)
-function presetRoverFull(){const core=stackUp(['para','capPingo','sep','tankM','tankM','roverBay','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
+function presetRoverFull(){const core=stackUp(['para','capPingo','sep','tankM:1.2','roverBay','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
   const bay=core.find(p=>p.type==='roverBay'),add={},low=core.find(p=>p.type==='tankG'&&box(p).b>-2.2);
   for(const sd of[-1,1]){add[sd]=[mk('legG',sd*(.5+.2),bay.y),mk('sepLat',sd*(.65+.125),low.y),mk('liqb',sd*(.9+.45),-1.7),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
@@ -1449,7 +1450,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=52;
+const GAME_VER=53;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
