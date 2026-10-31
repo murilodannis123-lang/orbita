@@ -296,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 46</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1447,9 +1447,10 @@ function vLoad(o){o.firing=[];restructure(o);return o;}
 function snapshot(){return JSON.stringify({S:{...S,done:[...S.done],dom:null,el:null,lastDom:null},V:vSnap(V),D:debris.slice(-20).map(vSnap),warp,target:target?target.n:null,phz:{...PHZ,ph:{...PHZ.ph}},rdv:rdv?{...rdv,b:rdv.b.n}:null});}
 function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.done)};V=vLoad(o.V);aimUI();leverUI();debris=o.D.map(vLoad);particles=[];meteors=[];warp=o.warp>5?1:o.warp;target=BODIES.find(b=>b.n===o.target)||null;if(o.phz){Object.assign(PHZ,o.phz);}rdv=o.rdv?{...o.rdv,b:BODIES.find(b=>b.n===o.rdv.b)}:null;if(rdv&&!rdv.b)rdv=null;S.dead=false;domain();pred=null;zs=0;buildMissions();$('#deadBox').hidden=true;}
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
-async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
+async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
+const GAME_VER=46;
+function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
   if(!S.dead){const cw=chuteWarp();if(warp>5&&warpLimited()&&!(cw&&warp<=50))warp=cw?Math.min(warp,50):5;let left=real*warp,guard=0;
@@ -2472,5 +2473,5 @@ cheatsUI();buildCatalog();{const c=lsGet('orbita.cur');if(Array.isArray(c)&&c.le
   A(centerOfPressure(p2).y>centerOfMass(p2).y,'2 estágios estável');A(layerAt(30000)===1&&layerAt(90000)===3,'camadas');})();
 </script>
 
-<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+<script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').then(r=>r.update()).catch(()=>{}));</script>
 </body></html>
