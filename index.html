@@ -296,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 53</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 54</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -488,8 +488,15 @@ function inertia(ps,c){let I=0;for(const p of ps){const k=dryOf(p)+fuelOf(p);I+=
 const latArea=p=>(W(p)*H(p)+(PT(p).fin||0))*PT(p).k;
 function centerOfPressure(ps){let s=0,x=0,y=0;for(const p of ps){const a=latArea(p);s+=a;x+=a*p.x;y+=a*p.y;}return{x:x/s,y:y/s};}
 function axialCdA(ps){let s=0;for(const p of ps){const w=W(p),B=box(p);let cov=0;for(const q of ps)if(q!==p&&below(q,p)){const Q=box(q);cov+=Math.max(0,ovl(B.l,B.r,Q.l,Q.r));}s+=Math.max(0,w-cov)/w*Math.PI/4*(w*UNIT)**2*PT(p).cd;}return s;}
+// campanha: só as peças da nave da missão (mesma quantidade) + peças de segurança/aerodinâmica, e combustível até o da nave original
+const CAMP_FREE=new Set(['aleta','aletaL','cone','para','paraL','sep','sepLat','fair','fairBody']);
+function campLimits(){if(typeof CAMP_CUR==='undefined'||!CAMP_CUR)return null;if(campLimits.id===CAMP_CUR)return campLimits.v;const c=CAMP.find(q=>q.id===CAMP_CUR);if(!c)return null;const ps=c.preset(),cnt={};for(const q of ps)cnt[q.type]=(cnt[q.type]||0)+1;campLimits.id=CAMP_CUR;return campLimits.v={cnt,fuel:ps.reduce((a,q)=>a+capOf(q),0)};}
+const campOk=id=>{const L=campLimits();return!L||CAMP_FREE.has(id)||!!L.cnt[id];};
+function campCheck(ps,errs,bad){const L=campLimits();if(!L)return;const cnt={};for(const q of ps)cnt[q.type]=(cnt[q.type]||0)+1;
+  for(const t in cnt){if(CAMP_FREE.has(t))continue;const mine=ps.filter(q=>q.type===t);if(!L.cnt[t]){mine.forEach(q=>bad.add(q));errs.push(PARTS[t].n+': peça fora da nave desta missão');}else if(cnt[t]>L.cnt[t]){mine.forEach(q=>bad.add(q));errs.push('Nesta missão: no máximo '+L.cnt[t]+'× '+PARTS[t].n);}}
+  const f=ps.reduce((a,q)=>a+capOf(q),0);if(f>L.fuel*1.002)errs.push('Combustível acima do limite da missão: '+(f/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t de '+(L.fuel/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t (tanques maiores contam)');}
 function validate(ps){const errs=[],warns=[],bad=new Set();
-  if(!ps.length)return{errs:['Arraste peças para a bancada'],warns,bad};
+  if(!ps.length)return{errs:['Arraste peças para a bancada'],warns,bad};campCheck(ps,errs,bad);
   const caps=ps.filter(p=>PT(p).t==='cap');if(!caps.length)errs.push('Precisa de um comando: cápsula ou sonda');else if(caps.length>1)warns.push('Mais de um comando: o de cima pilota. Depois de separar, toque na outra nave para trocar');
   const adj=graph(ps),ci=capIdx(ps),d=bfs(adj,ci);
   if(ci>=0){const loose=ps.filter((p,i)=>d[i]<0);loose.forEach(p=>bad.add(p));if(loose.length)errs.push(loose.length+' peça(s) solta(s): encaixe tudo no foguete');
@@ -842,9 +849,9 @@ function save(){hist.push(JSON.stringify(parts));if(hist.length>60)hist.shift();
 const mobile=()=>matchMedia('(max-width:860px)').matches,landM=()=>matchMedia('(orientation:landscape) and (max-height:500px)').matches;
 const selPart=()=>parts.find(q=>q.uid===sel);
 function info(id){const p=PARTS[id];let s='<b>'+p.n+'</b> · '+(p.m/1000).toLocaleString('pt-BR')+' t';if(p.thrust)s+=' · '+p.thrust/1000+' kN · Isp '+p.ispV+' s';if(p.fuel)s+=' · '+(p.fuel/1000).toLocaleString('pt-BR')+' t de combustível';return s+'<br>'+p.d;}
-function buildCatalog(){const tb=$('#tabs');tb.innerHTML=CATS.map(([n],i)=>'<button data-i="'+i+'" class="'+(i===tab?'on':'')+'">'+n+'</button>').join('');tb.querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=+b.dataset.i;buildCatalog();});{const on=tb.querySelector('.on');if(on&&tb.scrollWidth>tb.clientWidth)tb.scrollLeft=Math.max(0,on.offsetLeft-tb.clientWidth/2+on.offsetWidth/2);}
-  const gd=$('#pgrid');gd.innerHTML='';$('#pinfo').innerHTML='Arraste uma peça para a bancada. Toque numa peça montada para editar; arraste de volta para cá para apagar.';
-  for(const id of CATS[tab][1]){const p=PARTS[id],b=document.createElement('button');b.className='part';b.title=p.d;b.innerHTML='<canvas width="112" height="112"></canvas><b>'+p.n+'</b>';
+function buildCatalog(){const tb=$('#tabs'),vis=CATS.map(([n,l],i)=>[n,i,l.filter(campOk)]).filter(c=>c[2].length);if(!vis.some(c=>c[1]===tab))tab=vis[0][1];tb.innerHTML=vis.map(([n,i])=>'<button data-i="'+i+'" class="'+(i===tab?'on':'')+'">'+n+'</button>').join('');tb.querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=+b.dataset.i;buildCatalog();});{const on=tb.querySelector('.on');if(on&&tb.scrollWidth>tb.clientWidth)tb.scrollLeft=Math.max(0,on.offsetLeft-tb.clientWidth/2+on.offsetWidth/2);}
+  const gd=$('#pgrid');gd.innerHTML='';$('#pinfo').innerHTML=campLimits()?'Missão da campanha: só as peças da nave da missão (no máximo a mesma quantidade), mais aletas, ogivas, carenagens, separadores e paraquedas. O combustível não pode passar do da nave original.':'Arraste uma peça para a bancada. Toque numa peça montada para editar; arraste de volta para cá para apagar.';
+  for(const id of CATS[tab][1].filter(campOk)){const p=PARTS[id],b=document.createElement('button');b.className='part';b.title=p.d;b.innerHTML='<canvas width="112" height="112"></canvas><b>'+p.n+'</b>';
     {const sc2=PARTS[id].t==='solar'?1.4:1;drawPart(b.querySelector('canvas').getContext('2d'),id,56,56,84/Math.max(p.h,p.w*1.3,1)/sc2);}
     b.onmouseenter=b.onfocus=()=>{$('#pinfo').innerHTML=info(id);};
     b.addEventListener('click',e=>{$('#pinfo').innerHTML=info(id);if(e.detail===0)addAtTop(id);});
@@ -1001,9 +1008,10 @@ async function stDelShip(name){await store.ready;if(store.db)return shipsCol().d
 async function stSaveGame(o){await store.ready;if(store.db)return gameDoc().set(o);if(!lsSet('orbita.game',o))throw new Error('sem espaço');}
 async function stGame(){await store.ready;if(store.db){const d=await gameDoc().get();return d.exists?d.data():null;}return lsGet('orbita.game');}
 // trapaças (como o pacote Cheats do SFS); valem até desligar, guardadas neste aparelho
-const CH=Object.assign({fuel:false,drag:false,grav:false,crash:false,heat:false,clip:false},lsGet('orbita.cheats')||{});
+const CH0=Object.assign({fuel:false,drag:false,grav:false,crash:false,heat:false,clip:false},lsGet('orbita.cheats')||{}),
+  CH=new Proxy(CH0,{get:(o,k)=>{try{if(CAMP_CUR)return false;}catch(e){}return o[k];}}); // na campanha os truques não valem
 const CHN={fuel:'Combustível infinito',drag:'Sem arrasto do ar',grav:'Sem gravidade',crash:'Sem dano de batida',heat:'Sem dano de calor',clip:'Peças podem se sobrepor'};
-function cheatsUI(){document.querySelectorAll('.cheatsBox').forEach(el=>{el.innerHTML='';for(const k in CHN){const b=document.createElement('button');b.className='chk'+(CH[k]?' on':'');b.setAttribute('aria-pressed',CH[k]);b.innerHTML='<i>'+(CH[k]?'✓':'')+'</i>'+CHN[k];b.onclick=()=>{CH[k]=!CH[k];lsSet('orbita.cheats',CH);cheatsUI();if(!flight.on)refresh();};el.appendChild(b);}});
+function cheatsUI(){let camp=false;try{camp=!!CAMP_CUR;}catch(e){}document.querySelectorAll('.cheatsBox').forEach(el=>{el.innerHTML='';if(camp){el.innerHTML='<p class="hint">Truques desligados durante as missões da campanha. Saia da campanha (Construção livre) para usar.</p>';return;}for(const k in CHN){const b=document.createElement('button');b.className='chk'+(CH[k]?' on':'');b.setAttribute('aria-pressed',CH[k]);b.innerHTML='<i>'+(CH[k]?'✓':'')+'</i>'+CHN[k];b.onclick=()=>{CH0[k]=!CH0[k];lsSet('orbita.cheats',CH0);cheatsUI();if(!flight.on)refresh();};el.appendChild(b);}});
   const any=Object.values(CH).some(Boolean);document.querySelectorAll('.cheatFlag').forEach(e=>e.hidden=!any);}
 const where=()=>store.db?'na sua conta (abre no celular e no PC)':'neste aparelho';
 function loadParts(ps){parts=ps.map(p=>({...p}));uidN=Math.max(uidN,...parts.map(p=>p.uid+1),1);sel=null;}
@@ -1200,7 +1208,7 @@ function showBrief(ps,title){const seen=new Set(),L=$('#brList');L.innerHTML='';
   ps.slice().sort((a,b)=>box(a).t-box(b).t).forEach(q=>{if(seen.has(q.type))return;seen.add(q.type);const P=PARTS[q.type],li=document.createElement('li');li.className='brRow';li.innerHTML='<canvas width="96" height="96"></canvas><div><b>'+P.n+'</b><small>'+(BRIEF[q.type]||P.d)+'</small></div>';
     const c=li.querySelector('canvas').getContext('2d');drawPart(c,q.type,48,48,72/Math.max(P.h,P.w*1.3,1),P.fuel?1:null,null,null,{type:q.type,x:1});L.appendChild(li);});$('#brief').hidden=false;}
 $('#brOk').onclick=$('#brClose').onclick=()=>{$('#brief').hidden=true;};$('#cbParts').onclick=()=>showBrief(parts,'Peças da nave');
-function campBar(){const c=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);$('#campBar').hidden=!c;if(c)$('#cbTxt').innerHTML='<b>Missão '+(CAMP.indexOf(c)+1)+':</b> '+c.t+(c.start==='moon'?' · começa na Lua':'');}
+function campBar(){const c=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);try{buildCatalog();cheatsUI();}catch(e){}$('#campBar').hidden=!c;if(c)$('#cbTxt').innerHTML='<b>Missão '+(CAMP.indexOf(c)+1)+':</b> '+c.t+(c.start==='moon'?' · começa na Lua':'');}
 function campWin(c){$('#toast').classList.remove('on');$('#cwE').textContent='Campanha';$('#cwS').hidden=!S.rescue;if(S.rescue)fillStats();const d=campLoad();if(!d.includes(c.id))d.push(c.id);campSave(d);const i=CAMP.indexOf(c),nx=CAMP[i+1];sfx('chime');$('#cwT').textContent='Missão cumprida ✓';$('#cwB').textContent=c.t+(nx?' · Próxima: '+nx.t:' · Você terminou a campanha!');$('#cwNext').hidden=!nx;$('#campWin').hidden=false;
   $('#cwNext').onclick=()=>{$('#campWin').hidden=true;$('#mHangar').onclick();campStart(nx.id);};}
 $('#cwStay').onclick=()=>{$('#campWin').hidden=true;};$('#cwHome').onclick=()=>goHome();$('#btnDHome').onclick=()=>{$('#deadBox').hidden=true;goHome();};$('#btnHome').onclick=()=>goHome();$('#mHome').onclick=()=>{$('#drawer').classList.remove('open');goHome();};$('#cwHangar').onclick=()=>{$('#campWin').hidden=true;$('#mHangar').onclick();};
@@ -1450,7 +1458,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=53;
+const GAME_VER=54;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
