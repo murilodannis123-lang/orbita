@@ -296,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 48</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 49</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1152,7 +1152,7 @@ const CAMP=[
   {id:'c',t:'Voltar e pousar',h:'Mira para trás, solte o Atlas (ESTÁGIO) e toque no pacote retro para acender. Quando ele apagar, toque nele de novo para soltar (senão ele tampa o escudo). Arme o paraquedas e mantenha Mira para trás até o fim.',done:()=>S.landedEarth}]},
  {id:'c3',t:'Primeiro satélite',ship:'Explorer',preset:()=>presetExplorer(),txt:'Ponha uma sonda em órbita e abra os painéis solares.',steps:[
   {id:'a',t:'Chegar ao espaço',h:'Arme o A-7, LIGAR e toque em MIRA até SUBIDA (curva de gravidade: reto até 1 km, depois vai deitando sozinho). Quando o A-7 apagar, deixe o acelerador no máximo e aperte ESTÁGIO: o motor de cima acende junto.',done:()=>S.altE>SPACE},
-  {id:'b',t:'Órbita acima de 150 km',h:'Com o Redstone solto, use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 160 km, espere chegar no Ap e acelere de novo até o Pe passar de 150 km. O satélite viaja protegido dentro da carenagem.',done:()=>S.dom.earth&&S.el&&S.el.pe>150000},
+  {id:'b',t:'Órbita acima de 120 km',h:'Com o Redstone solto, use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 140 km, espere chegar no Ap e acelere de novo até o Pe passar de 120 km. O satélite viaja protegido dentro da carenagem.',done:()=>S.dom.earth&&S.el&&S.el.pe>120000},
   {id:'c',t:'Abrir a carenagem e soltar o satélite',h:'Em órbita, aperte ESTÁGIO: a carenagem lá em cima abre em duas metades e o satélite sai sozinho.',done:()=>!V.parts.some(q=>PT(q).t==='fair')&&probeOnly()&&V.parts.length<=4},
   {id:'d',t:'Painéis abertos',h:'Solto, o satélite abre os painéis solares sozinho.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
  {id:'c4',t:'Até a Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande uma sonda até a gravidade da Lua.',steps:[
@@ -1355,7 +1355,7 @@ function crash(v,imp,why){if(v.main){S.dWhy=why||(S.dom&&S.dom.earth?'impacto':'
   v.dead=true;const bv=S.dom.vel(S.t);boomAt({x:v.x,y:v.y,vx:bv[0]+(v.vx-bv[0])*.2,vy:bv[1]+(v.vy-bv[1])*.2},v.main?1:.45);if(!v.main)sfx('boom');}
 function stage(){if(!V||S.dead)return;const hasF=V.parts.some(q=>PT(q).t==='fair');
   // como no SFS/vida real: a carenagem sai quando já não há ar (acima de ~60 km), antes de soltar a carga
-  if(hasF&&!V.clamped&&(!S.dom.earth||S.altE>60000)){releaseFair();const orb=S.el&&S.el.bound&&S.el.pe>SPACE,pay=V.groups.length===1&&V.parts.some(q=>PT(q).probe);if(pay&&orb){S.payRel=S.t+.9;tip(innerWidth/2,innerHeight*.4,'Carenagem aberta ✓ soltando o satélite…');}else{tip(innerWidth/2,innerHeight*.4,'Carenagem solta ✓');if(pay)setTimeout(()=>toast('Satélite preso até a órbita','Ele não tem motor para chegar lá sozinho. Quando o Pe passar de 100 km, aperte ESTÁGIO de novo para soltar.'),60);}return;}
+  if(hasF&&!V.clamped&&(!S.dom.earth||S.altE>60000)){releaseFair();const orb=S.el&&S.el.bound&&S.el.pe>120000,pay=V.groups.length===1&&V.parts.some(q=>PT(q).probe);if(pay&&orb){S.payRel=S.t+.9;tip(innerWidth/2,innerHeight*.4,'Carenagem aberta ✓ soltando o satélite…');}else{tip(innerWidth/2,innerHeight*.4,'Carenagem solta ✓');if(pay)setTimeout(()=>toast('Satélite preso até a órbita','Ele não tem motor para chegar lá sozinho. Quando o Pe passar de 120 km, aperte ESTÁGIO de novo para soltar.'),60);}return;}
   if(V.groups.length)fire(V.groups[0]);}
 function releaseFair(){const n0=debris.length;fire(V.parts.map((q,k)=>PT(q).t==='fair'?k:-1).filter(k=>k>=0));
   const sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),px=[sn,-cs];for(const d of debris.splice(n0)){if(!d.parts.every(q=>PT(q).t==='fair')){debris.push(d);continue;}
@@ -1449,7 +1449,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=48;
+const GAME_VER=49;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
