@@ -296,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 55</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 56</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1178,7 +1178,7 @@ const CAMP=[
  {id:'c7',t:'Pouso na Lua',ship:'Lunar',preset:()=>presetLunar(),txt:'Como a Apollo 11: chegue na Lua e pouse de pé.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Entrar na gravidade da Lua',h:'Navegar até a Lua e siga a linha verde.',done:()=>S.dom===MOON_B},
-  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G), vire o bico para cima (contra a queda) e freie. Toque o chão a menos de 8 m/s.',done:()=>onMoon()}]},
+  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G). Primeiro freie com o bico contra o movimento até quase parar de andar de lado; perto do chão, bico para cima e desça devagar. Toque o chão a menos de 8 m/s.',done:()=>onMoon()}]},
  {id:'c8',t:'Volta para casa',ship:'Lunar',preset:()=>presetLunar(),txt:'Pouse na Lua e traga a cápsula de volta para a Terra.',steps:[
   {id:'a',t:'Pousar na Lua',h:'Mesmo caminho da missão anterior.',done:()=>onMoon()},
   {id:'b',t:'Voltar para a gravidade da Terra',h:'Decole, acelere para frente até escapar da Lua de volta.',done:()=>S.done.has('a')&&S.dom.earth},
@@ -1186,7 +1186,7 @@ const CAMP=[
  {id:'c8r',t:'Rover na Lua',ship:'Lunar com rover',preset:()=>presetRoverFull(),txt:'Como a Apollo 15: leve um rover da Terra até a Lua, pouse e saia dirigindo.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Entrar na gravidade da Lua',h:'No mapa, toque na Lua, Navegar e siga a linha verde.',done:()=>S.dom===MOON_B},
-  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G), vire o bico para cima (contra a queda) e freie. Toque o chão a menos de 8 m/s.',done:()=>onMoon()},
+  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G). Primeiro freie com o bico contra o movimento até quase parar de andar de lado; perto do chão, bico para cima e desça devagar. Toque o chão a menos de 8 m/s.',done:()=>onMoon()},
   {id:'d',t:'Soltar o rover',h:'Toque em 🚗 SOLTAR ROVER: a porta vira rampa e o rover desce.',done:()=>!!S.roverOut},
   {id:'e',t:'Dirigir 300 m',h:'Segure ◀ ou ▶ e explore a Lua.',done:()=>(S.rovDist||0)>300}]},
  {id:'c9',t:'Rumo a Marte',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande a sonda até a gravidade de Marte. Use o tempo acelerado.',steps:[
@@ -1458,7 +1458,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=55;
+const GAME_VER=56;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -2425,10 +2425,14 @@ function planGuide(X,Y,ex,ey,lab,dot){const b=target;if(!b)return;const e=S.el;
     let nowTxt='';
     if(ec>=0&&!V.ground&&!V.clamped&&S.altE>SPACE*.6){const pp=r1*(1+ec),pts=[];let okp=true;
       for(let k=0;k<=90;k++){const nu=dth*k/90,dd=1+ec*Math.cos(nu);if(dd<=.02){okp=false;break;}const rr2=pp/dd,th=th1-nu;pts.push([X(ex+rr2*Math.cos(th)),Y(ey+rr2*Math.sin(th))]);}
-      if(okp){g.strokeStyle='rgba(94,226,160,.85)';g.lineWidth=2;g.setLineDash([7,6]);g.beginPath();pts.forEach(([qx,qy],k)=>k?g.lineTo(qx,qy):g.moveTo(qx,qy));g.stroke();g.setLineDash([]);}
-      if(okp){const vp=Math.sqrt(MU*(1+ec)/r1),vx=vp*Math.sin(th1),vy=-vp*Math.cos(th1),dv=Math.hypot(vx-S.rvx,vy-S.rvy);lab('Daqui: acelere ~'+Math.round(dv)+' m/s',X(ex+V.x),Y(ey+V.y),12,'#5ee2a0',9);nowTxt='Linha verde: se acelerar <b>~'+Math.round(dv)+' m/s</b> para frente agora, sua nave vai direto até a mira';}}
-    g.strokeStyle='#5ee2a0';g.lineWidth=2;g.beginPath();g.arc(bx,by,6,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Mais barato aqui: +'+Math.round(rdv.dv)+' m/s',bx,by,8,'#5ee2a0',9);
-    guideTxt=nowTxt||'Espere a nave chegar perto do ponto verde e acelere para frente';return;}
+      // "acelere agora" só aparece quando sai quase o mesmo que no ponto verde; longe dele custa 2 a 4 vezes mais
+      const dvNow=okp?(()=>{const vp=Math.sqrt(MU*(1+ec)/r1);return Math.hypot(vp*Math.sin(th1)-S.rvx,-vp*Math.cos(th1)-S.rvy);})():1e9,cheap=dvNow<=rdv.dv*1.1+40;
+      if(okp&&cheap){g.strokeStyle='rgba(94,226,160,.85)';g.lineWidth=2;g.setLineDash([7,6]);g.beginPath();pts.forEach(([qx,qy],k)=>k?g.lineTo(qx,qy):g.moveTo(qx,qy));g.stroke();g.setLineDash([]);
+        lab('Agora: acelere ~'+Math.round(dvNow)+' m/s',X(ex+V.x),Y(ey+V.y),12,'#5ee2a0',9);nowTxt='<b style="color:var(--good)">Hora de acelerar:</b> vire para frente e acelere <b>~'+Math.round(dvNow)+' m/s</b>: a linha verde vai até a mira';}
+      else if(okp&&dvNow<1e8)nowTxt='Daqui custaria ~'+Math.round(dvNow)+' m/s ('+Math.round(dvNow-rdv.dv)+' a mais).';}
+    const wv=Math.hypot(S.rvx,S.rvy)/Math.max(1,Math.hypot(V.x,V.y)),ang=((Math.atan2(V.y,V.x)-thb)%(2*Math.PI)+2*Math.PI)%(2*Math.PI),tLeft=wv>0?ang/wv:0;
+    g.strokeStyle='#5ee2a0';g.lineWidth=2;g.beginPath();g.arc(bx,by,6,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Acelere aqui: +'+Math.round(rdv.dv)+' m/s',bx,by,8,'#5ee2a0',9);
+    guideTxt=nowTxt.startsWith('<b')?nowTxt:'Espere chegar no <b>ponto verde</b>'+(tLeft>20?' (falta '+fmtT(tLeft)+')':'')+' e acelere para frente <b>~'+Math.round(rdv.dv)+' m/s</b>. '+nowTxt;return;}
   if(!sent){const bx=X(ex+rdv.r0*Math.cos(rdv.thb)),by=Y(ey+rdv.r0*Math.sin(rdv.thb));g.strokeStyle='#5ee2a0';g.lineWidth=2.5;g.beginPath();g.arc(bx,by,7,0,7);g.stroke();dot(bx,by,'#5ee2a0',3);lab('Acelere aqui ~+'+Math.round(rdv.dv)+' m/s',bx,by,8,'#5ee2a0',9);
     guideTxt='No ponto verde (perto da Terra), acelere para frente ~'+Math.round(rdv.dv)+' m/s';return;}
   const cr=rdvCross(),ok=cr&&Math.abs(Math.atan2(Math.sin(Math.atan2(cr.hy,cr.hx)-Math.atan2(rdv.P[1],rdv.P[0])),Math.cos(Math.atan2(cr.hy,cr.hx)-Math.atan2(rdv.P[1],rdv.P[0]))))<=1.4;
