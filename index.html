@@ -300,7 +300,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 61</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 62</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1450,17 +1450,22 @@ function stepWorld(dt){S.t+=dt;if(S.payRel&&S.t>=S.payRel){S.payRel=0;if(!S.dead
   stepWater(dt);stepImpacts(dt);
   for(const p of particles){const pr=Math.hypot(p.x,p.y),air=rhoAt(pr-R)/RHO0;if(p.type==='smoke'){const k=Math.exp(-1.4*Math.sqrt(air)*dt);p.vx*=k;p.vy*=k;p.vx+=p.x/pr*3*air*dt;p.vy+=p.y/pr*3*air*dt;}
     p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;p.size+=p.grow*dt*(p.type==='smoke'?Math.max(.15,Math.sqrt(air)):1);p.heat=Math.max(0,(p.heat||0)-dt*2.5);
-    const gR=R+(pr<R+80?terrFast(Math.atan2(p.y,p.x)):0);if(pr<gR&&p.type!=='drop'&&p.type!=='bub'){const nx=p.x/pr,ny=p.y/pr,vr=p.vx*nx+p.vy*ny;p.x=nx*gR;p.y=ny*gR;p.vx-=vr*nx;p.vy-=vr*ny;if(!p.spread){p.spread=1;const s=(Math.random()<.5?-1:1)*(25+Math.random()*55);p.vx+=-ny*s;p.vy+=nx*s;}}}
+    const gR=pr<R+80?gndR(p.x,p.y):R;if(pr<gR&&p.type!=='drop'&&p.type!=='bub'){const nx=p.x/pr,ny=p.y/pr,vr=p.vx*nx+p.vy*ny;p.x=nx*gR;p.y=ny*gR;p.vx-=vr*nx;p.vy-=vr*ny;if(!p.spread){p.spread=1;const s=(Math.random()<.5?-1:1)*(25+Math.random()*55);p.vx+=-ny*s;p.vy+=nx*s;}}}
+  if(S.dom===MOON_B){const mp=MOON_B.pos(S.t),mv=MOON_B.vel(S.t);for(const p of particles){if(p.type==='drop'||p.type==='bub')continue;const dx=p.x-mp[0],dy=p.y-mp[1],d=Math.hypot(dx,dy);if(d<MOON.r&&d>MOON.r-400){const nx=dx/d,ny=dy/d,vr=(p.vx-mv[0])*nx+(p.vy-mv[1])*ny;p.x=mp[0]+nx*MOON.r;p.y=mp[1]+ny*MOON.r;if(vr<0){p.vx-=vr*nx;p.vy-=vr*ny;}if(!p.spread){p.spread=1;const s=(Math.random()<.5?-1:1)*(15+Math.random()*35);p.vx+=-ny*s;p.vy+=nx*s;}}}}
   particles=particles.filter(p=>p.life>0);
   if(!S.dead){domain();if(S.altE>SPACE)S.spaced=true;if(V.ground&&S.spaced&&S.dom.earth&&Math.hypot(S.rvx,S.rvy)<1)S.landedEarth=true;}}
+// raio do chão da Terra num ponto (plataforma: topo em R e defletor do fosso 2,2 m abaixo; fora dela, o terreno)
+function gndR(x,y){const pa=Math.atan2(y,x),poff=Math.abs(Math.atan2(Math.sin(pa-Math.PI/2),Math.cos(pa-Math.PI/2)))*R;return R+(poff<10?-2.2:poff<58?0:poff<128?terrFast(pa)*((poff-58)/70):terrFast(pa));}
+// partícula que nasceria dentro do chão (motor encostado na plataforma) nasce na superfície, já espalhando para o lado
+function aboveGnd(q){if(!S.dom||!S.dom.earth)return q;const pr=Math.hypot(q.x,q.y);if(pr>R+80)return q;const gr=gndR(q.x,q.y);if(pr<gr){const nx=q.x/pr,ny=q.y/pr,vr=q.vx*nx+q.vy*ny;q.x=nx*gr;q.y=ny*gr;if(vr<0){q.vx-=vr*nx;q.vy-=vr*ny;}const s2=(Math.random()<.5?-1:1)*(25+Math.random()*55);q.vx+=-ny*s2;q.vy+=nx*s2;q.spread=1;}return q;}
 function emit(real){for(let i=Math.max(0,particles.length-400);i<particles.length;i++){const q=particles[i];if(q.type==='smoke'&&q.rot==null){q.rot=Math.random()*6.28;q.spin=(Math.random()-.5)*.25;q.v=Math.floor(Math.random()*6);}}
   if(V&&V.hovOn&&!S.dead&&V.hgt<12){const bp=S.dom.pos(S.t),nx=V.x-bp[0],ny=V.y-bp[1],nn=Math.hypot(nx,ny),ux=nx/nn,uy=ny/nn;for(const q of V.hov){if(Math.random()>real*30)continue;const[qx,qy]=bodyToWorld(V,q.x,box(q).b),d=Math.hypot(qx-bp[0],qy-bp[1])-S.dom.r,gx=qx-ux*d,gy=qy-uy*d,sd=Math.random()<.5?-1:1,sp=8+Math.random()*14;particles.push({type:'smoke',x:gx,y:gy,vx:-uy*sd*sp+ux*2+(S.dom.vel(S.t)[0]),vy:ux*sd*sp+uy*2+(S.dom.vel(S.t)[1]),life:1.2+Math.random(),max:2.2,size:.8,grow:2.5,v:Math.floor(Math.random()*4),heat:0,spread:1});}}
   if(S.rcs&&V.rcs&&V.rcs.length&&(RCST.x||RCST.y||keys.a||keys.d)&&!S.dead){const sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),ax=[cs,sn],px=[sn,-cs];for(const q of V.rcs){const[qx,qy]=bodyToWorld(V,q.x,q.y),dx=-(RCST.x*px[0]+RCST.y*ax[0])||(Math.random()-.5),dy=-(RCST.x*px[1]+RCST.y*ax[1])||(Math.random()-.5);
     for(let k=0;k<2;k++)particles.push({type:'smoke',x:qx,y:qy,vx:V.vx+dx*30+(Math.random()-.5)*6,vy:V.vy+dy*30+(Math.random()-.5)*6,life:.5,max:.5,size:.4,grow:3,v:k%4,heat:0,spread:1});}}for(const v of[V,...debris]){if(v.dead)continue;const sn=Math.sin(v.hdg),cs=Math.cos(v.hdg),ax=-cs,ay=-sn,px=-ay,py=ax;
   for(const f of v.firing){const P=PT(f.p),[ex,ey]=bodyToWorld(v,f.p.x,f.p.y+P.h/2),nw=P.w*UNIT*(P.solid||P.lock?.7:.9),air=f.air,n=Math.ceil(real*60*(v.main?3:1.5));
-    for(let k=0;k<n;k++){const sp=60+Math.random()*90,j=(Math.random()-.5)*(10+90*(1-air));particles.push({type:'fire',fl:P.fl,x:ex+ax*nw*(1+Math.random()*3),y:ey+ay*nw*(1+Math.random()*3),vx:v.vx+ax*sp+px*j,vy:v.vy+ay*sp+py*j,life:.22+.1*Math.random(),max:.32,size:nw*(1.3+Math.random()*.6),grow:nw*(3+9*(1-air))});}
+    for(let k=0;k<n;k++){const sp=60+Math.random()*90,j=(Math.random()-.5)*(10+90*(1-air));particles.push(aboveGnd({type:'fire',fl:P.fl,x:ex+ax*nw*(1+Math.random()*3),y:ey+ay*nw*(1+Math.random()*3),vx:v.vx+ax*sp+px*j,vy:v.vy+ay*sp+py*j,life:.22+.1*Math.random(),max:.32,size:nw*(1.3+Math.random()*.6),grow:nw*(3+9*(1-air))}));}
     const smokeAir=P.solid?Math.min(1,air*40):air;if(smokeAir>.01&&Math.random()<(P.solid?1:.75)*Math.min(1,smokeAir*4)){const sp=40+Math.random()*50,len=nw*(5+5*f.th);for(let k=0;k<(v.main&&S.altE<300?3:1);k++)
-      particles.push({type:'smoke',x:ex+ax*len,y:ey+ay*len,vx:v.vx*.5+ax*sp+px*(Math.random()-.5)*20,vy:v.vy*.5+ay*sp+py*(Math.random()-.5)*20,life:8+Math.random()*10,max:18,size:nw*(1.6+Math.random()),grow:nw*(1.4+Math.random()*1.4)+(P.solid?2:0),v:Math.floor(Math.random()*4),heat:1,flip:Math.random()<.5});}}}
+      particles.push(aboveGnd({type:'smoke',x:ex+ax*len,y:ey+ay*len,vx:v.vx*.5+ax*sp+px*(Math.random()-.5)*20,vy:v.vy*.5+ay*sp+py*(Math.random()-.5)*20,life:8+Math.random()*10,max:18,size:nw*(1.6+Math.random()),grow:nw*(1.4+Math.random()*1.4)+(P.solid?2:0),v:Math.floor(Math.random()*4),heat:1,flip:Math.random()<.5}));}}}
   for(const v of[V,...debris]){if(v.dead||!(v.plasma>.08))continue;const sp=Math.hypot(v.vx,v.vy)||1,dx=v.vx/sp,dy=v.vy/sp,wd=Math.max(...v.parts.map(p=>W(p)))*UNIT,len=vesselLen(v),ns=Math.ceil(real*45*v.plasma*(v.main?1:.3));
     for(let k=0;k<ns;k++){const s2=(Math.random()-.5)*wd*1.2,lat=(Math.random()-.5)*sp*.06;particles.push({type:'spark',x:v.x+dx*len*.45-dy*s2,y:v.y+dy*len*.45+dx*s2,vx:v.vx*(.86+Math.random()*.08)-dy*lat,vy:v.vy*(.86+Math.random()*.08)+dx*lat,life:.12+Math.random()*.22,max:.34,size:.12+Math.random()*.2,grow:0});}}
   for(const v of[V,...debris]){if(v.dead||!(v.plasma>.04))continue;const len=vesselLen(v),n=Math.ceil(real*40*v.plasma*(v.main?1:.4));
@@ -1478,7 +1483,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=61;
+const GAME_VER=62;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -1490,7 +1495,7 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
     emit(real);const li=layerAt(S.altE);if(S.dom.earth&&li!==S.layer){if(li>S.layer&&li>0){layerBanner(li);if(S.layer>=0)sfx('chime');}S.layer=li;}
     if(CAMP_CUR){const cm=CAMP.find(c=>c.id===CAMP_CUR),m=MS.find(q=>!S.done.has(q.id));if(m&&m.done()){S.done.add(m.id);sfx('chime');buildMissions();const nx=MS.find(q=>!S.done.has(q.id));if(nx)toast(m.t+' ✓','Agora: '+nx.t+'. '+nx.h);else if(S.dom.earth&&V.ground&&V.cap&&!S.hover){S.pendWin=cm;S.pendAt=S.t;}else campWin(cm);}}
     else for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
-    rescueTick();roverTick(real);gtTip();countTick();hypeTick(real);crowdCam();if(S.liftT>=0&&!S.cheer&&S.dom.earth&&S.altE<3000&&S.padParts){S.cheer=1;crowdMurmur(false);crowdCheer();}if(target&&S.dom===target){target=null;rdv=null;pred=null;predTimer=0;}
+    rescueTick();roverTick(real);gtTip();countTick();hypeTick(real);fxTick(real);crowdCam();if(S.liftT>=0&&!S.cheer&&S.dom.earth&&S.altE<3000&&S.padParts){S.cheer=1;crowdMurmur(false);crowdCheer();}if(target&&S.dom===target){target=null;rdv=null;pred=null;predTimer=0;}
     if(S.dom!==S.lastDom){const ci=S.lastDom&&capInfo();if(ci&&!ci.hit)toast('Na gravidade '+S.dom.de,ci.bound?'Você já está preso numa órbita aqui.':'A '+Math.round(ci.v)+' m/s você passa reto (escape aqui: '+Math.round(ci.esc)+' m/s). Para ficar: vire o bico contra o movimento e freie '+Math.round(ci.dv)+' m/s no Pe.');S.lastDom=S.dom;}}
   else{if(ccOn){ccOn=false;$('#ccWrap').classList.remove('on');}stepWorldDead(real);if(!S.tipShown&&(S.t-(S.deadAt??(S.deadAt=S.t))>.8)){S.tipShown=1;$('#deadTip').textContent='💡 Dica: '+deathTip();}$('#deadBox').hidden=!S.tipShown;$('#btnRewind').hidden=!snaps.length;}
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
@@ -1708,7 +1713,9 @@ function drawBase(t){frame(0,R);const lift=S.liftT<0?0:Math.min(1,(S.t-S.liftT)/
     g.fillStyle='rgba(0,0,0,.12)';for(const sd of[-1,1]){g.beginPath();g.moveTo(sd*58,0);g.lineTo(sd*128,gy(128));g.lineTo(sd*118,gy(118));g.lineTo(sd*58,-1.2);g.closePath();g.fill();}
     g.fillStyle='#bfc4cb';g.fillRect(-58,-.6,116,.6);const tr=g.createLinearGradient(0,0,0,-7);tr.addColorStop(0,'#26292f');tr.addColorStop(1,'#08090b');g.fillStyle=tr;g.fillRect(-10,-7,20,7);
     g.fillStyle='#5b616b';g.beginPath();g.moveTo(-8,-7);g.lineTo(0,-2.2);g.lineTo(8,-7);g.closePath();g.fill();g.fillStyle='#6f7680';g.fillRect(-12,-.5,24,.5);
-    for(const sd of[-1,1]){g.fillStyle='#4b525e';g.fillRect(sd*44-.4,0,.8,3.2);g.save();g.translate(sd*44,3.2);g.rotate(sd*-.7);g.fillStyle='#8a929f';g.fillRect(-.35,0,.7,3);g.restore();}}
+    for(const sd of[-1,1]){g.fillStyle='#4b525e';g.fillRect(sd*44-.4,0,.8,3.2);g.save();g.translate(sd*44,3.2);g.rotate(sd*-.7);g.fillStyle='#8a929f';g.fillRect(-.35,0,.7,3);g.restore();}
+    {const k=S.delK||0;if(k>.02){const tt=S.t;for(const sd of[-1,1])for(let j=0;j<3;j++){const x0=sd*42.3,y0=5.6,x1=sd*(3+j*4.5+Math.sin(tt*9+j)*.8),wob=Math.sin(tt*13+j*2+sd)*.6;g.strokeStyle='rgba(225,242,255,'+(.55*k*(1-j*.18))+')';g.lineWidth=(.9-j*.2)*(.6+.4*k);g.lineCap='round';g.beginPath();g.moveTo(x0,y0);g.quadraticCurveTo((x0+x1)/2,y0+11+j*2+wob,x1,.2);g.stroke();
+      g.fillStyle='rgba(240,248,255,'+(.5*k)+')';for(let q=0;q<5;q++){const a=Math.random()*Math.PI,r2=Math.random()*1.6;g.beginPath();g.arc(x1+Math.cos(a)*r2,.3+Math.sin(a)*r2*.7,.18+Math.random()*.2,0,7);g.fill();}}g.lineCap='butt';}}}
   // cerca, postes de estrada e coqueiros perto da praia
   g.strokeStyle='rgba(200,205,212,.6)';g.lineWidth=.25;g.beginPath();for(let x=-560;x<=360;x+=8){const y=gy(x);g.moveTo(x,y);g.lineTo(x,y+2.4);}g.moveTo(-560,gy(-560)+2.2);for(let x=-560;x<=360;x+=8)g.lineTo(x,gy(x)+2.2);g.stroke();
   for(const x of[-900,-760,-620,-520]){const y=gy(x);g.fillStyle='#5b616b';g.fillRect(x-.25,y,.5,9);g.fillRect(x-.25,y+9,2.2,.4);g.fillStyle=night?'#fff3c4':'#d8dde4';g.fillRect(x+1.4,y+8.6,1.2,.5);if(night){g.globalCompositeOperation='lighter';g.globalAlpha=.3;g.drawImage(SPR.glow,x-6,y,16,14);g.globalAlpha=1;g.globalCompositeOperation='source-over';}}
@@ -1874,7 +1881,9 @@ function drawVessel(v,day){const[ox,oy]=bodyToWorld(v,0,0);frame(ox,oy);const sp
     const rr=wd*(.8+.6*k),cg=g.createRadialGradient(fx+dx*rr*.35,fy+dy*rr*.35,0,fx,fy,rr*1.7);cg.addColorStop(0,'rgba(255,255,245,'+.95*k+')');cg.addColorStop(.35,'rgba(255,200,120,'+.7*k+')');cg.addColorStop(1,'rgba(255,90,40,0)');g.fillStyle=cg;g.beginPath();g.arc(fx,fy,rr*1.7,0,7);g.fill();
     g.globalAlpha=.35*k;g.drawImage(SPR.plasma,fx-rr*4,fy-rr*4,rr*8,rr*8);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
   g.rotate(v.hdg-Math.PI/2);g.scale(1,-1);const X=x=>x*UNIT,Y=y=>y*UNIT;
-  for(const f of v.firing){const P=PT(f.p);drawFlame(X(f.p.x),Y(f.p.y+P.h/2)-.1,P.w*UNIT*(P.solid||P.lock?.7:.92),f.th,f.air,P.fl,day);}
+  {const gc=v.firing.length?groundClip(v):null;if(gc){g.save();const m=g.getTransform();g.setTransform(DPR,0,0,DPR,0,0);g.beginPath();gc.poly.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.clip();g.setTransform(m);}
+    for(const f of v.firing){const P=PT(f.p);drawFlame(X(f.p.x),Y(f.p.y+P.h/2)-.1,P.w*UNIT*(P.solid||P.lock?.7:.92),f.th,f.air,P.fl,day);}
+    if(gc){g.restore();g.save();g.setTransform(DPR,0,0,DPR,0,0);flameSplash(v,gc);g.restore();}}
   if(v.sink)g.globalAlpha=Math.max(.1,1-v.sink.d/20);drawCraft(g,v.parts,UNIT,X,Y,1);g.globalAlpha=1;if(v.parts.some(q=>q.type==='roverBay'&&((q.rampK||0)>0||q.mv)))drawBayRamp(v,X,Y);if(S.eva&&v===V)drawEVA(v,X,Y);
   if((v.heat||0)>.03&&sp>1){const vb=[(v.vx*Math.sin(v.hdg)-v.vy*Math.cos(v.hdg))/sp,-(v.vx*Math.cos(v.hdg)+v.vy*Math.sin(v.hdg))/sp],L2=Math.max(.5,len/UNIT/2);g.globalCompositeOperation='lighter';
     for(const p of v.parts){const fr=Math.max(0,Math.min(1,.5+((p.x-v.com.x)*vb[0]+(p.y-v.com.y)*vb[1])/L2*.6)),a=v.heat*(.15+.65*fr)*(.85+.3*Math.random());if(a<.02)continue;const B=box(p);
@@ -2236,6 +2245,34 @@ function evaTick(){if(S.dead||!V)return;
   const E=S.eva;if(E&&!S.flagDone){const t=S.t-E.t0,b=bayAll(V);if(b&&t>=EVA_T.plant0&&!S.flag){const G=bayGeom(V,b),[wx,wy]=bodyToWorld(V,G.ex+1.75,G.gy),bp=MOON_B.pos(S.t);S.flag={ang:Math.atan2(wy-bp[1],wx-bp[0]),k:0,t0:S.t};sfx('thunk');}
     if(S.flag&&S.flag.t0!=null)S.flag.k=Math.min(1,(S.t-S.flag.t0)/EVA_T.plantT);if(t>=EVA_T.end){S.flagDone=true;saveMoonSite();}}
   if(S.sample&&!S.sample.got&&V.isRover){const[rx,ry]=moonPt(S.sample.ang,0);if(Math.hypot(V.x-rx,V.y-ry)<4.5&&Math.hypot(S.rvx,S.rvy)<2.5){S.sample.got=true;sfx('chime');toast('Amostra coletada! 🪨','Rocha guardada no rover. Agora leve de volta: dirija até a rampa e toque em ⬆ GUARDAR O ROVER.');}}}
+// ================= EFEITOS: chama batendo no chão/defletor, faíscas da ignição, dilúvio d'água, tremor =================
+// o chão perto da nave (no fosso de chamas da plataforma é o defletor, ~2 m abaixo do topo): a chama não atravessa
+function groundClip(v){if(v.sink)return null;const dom=domBody(v.x,v.y,S.t),bp=dom.pos(S.t),dx=v.x-bp[0],dy=v.y-bp[1],rr=Math.hypot(dx,dy),ux=dx/rr,uy=dy/rr,ang=Math.atan2(dy,dx);
+  let gr;if(dom.earth){const off=Math.abs(Math.atan2(Math.sin(ang-Math.PI/2),Math.cos(ang-Math.PI/2)))*R;gr=R+(off<11?-2.2:off<58?0:terrFast(ang));}else gr=dom.r;
+  if(rr-gr>500)return null;const G=[bp[0]+ux*gr,bp[1]+uy*gr],tx=-uy,ty=ux,L=4000,P=(a,b)=>toScreen(G[0]+tx*a+ux*b,G[1]+ty*a+uy*b);
+  return{poly:[P(-L,0),P(L,0),P(L,L),P(-L,L)],G,ux,uy,tx,ty,gr,bp,earth:!!dom.earth};}
+// chama que encosta no chão espirra para os dois lados (no fosso: sai pelas laterais da plataforma)
+function flameSplash(v,gc){const tt=performance.now()/1000;let best=null;
+  // um clarão por nave (no ponto médio dos motores que encostam no chão) e duas línguas de fogo saindo pelos lados
+  for(const f of v.firing){const P=PT(f.p),[nx,ny]=bodyToWorld(v,f.p.x,f.p.y+P.h/2),h=(nx-gc.bp[0])*gc.ux+(ny-gc.bp[1])*gc.uy-gc.gr,nw=P.w*UNIT,reach=8+nw*10*(.4+.6*f.th)*(1+(1-f.air)*.6);if(h>reach)continue;
+    const k=Math.max(0,Math.min(1,1-h/reach))*Math.min(1,.35+f.th),along=(nx-gc.G[0])*gc.tx+(ny-gc.G[1])*gc.ty;if(!best)best={k:0,a:0,n:0,w:0};best.k=Math.max(best.k,k);best.a+=along;best.n++;best.w=Math.max(best.w,nw);}
+  if(!best||best.k<.03)return;const k=best.k,along=best.a/best.n,C=[gc.G[0]+gc.tx*along,gc.G[1]+gc.ty*along],[cx,cy]=toScreen(C[0],C[1]),[tx1,ty1]=toScreen(C[0]+gc.tx,C[1]+gc.ty),[ux1,uy1]=toScreen(C[0]+gc.ux,C[1]+gc.uy),ts=[tx1-cx,ty1-cy],us=[ux1-cx,uy1-cy],pm=Math.hypot(ts[0],ts[1]);if(pm<.02)return;
+  const un=[us[0]/pm,us[1]/pm];g.globalCompositeOperation='lighter';
+  const glow=(2.5+best.w*1.2+3*k)*pm,gg=g.createRadialGradient(cx,cy,0,cx,cy,glow*1.8);gg.addColorStop(0,'rgba(255,248,220,'+(.6*k)+')');gg.addColorStop(.4,'rgba(255,180,80,'+(.32*k)+')');gg.addColorStop(1,'rgba(255,90,30,0)');g.fillStyle=gg;g.beginPath();g.arc(cx,cy,glow*1.8,0,7);g.fill();
+  for(const sd of[-1,1])for(let j=0;j<2;j++){const len=(6+14*k+best.w*2)*(1-j*.3)*(1+.12*Math.sin(tt*31+j*2+sd)),hh=(.8+1.4*k)*(1-j*.25),a=Math.atan2(ts[1]*sd,ts[0]*sd),lift=(j*.6+.2)*pm;
+    g.save();g.translate(cx+un[0]*lift,cy+un[1]*lift);g.rotate(a);const L=len*pm,H=hh*pm,lg=g.createLinearGradient(0,0,L,0);lg.addColorStop(0,'rgba(255,240,200,'+(.55*k)+')');lg.addColorStop(.35,'rgba(255,160,60,'+(.4*k)+')');lg.addColorStop(1,'rgba(255,80,30,0)');
+    g.fillStyle=lg;g.beginPath();g.moveTo(0,-H*.6);g.quadraticCurveTo(L*.55,-H*1.1,L,0);g.quadraticCurveTo(L*.55,H*.5,0,H*.4);g.closePath();g.fill();g.restore();}
+  g.globalCompositeOperation='source-over';}
+function padNear(){return S.dom&&S.dom.earth&&Math.abs(Math.atan2(V.y,V.x)-Math.PI/2)*R<80&&S.altE<400;}
+function fxTick(real){if(S.dead||!V)return;
+  // faíscas dos ignitores embaixo dos bocais, pouco antes da ignição
+  if(S.count){const rem=S.count.T-(S.t-S.count.t0);if(rem<5.5&&rem>3.1)for(const q of V.parts){const P=PT(q);if(P.t!=='eng'||!q.on||P.les)continue;const[ex,ey]=bodyToWorld(V,q.x,q.y+P.h/2);for(let i=0;i<Math.ceil(real*45);i++){const a=Math.PI*1.5+(Math.random()-.5)*2.4,sp=6+Math.random()*16;particles.push({type:'spark',x:ex+(Math.random()-.5)*P.w*UNIT*.6,y:ey,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:.25+Math.random()*.45,max:.7,size:.1+Math.random()*.12,grow:0});}}}
+  // dilúvio: os canhões d'água da plataforma molham o fosso da ignição até logo depois da decolagem
+  const del=!!(S.dom&&S.dom.earth&&Math.abs(Math.atan2(V.y,V.x)-Math.PI/2)*R<80&&S.altE<3000&&((S.count&&S.count.T-(S.t-S.count.t0)<7)||(V.clamped&&V.firing.length)||(S.liftT>=0&&S.t-S.liftT<14)));S.delK=(S.delK||0)+((del?1:0)-(S.delK||0))*Math.min(1,real*(del?2.5:.8));
+  if(del){const n=Math.ceil(real*70);for(const sd of[-1,1])for(let i=0;i<n;i++){const x=sd*(42.4+Math.random()*.4),y=5.4+Math.random()*.4;particles.push({type:'drop',x,y:R+y,vx:-sd*(15+Math.random()*9),vy:9+Math.random()*7,life:3,max:3,size:.18+Math.random()*.22});}
+    if(V.firing.length&&Math.random()<real*14){const s=Math.random()<.5?-1:1;particles.push({type:'smoke',x:s*(4+Math.random()*16),y:R+1+Math.random()*2,vx:s*(4+Math.random()*10),vy:6+Math.random()*10,life:6+Math.random()*6,max:12,size:4+Math.random()*4,grow:3+Math.random()*2,v:(Math.random()*4)|0,heat:0,flip:Math.random()<.5,spread:1});}}
+  // tremor da câmera: ronco na ignição, forte na decolagem, vai sumindo com a altura
+  if(V.firing.length&&S.dom.earth&&S.altE<700){const k=1-S.altE/700;S.shake=Math.max(S.shake||0,(V.clamped?1.3:2.6)*k*Math.min(1,S.thr+.3));}}
 // ================= PÚBLICO ASSISTINDO O LANÇAMENTO =================
 // empolgação: 0 parado · cresce na contagem/ignição · máxima na decolagem (vai baixando depois)
 function hypeTarget(){if(!S||S.dead)return 0;if(S.liftT>=0){const a=S.t-S.liftT;return a<0?0:Math.max(.25,1-Math.max(0,a-14)/25);}
