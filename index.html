@@ -300,7 +300,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 62</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 63</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -852,8 +852,8 @@ function presetRover(){const core=stackUp(['para','capPingo','sep','tankM','rove
   for(const sd of[-1,1]){const l=mk('legG',sd*(.5+.2),bay.y);l.dep=true;l.depT=1;L.push(l);}L[0].mir=L[1].uid;L[1].mir=L[0].uid;return[...core,...L];}
 // lugar do pouso na Lua (salvo quando a bandeira é fincada) e combustível que sobrou; as missões seguintes começam ali
 const LANDER_MIN_FRAC=.28;
-function moonSite(){let o=null;try{o=JSON.parse(localStorage.getItem('orbita.moonSite')||'null');}catch(e){}const ang=o&&isFinite(o.ang)?o.ang:1.25;
-  return{ang,flagAng:o&&isFinite(o.flagAng)?o.flagAng:ang-7/MOON.r,frac:Math.max(LANDER_MIN_FRAC,Math.min(1,o&&isFinite(o.frac)?o.frac:LANDER_MIN_FRAC)),saved:!!o};}
+function moonSite(){let o=null;try{o=JSON.parse(localStorage.getItem('orbita.moonSite')||'null');}catch(e){}const a0=o&&isFinite(o.ang)?o.ang:1.25,ang=o&&o.v>=2&&Math.abs(moonSlope(a0,2.2))<.2?a0:moonFlat(a0); // pouso salvo antes do relevo novo (ou num declive): vai pro trecho plano mais perto
+  return{ang,flagAng:o&&isFinite(o.flagAng)?o.flagAng-a0+ang:ang-7/MOON.r,frac:Math.max(LANDER_MIN_FRAC,Math.min(1,o&&isFinite(o.frac)?o.frac:LANDER_MIN_FRAC)),saved:!!o};}
 function presetLander(){const ps=presetRoverFull(),seps=ps.filter(q=>q.type==='sep').sort((a,b)=>a.y-b.y),cut=box(seps[1]).t,keep=ps.filter(q=>q!==seps[1]&&box(q).b<=cut+1e-6);
   const dy=-1-Math.max(...keep.filter(q=>q.type!=='legG').map(q=>box(q).b));for(const q of keep){q.y+=dy;if(q.type==='legG'){q.dep=true;q.depT=1;}}const fr=moonSite().frac;for(const q of keep)if(PT(q).t==='tank')q.fuelPct=fr;return keep;}
 const PRESETS={btnP1:presetTwo,btnP2:presetSides,btnP3:presetLunar,btnP4:presetProbe,btnP5:presetMR,btnP6:presetMA,btnP7:presetExplorer,btnP8:presetHover,btnP9:presetRoverFull};
@@ -1246,9 +1246,9 @@ function launch(){rauStop();try{$('#countdown').hidden=true;crowdMurmur(false);}
   debris=[];particles=[];meteors=[];warp=1;view2='flight';snaps=[];snapT=0;$('#deadBox').hidden=true;zoomUser=1;zs=0;
   const cm=CAMP_CUR&&CAMP.find(c=>c.id===CAMP_CUR);MS=cm?cm.steps:MISSIONS;S.hover=false;S.rcs=false;$('#campWin').hidden=true;
   $('#hangar').style.display='none';$('#flight').classList.add('on');flight.on=true;buildStrip();buildMissions();aimUI();leverUI();hidePop();
-  if(cm&&cm.start==='moon'){const st=moonSite();spawnOn(MOON_B,st.ang);S.flag={ang:st.flagAng,k:1};if(cm.id==='c6')S.sample={ang:st.ang-220/MOON.r,got:false};toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);}else if(cm)toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);else toast('Pronto para decolar','Toque nos motores para armar, ajuste o acelerador e aperte LIGAR.');lastTs=0;requestAnimationFrame(loop);}
+  if(cm&&cm.start==='moon'){const st=moonSite();spawnOn(MOON_B,st.ang);S.flag={ang:st.flagAng,k:1};if(cm.id==='c6')S.sample={ang:moonFlat(st.ang-220/MOON.r,18),got:false};toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);}else if(cm)toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);else toast('Pronto para decolar','Toque nos motores para armar, ajuste o acelerador e aperte LIGAR.');lastTs=0;requestAnimationFrame(loop);}
 // começa pousado em outro mundo (missões da campanha)
-function spawnOn(B,a=1.25){bp=B.pos(S.t),bv=B.vel(S.t),bot=Math.max(...V.parts.map(p=>box(p).b)),d=B.r+(bot-V.com.y)*UNIT+.05;V.x=bp[0]+d*Math.cos(a);V.y=bp[1]+d*Math.sin(a);V.vx=bv[0];V.vy=bv[1];V.hdg=a;V.om=0;V.hold=a;V.clamped=false;S.liftT=0;S.spaced=true;domain();}
+function spawnOn(B,a=1.25){bp=B.pos(S.t),bv=B.vel(S.t),bot=Math.max(...V.parts.map(p=>box(p).b)),d=B.r+(B===MOON_B?Math.max(...[-3,-1.5,0,1.5,3].map(o=>moonH(a+o/B.r))):0)+(bot-V.com.y)*UNIT+.05;V.spT=S.t;V.x=bp[0]+d*Math.cos(a);V.y=bp[1]+d*Math.sin(a);V.vx=bv[0];V.vy=bv[1];V.hdg=a;V.om=0;V.hold=a;V.clamped=false;S.liftT=0;S.spaced=true;domain();}
 function makeVessel(ps,x,y,vx,vy,hdg,om){const v={parts:ps,x,y,vx,vy,hdg,om:om||0,lit:false,chute:0,armed:false,firing:[],q:0,com:centerOfMass(ps)};restructure(v);updateMass(v);return v;}
 function restructure(v){v.adj=graph(v.parts);v.seg=segments(v.parts,v.adj);v.act=activeEng(v.parts);v.cda=axialCdA(v.parts);v.sideA=v.parts.reduce((s,p)=>s+W(p)*H(p),0)*UNIT*UNIT;
   v.cap=v.parts[capIdx(v.parts)];v.wheels=v.parts.filter(p=>PT(p).t==='wheel');v.solars=v.parts.filter(p=>PT(p).t==='solar');v.legs=v.parts.filter(p=>PT(p).t==='leg');v.paraL=v.parts.filter(p=>PT(p).t==='paraL');v.para=v.parts.find(p=>PT(p).t==='para'||PT(p).chute)||v.paraL[0];v.rcs=v.parts.filter(p=>PT(p).t==='rcs');v.hov=v.parts.filter(p=>PT(p).t==='hover');v.groups=v.cap?stageGroups(v.parts,v.adj):[];}
@@ -1283,7 +1283,7 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
     v.plasma=Math.max(0,Math.min(1,(qh-3e4)/2.5e5));v.heat=Math.max(0,Math.min(1,(v.temp-380)/1100));
     if(v.temp>(v.shield?2600:1250)&&!CH.heat){burnUp(v);return;}}
   v.gl=Math.hypot(Fx,Fy)/v.m/G0;
-  if(v.ground&&v.wheels&&v.wheels.length&&ctl.drive!=null){const bp=dom.pos(S.t),bv=dom.vel(S.t),nx=v.x-bp[0],ny=v.y-bp[1],nn=Math.hypot(nx,ny),tx=-ny/nn,ty=nx/nn,vt=(v.vx-bv[0])*tx+(v.vy-bv[1])*ty,acc=ctl.drive?ctl.drive*2.5:-Math.sign(vt)*Math.min(Math.abs(vt)/dt,v.parts.some(q=>PT(q).rover)?5:2),vmx=v.parts.some(q=>PT(q).rover)?7:11,nv=Math.max(-vmx,Math.min(vmx,vt+acc*dt));v.vx+=(nv-vt)*tx;v.vy+=(nv-vt)*ty;
+  if(v.ground&&v.wheels&&v.wheels.length&&ctl.drive!=null){const bp=dom.pos(S.t),bv=dom.vel(S.t),nx=v.x-bp[0],ny=v.y-bp[1],nn=Math.hypot(nx,ny),sg=dom===MOON_B?moonSlope(Math.atan2(ny,nx),1.2):0,cg=Math.cos(sg),ss=Math.sin(sg),tx=(-ny*cg+nx*ss)/nn,ty=(nx*cg+ny*ss)/nn,vt=(v.vx-bv[0])*tx+(v.vy-bv[1])*ty,acc=ctl.drive?ctl.drive*2.5:-Math.sign(vt)*Math.min(Math.abs(vt)/dt,v.parts.some(q=>PT(q).rover)?5:2),vmx=v.parts.some(q=>PT(q).rover)?7:11,nv=Math.max(-vmx,Math.min(vmx,vt+acc*dt));v.vx+=(nv-vt)*tx;v.vy+=(nv-vt)*ty;
     for(const w of v.wheels){const r=Math.min(W(w),H(w))*.42*UNIT;w.rot=((w.rot||0)-nv*dt/r)%(Math.PI*2);}}
   v.hovOn=false;for(const q of v.hov||[])q.glow=Math.max(0,(q.glow||0)-dt*2);
   if(v.clamped&&v.hgt==null)v.hgt=0;if(ctl.hover&&v.hov&&v.hov.length&&v.hgt!=null&&v.hgt<25){const tot=Object.values(sf).reduce((a,b)=>a+b,0);
@@ -1301,10 +1301,11 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
 function contact(v,dom){const bp=dom.pos(S.t),sn=Math.sin(v.hdg),cs=Math.cos(v.hdg);let mh=Infinity,ux=0,uy=0;const PTS=[],legsDown=!!(v.legs&&v.legs.some(p=>p.dep));
   for(const p of v.parts){const B=box(p);PTS.push([B.l,B.b],[B.r,B.b],[B.l,B.t],[B.r,B.t]);}if(legsDown){for(const p of v.legs)if(p.dep&&(p.depT??1)>.9)PTS.push(legFoot(p,v.parts,p.depT??1));}
   const cC=dom.earth?coastC(Math.atan2(v.y,v.x)):0,wet=dom.earth&&!landAt(Math.atan2(v.y,v.x)),draft=wet?(v.main&&v.cap?Math.min(1.6,vesselLen(v)*.38):.6)+.18*Math.sin(S.t*1.25+v.x*.01):0;
-  {for(const[ex,ey]of PTS){const bx=(ex-v.com.x)*UNIT,by=-(ey-v.com.y)*UNIT,wx=v.x+bx*sn+by*cs-bp[0],wy=v.y-bx*cs+by*sn-bp[1],d=Math.hypot(wx,wy)-dom.r-(dom.earth?(cC?cC*hillsAt(Math.atan2(wy,wx)):0)+baseH(Math.atan2(wy,wx))-draft:0);if(d<mh){mh=d;ux=wx;uy=wy;}}}
+  {for(const[ex,ey]of PTS){const bx=(ex-v.com.x)*UNIT,by=-(ey-v.com.y)*UNIT,wx=v.x+bx*sn+by*cs-bp[0],wy=v.y-bx*cs+by*sn-bp[1],d=Math.hypot(wx,wy)-dom.r-(dom.earth?(cC?cC*hillsAt(Math.atan2(wy,wx)):0)+baseH(Math.atan2(wy,wx))-draft:moonHnear(dom,Math.atan2(wy,wx),Math.hypot(wx,wy)));if(d<mh){mh=d;ux=wx;uy=wy;}}}
   v.hgt=mh;const was=v.ground;v.ground=mh<.5;const roll=!!(v.wheels&&v.wheels.length);
-  // no chão: com os pés abertos a nave se apruma; sem pés, inclinada demais, tomba (fora da Terra)
-  if(v.ground&&(v.main||v.keep)){const up=Math.atan2(v.y-bp[1],v.x-bp[0]),tilt=Math.atan2(Math.sin(up-v.hdg),Math.cos(up-v.hdg));if(wet&&!v.hov){const want=tilt+.07*Math.sin(S.t*.9)+.04*Math.sin(S.t*1.7);v.hdg+=want*.03;v.om*=.6;}else if(legsDown||roll){v.hdg+=tilt*.12;v.om*=.5;}else if(!dom.earth&&!CH.crash&&Math.abs(tilt)>.4&&Math.hypot(v.vx-dom.vel(S.t)[0],v.vy-dom.vel(S.t)[1])<15){crash(v,0,'tombou');return;}}
+  // no chão: com os pés abertos a nave se apoia no chão (na Lua, inclinada como o declive embaixo dos pés); sem pés, inclinada demais, tomba (fora da Terra)
+  if(v.ground&&!was&&dom===MOON_B&&legsDown&&!roll&&!CH.crash&&S.t-(v.spT??-9)>2){const sl=Math.abs(moonSlope(Math.atan2(v.y-bp[1],v.x-bp[0]),2.2))*57.3;if(sl>15){if(v.main)S.dSlope=Math.round(sl);crash(v,0,'tombou');return;}}
+  if(v.ground&&(v.main||v.keep)){const up=Math.atan2(v.y-bp[1],v.x-bp[0])-((roll||legsDown)&&dom===MOON_B?moonSlope(Math.atan2(v.y-bp[1],v.x-bp[0]),roll?1.2:2.2):0),tilt=Math.atan2(Math.sin(up-v.hdg),Math.cos(up-v.hdg));if(wet&&!v.hov){const want=tilt+.07*Math.sin(S.t*.9)+.04*Math.sin(S.t*1.7);v.hdg+=want*.03;v.om*=.6;}else if(legsDown||roll){v.hdg+=tilt*.12;v.om*=.5;}else if(!dom.earth&&!CH.crash&&Math.abs(tilt)>.4&&Math.hypot(v.vx-dom.vel(S.t)[0],v.vy-dom.vel(S.t)[1])<15){crash(v,0,'tombou');return;}}
   if(v.main&&v.cap&&v.chStg===2&&!v.soft&&mh<1.3&&mh>0&&dom.earth){const bv0=dom.vel(S.t),nx=(v.x-bp[0]),ny=(v.y-bp[1]),nn=Math.hypot(nx,ny),vr=((v.vx-bv0[0])*nx+(v.vy-bv0[1])*ny)/nn;if(vr<-3){v.soft=1;const dvv=-vr-1.5;v.vx+=nx/nn*dvv;v.vy+=ny/nn*dvv;sfx('pyro');tip(innerWidth/2,innerHeight*.55,'Retrofoguetes de pouso suave!');for(let i=0;i<40;i++){const a=Math.random()*7,s2=10+Math.random()*30;particles.push({type:i%3?'smoke':'fire',fl:'kero',x:v.x-nx/nn*1.5,y:v.y-ny/nn*1.5,vx:Math.cos(a)*s2,vy:Math.sin(a)*s2,life:i%3?5:.4,max:i%3?5:.4,size:2,grow:3,v:i%4,heat:1});}}}
   if(v.ground&&!was&&dom.earth&&!v.sink&&!(v.main&&S.hover)){const bvv=dom.vel(S.t),spd=Math.hypot(v.vx-bvv[0],v.vy-bvv[1]),near=(S.marks||[]).some(m=>Math.abs(m.a-Math.atan2(v.y,v.x))*R<3&&S.t-m.t0<30);
     if(spd<=12&&!near&&!v.clamped&&S.liftT>=0&&S.t-S.liftT>4&&Math.abs(Math.atan2(v.y,v.x)-Math.PI/2)*R>130){if(wet){if(v.main)splash(v.x,v.y,Math.min(1,.3+spd/14));else sinkStart(v,spd);}else if(v.main)crater(v.x,v.y,.3,true);else if(spd>2)dustRing(v.x,v.y,.3);}}
@@ -1336,6 +1337,7 @@ function deathTip(){const w=S.dWhy,v=Math.round(S.dImp||0),para=!!V.para,les=V.p
   const ab=les?' Se aparecer IMPACTO IMINENTE, aperte ABORTAR: a torre puxa a cápsula para longe e o paraquedas abre sozinho.':'';
   if(w==='falha')return 'Quando tocar o alarme de FALHA, aperte ABORTAR (ou toque na torre de escape) em até 8 segundos.';
   if(w==='calor')return S.dShield?'Mesmo com o escudo para frente, você entrou íngreme demais. Faça a reentrada mais deitada: freie só até o Pe ficar entre 30 e 50 km.':'O escudo térmico não estava virado para a frente. Solte tudo, fique só com a cápsula e vire o bico contra o movimento antes de chegar a 70 km.';
+  if(w==='tombou'&&S.dSlope)return 'Pousou num declive de '+S.dSlope+'° (na parede ou na borda de uma cratera) e o módulo tombou. O módulo lunar da Apollo aguentava só uns 12°. Olhe o chão antes de tocar: fique pairando baixo, ande de lado até um trecho plano e só então desça.';
   if(w==='tombou')return 'Abra os pés de pouso (toque neles ou G) antes de tocar o chão e desça reto e devagar, a menos de 5 m/s.';
   if(w==='mar')return (para?'Você bateu no mar a '+v+' m/s. Arme o paraquedas antes de descer: ele abre sozinho abaixo de 9 km e a cápsula boia a menos de 12 m/s.':'Sem paraquedas a cápsula afunda. No hangar, coloque um paraquedas em cima da cápsula.')+ab;
   if(w==='impactoFora')return 'Fora da Terra não há ar para paraquedas: freie com o motor (bico contra o movimento e acelere) e toque a menos de 8 m/s, com os pés abertos'+(legs?'':' (coloque pés de pouso no hangar)')+'.';
@@ -1470,7 +1472,7 @@ function emit(real){for(let i=Math.max(0,particles.length-400);i<particles.lengt
     for(let k=0;k<ns;k++){const s2=(Math.random()-.5)*wd*1.2,lat=(Math.random()-.5)*sp*.06;particles.push({type:'spark',x:v.x+dx*len*.45-dy*s2,y:v.y+dy*len*.45+dx*s2,vx:v.vx*(.86+Math.random()*.08)-dy*lat,vy:v.vy*(.86+Math.random()*.08)+dx*lat,life:.12+Math.random()*.22,max:.34,size:.12+Math.random()*.2,grow:0});}}
   for(const v of[V,...debris]){if(v.dead||!(v.plasma>.04))continue;const len=vesselLen(v),n=Math.ceil(real*40*v.plasma*(v.main?1:.4));
     for(let k=0;k<n;k++){const a=Math.random()*7,sp2=20+Math.random()*60;particles.push({type:'fire',fl:Math.random()<.5?'kero':'plasma',x:v.x+(Math.random()-.5)*len*.4,y:v.y+(Math.random()-.5)*len*.4,vx:v.vx*(.8+Math.random()*.15)+Math.cos(a)*sp2,vy:v.vy*(.8+Math.random()*.15)+Math.sin(a)*sp2,life:.5+Math.random()*.6,max:1.1,size:.35+Math.random()*.5,grow:.1});}}
-  if(V.firing.length&&!S.dom.earth&&S.alt<45){const bp=S.dom.pos(S.t),nx=(V.x-bp[0]),ny=(V.y-bp[1]),nn=Math.hypot(nx,ny);for(let k=0;k<6;k++){const sd=Math.random()<.5?-1:1,sp2=15+Math.random()*45,gx=V.x-nx/nn*(S.alt+2),gy=V.y-ny/nn*(S.alt+2);particles.push({type:'smoke',x:gx,y:gy,vx:-ny/nn*sd*sp2+nx/nn*4,vy:nx/nn*sd*sp2+ny/nn*4,life:1.6,max:1.6,size:2,grow:4,v:k%4,heat:0,spread:1});}}
+  if(V.firing.length&&!S.dom.earth&&(V.hgt??S.alt)<45){const bp=S.dom.pos(S.t),nx=(V.x-bp[0]),ny=(V.y-bp[1]),nn=Math.hypot(nx,ny);for(let k=0;k<6;k++){const sd=Math.random()<.5?-1:1,sp2=15+Math.random()*45,gh=S.alt-moonHnear(S.dom,Math.atan2(ny,nx),nn)+2,gx=V.x-nx/nn*gh,gy=V.y-ny/nn*gh;particles.push({type:'smoke',x:gx,y:gy,vx:-ny/nn*sd*sp2+nx/nn*4,vy:nx/nn*sd*sp2+ny/nn*4,life:1.6,max:1.6,size:2,grow:4,v:k%4,heat:0,spread:1});}}
   // nuvem de exaustão saindo do fosso, para os dois lados da plataforma
   if(V.firing.length&&S.altE<120&&S.dom.earth){for(let k=0;k<4;k++){const s=Math.random()<.5?-1:1;particles.push({type:'smoke',x:s*(14+Math.random()*6),y:R+1,vx:s*(35+Math.random()*60),vy:2+Math.random()*10,life:16+Math.random()*10,max:26,size:8+Math.random()*6,grow:5+Math.random()*4,v:k%4,heat:.6,flip:Math.random()<.5,spread:1});}}
   if(particles.length>1400)particles.splice(0,particles.length-1400);}
@@ -1483,7 +1485,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=62;
+const GAME_VER=63;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -1605,7 +1607,7 @@ function buildStrip(){$('#strip').innerHTML=LAYERS.filter(l=>l.a<STRIP_TOP).map(
 function fmt(v){const a=Math.abs(v);return a>=1e9?(v/1e9).toFixed(2)+' Gm':a>=1e6?(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:0})+' km':a>=1e4?(v/1e3).toFixed(1)+' km':Math.round(v)+' m';}
 const fmtT=s=>s<3600?Math.round(s/60)+' min':s<2*DAY?(s/3600).toFixed(1)+' h':(s/DAY).toFixed(1)+' dias';
 function hud(){rcsUI();const sp=Math.hypot(S.rvx,S.rvy);{const bp=S.dom.pos(S.t),up=Math.atan2(V.y-bp[1],V.x-bp[0]),pit=90-Math.abs(Math.atan2(Math.sin(V.hdg-up),Math.cos(V.hdg-up)))*57.2958,vr=(S.rvx*(V.x-bp[0])+S.rvy*(V.y-bp[1]))/Math.hypot(V.x-bp[0],V.y-bp[1]),show=!S.dead&&!V.ground&&!V.clamped&&vr>-5&&S.alt<(S.dom.earth?130000:25000)&&!V.isRover;$('#rowPitch').hidden=!show;
-    if(show){const id=idealPitch(S.alt,!!S.dom.earth),d=pit-id,el=$('#rPitch');el.textContent=Math.round(pit)+'° · ideal '+Math.round(id)+'°';el.style.color=Math.abs(d)<12?'':d<0?'#ffb020':'#9ecbff';}}$('#rLayer').textContent=S.dom.earth?LAYERS[layerAt(S.altE)].n:S.dom.sun?'Em órbita do Sol':'Perto '+S.dom.de;$('#rAlt').textContent=fmt(S.alt);$('#rVel').textContent=Math.round(sp).toLocaleString('pt-BR')+' m/s';
+    if(show){const id=idealPitch(S.alt,!!S.dom.earth),d=pit-id,el=$('#rPitch');el.textContent=Math.round(pit)+'° · ideal '+Math.round(id)+'°';el.style.color=Math.abs(d)<12?'':d<0?'#ffb020':'#9ecbff';}}$('#rLayer').textContent=S.dom.earth?LAYERS[layerAt(S.altE)].n:S.dom.sun?'Em órbita do Sol':S.dom===MOON_B&&V.hgt!=null&&S.alt<3000?'Lua · radar de pouso':'Perto '+S.dom.de;$('#rAlt').textContent=fmt(S.dom===MOON_B&&V.hgt!=null&&S.alt<3000?Math.max(0,V.hgt):S.alt);$('#rVel').textContent=Math.round(sp).toLocaleString('pt-BR')+' m/s';
   const segs=new Set(propAct(V).map(i=>V.seg[i]));let f=0,f0=0;V.parts.forEach((p,i)=>{if(segs.has(V.seg[i])&&!PT(p).les){f+=p.fuel||0;f0+=capOf(p);}});const fp=f0?f/f0:0;$('#fuelFill').style.height=fp*100+'%';$('#fuelFill').classList.toggle('low',fp<.2);$('#fuelPct').textContent=f0?Math.round(100*fp)+'%':'—';
   $('#wVal').textContent='×'+warp;{const drv=V.ground&&V.wheels&&V.wheels.length&&!V.clamped,bs=document.querySelectorAll('#ctlL [data-k]');bs[0].textContent=drv?'◀':'⟲';bs[1].textContent=drv?'▶':'⟳';}
   $('#thrFill').style.height=S.thr*100+'%';$('#thrPct').textContent=Math.round(S.thr*100)+'%';
@@ -1929,14 +1931,101 @@ const baseH=a=>{const d=Math.atan2(Math.sin(a-Math.PI/2),Math.cos(a-Math.PI/2)),
 const terrH=(a,f)=>{const c=coastC(a,f);return(c?c*hillsAt(a):0)+baseH(a);};
 // tabela da faixa visível (para fumaça e estilhaços baterem no relevo sem custo)
 let TER=null;const terrFast=a=>{if(!TER)return 0;const t=(a-TER.a0)/(TER.a1-TER.a0)*TER.n;if(t<0||t>TER.n)return 0;const i=Math.floor(t),k=t-i;return TER.h[i]+((TER.h[Math.min(TER.n,i+1)])-TER.h[i])*k;};
+// ================= RELEVO DA LUA: crateras com medidas e quantidades da Lua real =================
+// quantas: nos mares lunares as crateras pequenas (< ~300 m) estão em "equilíbrio" (cada nova apaga uma velha): N(>D) ≈ 0,055·D⁻² por m²; acima disso a curva de produção (mais íngreme, ~D⁻³)
+// forma: cratera nova é uma tigela com fundo a ~0,2·D da borda, borda ~0,04·D acima do chão e ejeta caindo com (r/R)⁻³ até ~3 raios; com o tempo micro-impactos aplainam (até ~0,05·D)
+// regolito do mar ≈ 4,5 m: crateras de 4 a 10× isso têm fundo chato (a rocha embaixo segura); as novas maiores cavam a rocha e espalham blocos (maior bloco ≈ 0,25·D^⅔)
+// o chão é um corte 2D de uma faixa de ~9 m (a largura de uma trilha de rover): conta as crateras que encostam nela, e a cortada fora do centro aparece menor e mais rasa
+const MRG=4.5,MSW=9,MC0=.6,MCO=14,MCEL=6,MCC=.055,MCX=new Map(),MRX=new Map();
+// mares (lisos, mais novos) e terras altas (antigas, saturadas de crateras, ~2× mais) se alternam a cada dezenas de km
+const mReg=s=>1+1.1*sstep(.42,.6,mvn(s/38000+3.7));
+function mCell(o,i){const key=i*16+o;let c=MCX.get(key);if(c)return c;if(MCX.size>90000)MCX.clear();
+  const Dlo=MC0*Math.pow(2,o),L=MCEL*Dlo,r=rng((Math.imul(i,73856093)^Math.imul(o+1,19349663)^0x2545F491)>>>0);let lam=MCC/Dlo*L*(1+MSW/(1.4*Dlo))*mReg((i+.5)*L);if(Dlo>300)lam*=300/Dlo;
+  let n=0;{const e=Math.exp(-lam);let p=r();while(p>e&&n<6){p*=r();n++;}}c=[];
+  for(let k=0;k<n;k++){const s0=(i+r())*L,D=Dlo/(1-r()*.5),R=D/2,p=r()*2-1,dg=Math.pow(r(),1.1),dd=(.2-.14*dg)*D,rim=D*(.04*Math.pow(1-dg,1.5)+.003),
+      qf=D>4*MRG&&D<10*MRG&&dg<.6?.42+.1*r():0,cr={s:s0,D,R,p,p2:p*p,dg,dd,rim,qf,b:null,ext:1.5*D};
+    if(dg<.3&&D>4*MRG){const nb=Math.round(D/4*(1-dg/.3)),bm=Math.min(8,.25*Math.pow(D,2/3));cr.b=[];for(let j=0;j<nb;j++){const q=.7+Math.pow(r(),1.6)*1.8,sd=r()<.5?-1:1,b=bm*(.12+.88*Math.pow(r(),3));cr.b.push([s0+sd*q*R*Math.sqrt(Math.max(0,1-cr.p2)),b,r()]);}}
+    c.push(cr);}
+  MCX.set(key,c);return c;}
+// pedrinhas e alguns blocos soltos pelo chão todo (os de mais de 0,4 m entram no relevo: a roda passa por cima)
+function mRocks(i){let c=MRX.get(i);if(c)return c;if(MRX.size>40000)MRX.clear();const r=rng((Math.imul(i,2654435761)^0x9E3779B9)>>>0),n=Math.floor(r()*5.5);c=[];
+  for(let k=0;k<n;k++){const b=.06+Math.pow(r(),5)*1.2;c.push([(i+r())*8,b,r()]);}MRX.set(i,c);return c;}
+function mProf(c,x){const q=Math.sqrt(x*x/(c.R*c.R)+c.p2);if(q>=3)return 0;let hf;
+  if(q<1){const qq=c.qf?Math.max(q,c.qf):q;hf=c.rim-c.dd*(1-qq*qq);}else hf=c.rim*(1/(q*q*q)-1/27)*1.0385;
+  if(c.dg<.05)return hf;const hs=c.rim*Math.exp(-((q-1)/.38)*((q-1)/.38))-(q<1.15?c.dd*.5*(1+Math.cos(Math.PI*q/1.15)):0);return hf+(hs-hf)*c.dg;}
+const mBump=(x,b)=>{const u=x/(b*.5);return u*u<1?b*.55*Math.sqrt(1-u*u):0;};
+// ondulação larga do mar (dezenas de metros em km), mais o "chão de areia" de centímetros
+const mHash=k=>{let t=Math.imul(k|0,374761393)^0x5bd1e995;t=Math.imul(t^(t>>>13),1274126177);return((t^(t>>>16))>>>0)/4294967296;},mvn=x=>{const i=Math.floor(x),f=x-i;return mHash(i)+(mHash(i+1)-mHash(i))*f*f*(3-2*f);};
+const mUnd=s=>16*(mvn(s/3200+101)-.5)+5*(mvn(s/700+57)-.5)+1.2*(mvn(s/110+13)-.5)+.12*(mvn(s/6+3)-.5);
+// o chão fica pronto em trechos de 2048 pontos (passo de 12,5 cm no nível 0; cada nível dobra o passo e ignora o que fica menor que ele): ler a altura custa quase nada
+const MHN=2048,MHC=new Map();
+function mAddBump(h,s0,sp,x0,b){if(b<2*sp)return;const k0=Math.max(0,Math.ceil((x0-b/2-s0)/sp)),k1=Math.min(MHN,Math.floor((x0+b/2-s0)/sp));for(let k=k0;k<=k1;k++)h[k]+=mBump(s0+k*sp-x0,b);}
+function mChunk(l,ci){const key=ci*32+l;let c=MHC.get(key);if(c){MHC.delete(key);MHC.set(key,c);return c;}if(MHC.size>220)MHC.delete(MHC.keys().next().value);
+  const sp=.125*Math.pow(2,l),len=sp*MHN,s0=ci*len,h=new Float32Array(MHN+1);for(let k=0;k<=MHN;k++)h[k]=mUnd(s0+k*sp);
+  for(let o=0;o<MCO;o++){const Dlo=MC0*Math.pow(2,o);if(Dlo<sp)continue;const L=MCEL*Dlo,ext=3*Dlo,j0=Math.floor((s0-ext)/L),j1=Math.floor((s0+len+ext)/L);
+    for(let j=j0;j<=j1;j++)for(const c2 of mCell(o,j)){const k0=Math.max(0,Math.ceil((c2.s-c2.ext-s0)/sp)),k1=Math.min(MHN,Math.floor((c2.s+c2.ext-s0)/sp));for(let k=k0;k<=k1;k++)h[k]+=mProf(c2,s0+k*sp-c2.s);
+      if(c2.b)for(const bo of c2.b)mAddBump(h,s0,sp,bo[0],bo[1]);}}
+  if(l<=1){const j0=Math.floor(s0/8)-1,j1=Math.floor((s0+len)/8)+1;for(let j=j0;j<=j1;j++)for(const bo of mRocks(j))if(bo[1]>.4)mAddBump(h,s0,sp,bo[0],bo[1]);}
+  c={h,s0,sp};MHC.set(key,c);return c;}
+let MHL=null;function moonHs(s,l){l=l||0;const sp=.125*Math.pow(2,l),ci=Math.floor(s/(sp*MHN)),c=MHL&&MHL.l===l&&MHL.ci===ci?MHL.c:(MHL={l,ci,c:mChunk(l,ci)}).c,t=(s-c.s0)/sp,i=Math.max(0,Math.min(MHN-1,Math.floor(t))),f=t-i;return c.h[i]+(c.h[i+1]-c.h[i])*f;}
+const moonH=(a,l)=>moonHs(a*MOON.r,l);
+// inclinação do chão (rad) entre dois pontos a ±w metros
+const moonSlope=(a,w)=>{const s=a*MOON.r;return Math.atan2(moonHs(s+w)-moonHs(s-w),2*w);};
+// no voo: altura do chão só quando perto (o relevo nunca passa de ~1 km)
+// o trecho plano mais perto (sem cratera nem bloco embaixo dos pés), como os locais escolhidos para a Apollo
+function moonFlat(a,kMax=1600){for(const lim of[.07,.12])for(let k=0;k<kMax;k++){const o=(k%2?1:-1)*Math.ceil(k/2)*5,b=a+o/MOON.r;if(Math.abs(moonSlope(b,2.2))<lim*.85&&[-4,-2.5,-1,0,1,2.5,4].every(d=>Math.abs(moonSlope(b+d/MOON.r,1.2))<lim))return b;}return a;}
+const moonHnear=(B,a,rr)=>B===MOON_B&&rr-B.r<2500?moonH(a):0;
 // Terra vista de perto: relevo com grama, terra e rocha; praia; mar transparente com ondas, espuma e brilho; árvores
 let GTEX=null;function gtex(){if(GTEX)return GTEX;const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),r=rng(31);
   for(let i=0;i<2600;i++){const v=r();x.fillStyle=v<.5?'rgba(0,0,0,'+(.05+r()*.12)+')':'rgba(255,240,210,'+(.03+r()*.07)+')';const s=1+r()*2.5;x.fillRect(r()*128,r()*128,s,s*.7);}
   for(let i=0;i<60;i++){x.fillStyle='rgba('+(90+r()*60|0)+','+(80+r()*40|0)+','+(70+r()*30|0)+',.55)';x.beginPath();x.ellipse(r()*128,r()*128,1+r()*3,.8+r()*2,r()*3,0,7);x.fill();}return GTEX=c;}
 // textura presa ao planeta (não à câmera): desloca o padrão pelo centro do planeta módulo o tamanho do ladrilho
-let TEXO=[0,0];function texFill1(m,a){if(a<.02)return;try{const pt=g.createPattern(gtex(),'repeat'),ox=((TEXO[0]%m)+m)%m,oy=((TEXO[1]%m)+m)%m;pt.setTransform(new DOMMatrix().translate(ox,oy).scale(m/128));g.fillStyle=pt;const ga=g.globalAlpha;g.globalAlpha=ga*a;g.fill();g.globalAlpha=ga;}catch(e){}}
+let TEXO=[0,0];function texFill1(m,a,tx){if(a<.02)return;try{const pt=g.createPattern((tx||gtex)(),'repeat'),ox=((TEXO[0]%m)+m)%m,oy=((TEXO[1]%m)+m)%m;pt.setTransform(new DOMMatrix().translate(ox,oy).scale(m/128));g.fillStyle=pt;const ga=g.globalAlpha;g.globalAlpha=ga*a;g.fill();g.globalAlpha=ga;}catch(e){}}
 // k: tamanho do ladrilho na tela (px). O ladrilho no mundo dobra a cada oitava de zoom e as duas oitavas vizinhas se misturam: zoom contínuo, sem pulo
-function texFill(k){const l=Math.log2(Math.max(8,k/z)),l0=Math.floor(l),f=l-l0,fade=Math.min(1,Math.max(0,(z-.04)/.08));texFill1(Math.pow(2,l0),(1-f)*fade);texFill1(Math.pow(2,l0+1),f*fade);}
+function texFill(k,tx){const l=Math.log2(Math.max(8,k/z)),l0=Math.floor(l),f=l-l0,fade=Math.min(1,Math.max(0,(z-.04)/.08));texFill1(Math.pow(2,l0),(1-f)*fade,tx);texFill1(Math.pow(2,l0+1),f*fade,tx);}
+// Lua vista de perto: chão cinza de regolito (~4,5 m) sobre basalto, crateras com sombra do Sol baixo (como nas fotos da Apollo), blocos e pedrinhas, morros ao longe e marcas das rodas
+let MTEX=null;function mtex(){if(MTEX)return MTEX;const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),r=rng(77);
+  for(let i=0;i<3200;i++){const v=r();x.fillStyle=v<.55?'rgba(0,0,0,'+(.05+r()*.14)+')':'rgba(255,255,250,'+(.03+r()*.08)+')';const s=.8+r()*2.2;x.fillRect(r()*128,r()*128,s,s*.8);}
+  for(let i=0;i<70;i++){const k=60+r()*70|0;x.fillStyle='rgba('+k+','+k+','+(k-4)+',.5)';x.beginPath();x.ellipse(r()*128,r()*128,.8+r()*2.6,.6+r()*1.8,r()*3,0,7);x.fill();}return MTEX=c;}
+const SUN_E=20*Math.PI/180,SUN_T=Math.tan(SUN_E),MSH=['#2c2b29','#4a4845','#66645f','#7f7c76','#96938c','#aaa79f','#bcb9b0','#cbc8bf','#d9d6cc'];
+function drawMoonGround(B,th,span,depth,cx,cy){TEXO=[cx,cy];const viewM=(VW+VH)/z;
+  if(viewM>90000){const mg=g.createRadialGradient(cx,cy,B.r-depth,cx,cy,B.r);mg.addColorStop(0,'#262523');mg.addColorStop(1,'#a6a39c');g.fillStyle=mg;g.beginPath();const N=180;for(let i=0;i<=N;i++){const a=th-span+2*span*i/N;g.lineTo(cx+B.r*Math.cos(a),cy+B.r*Math.sin(a));}for(let i=N;i>=0;i--){const a=th-span+2*span*i/N;g.lineTo(cx+(B.r-depth)*Math.cos(a),cy+(B.r-depth)*Math.sin(a));}g.closePath();g.fill();return;}
+  // amostras na grade fixa do relevo (o nível segue o zoom): andar não reamostra, nada treme
+  const arc=2*span*B.r,l=Math.max(0,Math.min(12,Math.floor(Math.log2(Math.max(.125,arc/1100)/.125)))),sl=.125*Math.pow(2,l),k0=Math.floor((th-span)*B.r/sl),N=Math.ceil((th+span)*B.r/sl)-k0,A=[],H=[];
+  for(let i=0;i<=N;i++){const s=(k0+i)*sl;A[i]=s/B.r;H[i]=moonHs(s,l);}
+  const T=i=>B.r+H[i],P=(i,r)=>[cx+r*Math.cos(A[i]),cy+r*Math.sin(A[i])];
+  const band=(i0,i1,top,bot)=>{g.beginPath();for(let i=i0;i<=i1;i++){const[x,y]=P(i,top(i));i===i0?g.moveTo(x,y):g.lineTo(x,y);}for(let i=i1;i>=i0;i--){const[x,y]=P(i,bot(i));g.lineTo(x,y);}g.closePath();};
+  // morros ao longe (andam mais devagar que o chão: profundidade)
+  if(viewM<9000&&viewM>350){const camS=th*B.r,fa=Math.min(1,(9000-viewM)/3000,(viewM-350)/500),fk=Math.min(1,.22+viewM/2500),fH=i=>{const s=A[i]*B.r,c=s-camS*.5,rd=1-Math.abs(2*mvn(c/420+2)-1);return B.r+mUnd(s)*.6+fk*(1.5+30*Math.pow(mvn(c/1600+9),2.4)+9*rd*rd+1.5*mvn(c/70+5));};
+    g.globalAlpha=fa;{const fg=g.createRadialGradient(cx,cy,B.r-20,cx,cy,B.r+40*fk);fg.addColorStop(0,'#2e2e31');fg.addColorStop(1,'#5a595c');g.fillStyle=fg;}band(0,N,fH,()=>B.r-depth);g.fill();g.strokeStyle='rgba(200,200,205,.35)';g.lineWidth=Math.max(.1,1/z);g.beginPath();for(let i=0;i<=N;i++){const[x,y]=P(i,fH(i));i?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();g.globalAlpha=1;}
+  // basalto embaixo, regolito em cima
+  const rg=g.createRadialGradient(cx,cy,B.r-depth,cx,cy,B.r+40);rg.addColorStop(0,'#1c1b1a');rg.addColorStop(Math.max(0,1-120/(depth+40)),'#3f3d3a');rg.addColorStop(1,'#55534f');g.fillStyle=rg;band(0,N,T,()=>B.r-depth);g.fill();texFill(170,mtex);
+  {const sa=sstep(.4,1,z);if(sa>.02){g.strokeStyle='rgba(0,0,0,'+(.2*sa)+')';g.lineWidth=Math.max(.12,1/z);for(const dd of[11,19,33,52]){g.beginPath();for(let i=0;i<=N;i++){const[x,y]=P(i,T(i)-dd-2.5*mvn(A[i]*B.r/50+dd));i?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();}}}
+  if(MRG*z>1.2){g.fillStyle='#8a8781';band(0,N,T,i=>T(i)-MRG*(.85+.3*mvn(A[i]*B.r/23+4)));g.fill();texFill(110,mtex);}
+  const bw=Math.max(.45,6/z);
+  // parede do fundo das crateras: o chão é um corte, então dentro da cratera aparece a parede do outro lado subindo até a borda, vista um pouco de cima (oval, dá a sensação de buraco)
+  {const BK=H.slice(),s0=A[0]*B.r,s1=A[N]*B.r;let any=false;for(let o=0;o<MCO;o++){const Dlo=MC0*Math.pow(2,o);if(Dlo<sl||2*Dlo*z<22)continue;const L=MCEL*Dlo,j0=Math.floor((s0-3*Dlo)/L),j1=Math.floor((s1+3*Dlo)/L);if(j1-j0>600)continue;
+      for(let j=j0;j<=j1;j++)for(const c of mCell(o,j)){const i0=Math.max(0,Math.ceil((c.s-c.R)/sl)-k0),i1=Math.min(N,Math.floor((c.s+c.R)/sl)-k0);for(let i=i0;i<=i1;i++){const x=(k0+i)*sl-c.s,q0=Math.sqrt(x*x/(c.R*c.R)+c.p2);if(q0>=1)continue;const e=c.rim-mProf(c,x)+.12*Math.max(0,Math.sqrt(c.R*c.R-x*x)-Math.sqrt(c.p2)*c.R);if(e>0){BK[i]+=e;any=true;}}}}
+    if(any){const TB=i=>B.r+BK[i];let i=0;while(i<=N){if(BK[i]-H[i]<.01){i++;continue;}const i0=Math.max(0,i-1);while(i<=N&&BK[i]-H[i]>=.01)i++;const i1=Math.min(N,i);
+        g.fillStyle='#4b4945';band(i0,i1,TB,T);g.fill();g.fillStyle='#6e6b65';band(i0,i1,TB,j=>B.r+BK[j]-(BK[j]-H[j])*.45);g.fill();g.fillStyle='#8c8981';band(i0,i1,TB,j=>B.r+BK[j]-Math.min(bw*.8,(BK[j]-H[j])*.18));g.fill();
+        g.strokeStyle='rgba(225,222,214,.5)';g.lineWidth=Math.max(.1,1.4/z);g.beginPath();for(let j=i0;j<=i1;j++){const[x,y]=P(j,TB(j));j===i0?g.moveTo(x,y):g.lineTo(x,y);}g.stroke();}}}
+  // faixa de cima iluminada pelo Sol baixo (20°): encosta virada pro Sol clara, contrária escura, e sombra projetada dentro das crateras
+  const lev=new Array(N).fill(0);let shH=-1e9;
+  for(let i=0;i<N;i++){const m=(H[i+1]-H[i])/sl,d=(m*Math.cos(SUN_E)+Math.sin(SUN_E))/Math.sqrt(1+m*m);shH=Math.max(shH-sl*SUN_T,H[i]);const shad=(H[i]+H[i+1])/2<shH-sl*SUN_T*.5-.02;
+    lev[i]=shad||d<=0?0:Math.max(1,Math.min(8,Math.round(1+d/Math.sin(SUN_E)*3.4)));}
+  for(let L=0;L<9;L++){g.beginPath();let any=false;for(let i=0;i<N;i++){if(lev[i]!==L)continue;any=true;const[x0,y0]=P(i,T(i)),[x1,y1]=P(i+1,T(i+1)),[x2,y2]=P(i+1,T(i+1)-bw),[x3,y3]=P(i,T(i)-bw);g.moveTo(x0,y0);g.lineTo(x1,y1);g.lineTo(x2,y2);g.lineTo(x3,y3);g.closePath();}if(any){g.fillStyle=MSH[L];g.fill();}}
+  // marcas das rodas do rover no pó
+  if(S.trk&&S.trk.size&&z>2){g.fillStyle='rgba(40,39,36,.55)';const s0=A[0]*B.r,s1=A[N]*B.r;for(const q of S.trk){const s=q*.5;if(s<s0||s>s1)continue;const a=s/B.r,h=B.r+moonHs(s,l);g.save();g.translate(cx+h*Math.cos(a),cy+h*Math.sin(a));g.rotate(a-Math.PI/2);for(let k=0;k<2;k++)g.fillRect(-.22+k*.26,-.12,.14,.1);g.restore();}}
+  // blocos (crateras novas) e pedrinhas, com sombra comprida
+  {const s0=A[0]*B.r,s1=A[N]*B.r,list=[];
+    for(let o=4;o<MCO;o++){const Dlo=MC0*Math.pow(2,o);if(Dlo<sl)continue;const L=MCEL*Dlo,j0=Math.floor((s0-3*Dlo)/L),j1=Math.floor((s1+3*Dlo)/L);if(j1-j0>400)continue;for(let j=j0;j<=j1;j++)for(const c of mCell(o,j))if(c.b)for(const bo of c.b)if(bo[0]>s0&&bo[0]<s1&&bo[1]*z>2)list.push([bo[0],bo[1],bo[2],bo[1]>=2*sl]);}
+    if(z>3){const j0=Math.floor(s0/8),j1=Math.floor(s1/8);if(j1-j0<600)for(let j=j0;j<=j1;j++)for(const bo of mRocks(j))if(bo[1]*z>2.5)list.push([bo[0],bo[1],bo[2],bo[1]>.4&&l<=1&&bo[1]>=2*sl]);}
+    for(const[x,b,sd,inT]of list){const a=x/B.r,h=B.r+moonHs(x,l)-(inT?b*.5:0)-b*.08,r=rng(sd*1e9|0),w=b*.5,hh=b*(.5+.25*r());g.save();g.translate(cx+h*Math.cos(a),cy+h*Math.sin(a));g.rotate(a-Math.PI/2);
+      g.fillStyle='rgba(20,20,19,.55)';g.beginPath();g.moveTo(0,.02);g.lineTo(w+hh/SUN_T*.6,.02);g.lineTo(w*.6,b*.12);g.closePath();g.fill();
+      const pts=[];for(let k=0;k<=7;k++){const t=Math.PI*k/7,rr=.8+.3*r();pts.push([-Math.cos(t)*w*rr,Math.sin(t)*hh*rr]);}
+      g.fillStyle='#5b5853';g.beginPath();pts.forEach(([px,py],k)=>k?g.lineTo(px,py):g.moveTo(px,py));g.closePath();g.fill();
+      g.fillStyle='#9d998f';g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(let k=1;k<=4;k++)g.lineTo(pts[k][0],pts[k][1]);g.lineTo(pts[4][0]*.3,pts[4][1]*.55);g.closePath();g.fill();g.restore();}}
+  g.strokeStyle='rgba(235,232,224,.28)';g.lineWidth=Math.max(.08,1/z);g.beginPath();for(let i=0;i<=N;i++){const[x,y]=P(i,T(i));i?g.lineTo(x,y):g.moveTo(x,y);}g.stroke();}
 let WATERF=null;
 function drawEarthGround(B,th,span,depth,cx,cy){TEXO=[cx,cy];
   // amostras numa grade fixa no planeta (passo potência de 2 em metros): andar com a câmera não reamostra o relevo, então nada "treme"
@@ -2171,8 +2260,8 @@ function roverTick(real){evaTick();
     const tg=b.ramp||0,k=b.rampK||0;if(k!==tg){b.rampK=tg>k?Math.min(tg,k+dt/RAMP_T):Math.max(tg,k-dt/RAMP_T);if(b.rampK===1||b.rampK===0)sfx('thunk');}
     if(b.want==='out'&&b.rampK>=1&&!b.mv&&b.rov!=='out'){b.want=null;b.mv={dir:'out',t0:S.t};sfx('ignite');}
     if(b.mv&&S.t-b.mv.t0>MV_T){if(b.mv.dir==='out')spawnRover(v,b);else{b.rov='in';b.mv=null;S.roverHome=true;sfx('thunk');tip(innerWidth/2,innerHeight*.4,'Rover guardado ✓ · pode fechar a rampa');}}}
-  if(V&&V.isRover&&!S.dead){const bp0=S.dom.pos(S.t),rx=V.x-bp0[0],ry=V.y-bp0[1],p0=S.rovP;if(p0&&p0[2]===S.dom)S.rovDist=(S.rovDist||0)+Math.min(30,Math.hypot(rx-p0[0],ry-p0[1]));S.rovP=[rx,ry,S.dom];
-    const sp=Math.hypot(S.rvx,S.rvy);if(V.ground&&sp>.6&&Math.random()<real*12){const a=Math.atan2(V.y-S.dom.pos(S.t)[1],V.x-S.dom.pos(S.t)[0]),bp=S.dom.pos(S.t),rr=S.dom.r+.2,o=(Math.random()-.5)*2.5;particles.push({type:'smoke',x:bp[0]+Math.cos(a)*rr-Math.sin(a)*o,y:bp[1]+Math.sin(a)*rr+Math.cos(a)*o,vx:S.dom.vel(S.t)[0]+Math.cos(a)*(.3+Math.random()*.6),vy:S.dom.vel(S.t)[1]+Math.sin(a)*(.3+Math.random()*.6),life:.7,max:.9,size:.35,grow:.7,v:(Math.random()*6)|0,rot:Math.random()*6,heat:0,spread:1,dust:S.dom.earth?1:0});}}
+  if(V&&V.isRover&&!S.dead){const bp0=S.dom.pos(S.t),rx=V.x-bp0[0],ry=V.y-bp0[1],p0=S.rovP;if(p0&&p0[2]===S.dom)S.rovDist=(S.rovDist||0)+Math.min(30,Math.hypot(rx-p0[0],ry-p0[1]));S.rovP=[rx,ry,S.dom];if(S.dom===MOON_B&&V.ground&&Math.hypot(S.rvx,S.rvy)>.3){if(!(S.trk instanceof Set))S.trk=new Set();if(S.trk.size<6000)S.trk.add(Math.floor(Math.atan2(ry,rx)*MOON.r/.5));}
+    const sp=Math.hypot(S.rvx,S.rvy);if(V.ground&&sp>.6&&Math.random()<real*12){const a=Math.atan2(V.y-S.dom.pos(S.t)[1],V.x-S.dom.pos(S.t)[0]),bp=S.dom.pos(S.t),rr=S.dom.r+moonHnear(S.dom,a,S.dom.r)+.2,o=(Math.random()-.5)*2.5;particles.push({type:'smoke',x:bp[0]+Math.cos(a)*rr-Math.sin(a)*o,y:bp[1]+Math.sin(a)*rr+Math.cos(a)*o,vx:S.dom.vel(S.t)[0]+Math.cos(a)*(.3+Math.random()*.6),vy:S.dom.vel(S.t)[1]+Math.sin(a)*(.3+Math.random()*.6),life:.7,max:.9,size:.35,grow:.7,v:(Math.random()*6)|0,rot:Math.random()*6,heat:0,spread:1,dust:S.dom.earth?1:0});}}
   else S.rovP=null;
   const btn=$('#btnRover');if(!btn)return;let lab='',on=false;if(!S.dead&&CAMP_CUR!=='c7'){if(V.isRover&&S.lander&&!S.lander.dead){if(nearRamp()){lab='⬆ Guardar o rover';on=true;}else lab='🚀 Ir para a nave';}
     else if(S.rover&&!S.rover.dead&&!V.isRover)lab='🚗 Ir para o rover';else if(bayOf(V)){lab=canDeploy()?'🚗 Soltar rover':'🚗 Rover (pouse para soltar)';on=canDeploy();}}
@@ -2223,7 +2312,7 @@ function brFlag(cx,cy,ux,uy,rx,ry,L,Hh){// bandeira do Brasil: retângulo verde,
   const P=(a,b)=>[cx+rx*a+ux*b,cy+ry*a+uy*b];g.fillStyle='#009c3b';g.beginPath();[[0,0],[L,0],[L,Hh],[0,Hh]].forEach(([a,b],i)=>{const q=P(a,b);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]);});g.closePath();g.fill();
   g.fillStyle='#ffdf00';g.beginPath();[[L*.08,Hh/2],[L/2,Hh*.9],[L*.92,Hh/2],[L/2,Hh*.1]].forEach(([a,b],i)=>{const q=P(a,b);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]);});g.closePath();g.fill();
   const c=P(L/2,Hh/2);g.fillStyle='#002776';g.beginPath();g.arc(c[0],c[1],Hh*.24*Math.hypot(ux,uy),0,7);g.fill();}
-function moonPt(ang,hgt){const bp=MOON_B.pos(S.t),r=MOON.r+(hgt||0);return[bp[0]+Math.cos(ang)*r,bp[1]+Math.sin(ang)*r];}
+function moonPt(ang,hgt){const bp=MOON_B.pos(S.t),r=MOON.r+moonH(ang)+(hgt||0);return[bp[0]+Math.cos(ang)*r,bp[1]+Math.sin(ang)*r];}
 function drawMoonStuff(){if(S.dom!==MOON_B&&!(S.flag||S.sample))return;const near=Math.hypot(V.x-MOON_B.pos(S.t)[0],V.y-MOON_B.pos(S.t)[1])-MOON.r;if(near>4000)return;g.setTransform(DPR,0,0,DPR,0,0);
   const frame=ang=>{const[bx,by]=moonPt(ang,0),[sx,sy]=toScreen(bx,by),[tx,ty]=toScreen(...moonPt(ang,1)),ux=tx-sx,uy=ty-sy,rx=-uy,ry=ux;return{sx,sy,ux,uy,rx,ry};};
   if(S.flag){const f=frame(S.flag.ang),k=S.flag.k??1,H=2.1*k,L=1.15,Hh=.78;const[px,py]=[f.sx+f.ux*H,f.sy+f.uy*H];
@@ -2239,7 +2328,7 @@ function drawMoonStuff(){if(S.dom!==MOON_B&&!(S.flag||S.sample))return;const nea
         g.fillStyle='rgba(255,210,63,.95)';g.save();g.translate(ex,ey);g.rotate(a);g.beginPath();g.moveTo(12,0);g.lineTo(-6,-8);g.lineTo(-6,8);g.closePath();g.fill();g.restore();
         g.font='700 12px Chakra Petch, system-ui';const ca=Math.cos(a);g.textAlign=ca>.3?'right':ca<-.3?'left':'center';g.fillText('🪨 amostra'+(d?' · '+d+' m':''),ex-ca*18,ey-Math.sin(a)*20+4);}}}
 function saveMoonSite(){try{const bp=MOON_B.pos(S.t),ang=Math.atan2(V.y-bp[1],V.x-bp[0]),tk=V.parts.filter(q=>PT(q).t==='tank'),cap=tk.reduce((a,q)=>a+capOf(q),0),fu=tk.reduce((a,q)=>a+(q.fuel||0),0);
-  localStorage.setItem('orbita.moonSite',JSON.stringify({ang,flagAng:S.flag?S.flag.ang:ang-7/MOON.r,frac:cap>0?fu/cap:LANDER_MIN_FRAC}));}catch(e){}}
+  localStorage.setItem('orbita.moonSite',JSON.stringify({v:2,ang,flagAng:S.flag?S.flag.ang:ang-7/MOON.r,frac:cap>0?fu/cap:LANDER_MIN_FRAC}));}catch(e){}}
 function evaTick(){if(S.dead||!V)return;
   if(CAMP_CUR==='c7'&&!S.eva&&S.done.has('c')&&onMoon()&&bayAll(V)){const b=bayAll(V);S.eva={t0:S.t+.6};b.ramp=1;b.want=null;sfx('hyd');toast('Pousou na Lua! 🇧🇷','A rampa está abrindo: os 2 astronautas vão descer e fincar a bandeira.');}
   const E=S.eva;if(E&&!S.flagDone){const t=S.t-E.t0,b=bayAll(V);if(b&&t>=EVA_T.plant0&&!S.flag){const G=bayGeom(V,b),[wx,wy]=bodyToWorld(V,G.ex+1.75,G.gy),bp=MOON_B.pos(S.t);S.flag={ang:Math.atan2(wy-bp[1],wx-bp[0]),k:0,t0:S.t};sfx('thunk');}
@@ -2248,7 +2337,7 @@ function evaTick(){if(S.dead||!V)return;
 // ================= EFEITOS: chama batendo no chão/defletor, faíscas da ignição, dilúvio d'água, tremor =================
 // o chão perto da nave (no fosso de chamas da plataforma é o defletor, ~2 m abaixo do topo): a chama não atravessa
 function groundClip(v){if(v.sink)return null;const dom=domBody(v.x,v.y,S.t),bp=dom.pos(S.t),dx=v.x-bp[0],dy=v.y-bp[1],rr=Math.hypot(dx,dy),ux=dx/rr,uy=dy/rr,ang=Math.atan2(dy,dx);
-  let gr;if(dom.earth){const off=Math.abs(Math.atan2(Math.sin(ang-Math.PI/2),Math.cos(ang-Math.PI/2)))*R;gr=R+(off<11?-2.2:off<58?0:terrFast(ang));}else gr=dom.r;
+  let gr;if(dom.earth){const off=Math.abs(Math.atan2(Math.sin(ang-Math.PI/2),Math.cos(ang-Math.PI/2)))*R;gr=R+(off<11?-2.2:off<58?0:terrFast(ang));}else gr=dom.r+moonHnear(dom,ang,rr);
   if(rr-gr>500)return null;const G=[bp[0]+ux*gr,bp[1]+uy*gr],tx=-uy,ty=ux,L=4000,P=(a,b)=>toScreen(G[0]+tx*a+ux*b,G[1]+ty*a+uy*b);
   return{poly:[P(-L,0),P(L,0),P(L,L),P(-L,L)],G,ux,uy,tx,ty,gr,bp,earth:!!dom.earth};}
 // chama que encosta no chão espirra para os dois lados (no fosso: sai pelas laterais da plataforma)
@@ -2453,7 +2542,7 @@ function drawBoat(t,u,P){g.save();g.rotate(Math.sin(t*2.1+u.s0)*.04+(P.moving?-.
 function drawBodyGround(B,bp){const th=Math.atan2(camYw-bp[1],camX-bp[0]),span=Math.min(Math.PI,(VW+VH)/z/B.r*1.5+.002),depth=Math.min(B.r*.5,(VW+VH)/z*2),N=180,cx=bp[0]-camX,cy=bp[1]-camYw,ang=i=>th-span+2*span*i/N;
   frame(camX,camYw);const ring=(r0,r1,i0,i1)=>{g.beginPath();for(let i=i0;i<=i1;i++){const a=ang(i);g.lineTo(cx+r1*Math.cos(a),cy+r1*Math.sin(a));}for(let i=i1;i>=i0;i--){const a=ang(i);g.lineTo(cx+r0*Math.cos(a),cy+r0*Math.sin(a));}g.closePath();};
   if(B.earth&&S.altE>15000){const at=g.createRadialGradient(cx,cy,B.r,cx,cy,B.r+80000);at.addColorStop(0,'rgba(120,180,255,.6)');at.addColorStop(.3,'rgba(70,120,230,.25)');at.addColorStop(1,'rgba(40,80,200,0)');ring(B.r,B.r+80000,0,N);g.fillStyle=at;g.fill();}
-  WATERF=null;if(B.earth){drawEarthGround(B,th,span,depth,cx,cy);return;}
+  WATERF=null;if(B.earth){drawEarthGround(B,th,span,depth,cx,cy);return;}if(B===MOON_B){drawMoonGround(B,th,span,depth,cx,cy);return;}
   ring(B.r-depth,B.r,0,N);if(!B.earth&&B===MOON_B){const mg=g.createRadialGradient(cx,cy,B.r-depth,cx,cy,B.r);mg.addColorStop(0,'#26262a');mg.addColorStop(Math.max(0,1-Math.max(30,8/z)/depth),'#6f6f76');mg.addColorStop(1,'#a9a9b0');g.fillStyle=mg;g.fill();
     const tile=Math.max(25,40/z),a0=th-span,a1=th+span,k0=Math.floor(a0*B.r/tile),k1=Math.ceil(a1*B.r/tile);if(k1-k0<500)for(let k=k0;k<=k1;k++){const r=rng(k*977+7);if(r()<.55)continue;const a=(k+r())*tile/B.r,cw=tile*(.25+.6*r()),ch=cw*.28;g.save();g.translate(cx+B.r*Math.cos(a),cy+B.r*Math.sin(a));g.rotate(a-Math.PI/2);g.fillStyle='rgba(40,40,46,.55)';g.beginPath();g.ellipse(0,-ch*.2,cw/2,ch,0,Math.PI,0,true);g.fill();g.fillStyle='rgba(205,205,212,.5)';g.fillRect(-cw/2-cw*.08,-1,cw*.08,ch*.35);g.fillRect(cw/2,-1,cw*.08,ch*.35);g.restore();}g.beginPath();}
   else if(B.earth){const top=Math.max(12,4/z),gr=g.createRadialGradient(cx,cy,B.r-depth,cx,cy,B.r);gr.addColorStop(0,'#1b1611');gr.addColorStop(Math.max(0,1-top*6/depth),'#3d3122');gr.addColorStop(Math.max(0,1-top/depth),'#4b3c27');gr.addColorStop(Math.max(0,1-top*.6/depth),'#2f6040');gr.addColorStop(1,'#3a7048');g.fillStyle=gr;}else g.fillStyle=B.col;g.fill();
@@ -2655,8 +2744,20 @@ function textures(){if(TEX)return TEX;const sm=(a,b,v)=>{const t=Math.max(0,Math
   const earth=sphereTex(384,(x,y,z)=>{const n=fbm(x*1.7+5,y*1.7+1,z*1.7+3,6),lat=Math.abs(y),dry=fbm(x*3+9,y*3,z*3,3);let c;
       if(n<.53)c=mix([10,38,92],[32,104,170],sm(.38,.53,n));else{c=mix([58,118,58],[92,128,66],sm(.53,.64,n));if(lat<.45&&dry>.55)c=mix(c,[196,170,112],sm(.55,.62,dry));if(n>.66)c=mix(c,[120,112,92],sm(.66,.74,n));}
       c=mix(c,[232,238,245],sm(.8,.86,lat+.12*(dry-.5)));const cl=sm(.52,.72,fbm(x*3.2+20,y*5.5,z*3.2+11,5));c=mix(c,[246,248,252],cl*.88);const rim=Math.pow(1-z,2.4);return mix(c,[120,180,255],rim*.75);},[.14,1]);
-  const cr=(()=>{const r=rng(31);return Array.from({length:46},()=>{const a=r()*7,b=Math.acos(2*r()-1);return[Math.sin(b)*Math.cos(a),Math.cos(b),Math.sin(b)*Math.sin(a),.03+.13*r()*r()];});})();
-  const moon=sphereTex(256,(x,y,z)=>{const n=fbm(x*2+3,y*2+8,z*2,5);let c=mix([92,92,98],[176,176,182],sm(.35,.62,n));for(const[a,b,d,rr]of cr){const ang=Math.acos(Math.max(-1,Math.min(1,x*a+y*b+z*d)));if(ang<rr*1.25){const q=ang/rr;c=q<1?mix(c,[78,78,84],.45*(1-q*q)):mix(c,[205,205,210],.5*(1.25-q)/.25);}}return c;},[.1,1.05]);
+  // Lua vista de longe: a face de verdade (a que olha pra Terra), com os mares escuros de basalto nas posições reais, terras altas claras e os raios de Tycho, Copérnico e Kepler
+  // [latitude, longitude, raio] em graus (aproximados)
+  const MARIA=[[18,-57,24],[5,-50,14],[33,-16,17],[28,17,9.5],[8.5,31,10],[17,59,7],[-8,51,8],[-15,35,5],[-21,-17,9],[-24,-39,5],[-10,-23,4.5],[7,-31,6],[13,4,4],[2,1,3],[55,-20,4],[56,5,4],[56,30,3.5],[-1,-28,6],[-33,-85,3],[5,86,4]],
+    RAYC=[[-43.3,-11.2,2.6,1],[9.6,-20.1,2.4,.7],[8.1,-38,1.2,.5],[-.3,-13,.8,.3],[-26.3,-1.3,.9,.3],[-17.3,52.6,1,.35]],
+    v3=(la,lo)=>{la*=Math.PI/180;lo*=Math.PI/180;return[Math.cos(la)*Math.sin(lo),Math.sin(la),Math.cos(la)*Math.cos(lo)];},MV=MARIA.map(([la,lo,r])=>[...v3(la,lo),r*Math.PI/180]),RV=RAYC.map(([la,lo,r,k])=>{const[a,b,d]=v3(la,lo),e=[d,0,-a],en=Math.hypot(...e),e1=e.map(v=>v/en),e2=[b*e1[2]-d*e1[1],d*e1[0]-a*e1[2],a*e1[1]-b*e1[0]];return[a,b,d,r*Math.PI/180,k,e1,e2];}),
+    cr=(()=>{const r=rng(31);return Array.from({length:140},()=>{const a=r()*7,b=Math.acos(2*r()-1);return[Math.sin(b)*Math.cos(a),Math.cos(b),Math.sin(b)*Math.sin(a),.008+.06*Math.pow(r(),2.5)];});})();
+  const moon=sphereTex(320,(x0,y0,z0)=>{// a imagem é girada 90° ao desenhar: o norte fica à esquerda dela
+      const x=y0,y=-x0,zz=z0,n=fbm(x*2+3,y*2+8,zz*2,5),n2=fbm(x*7+1,y*7+2,zz*7+5,4);let c=mix([150,148,143],[192,190,184],sm(.3,.7,n));c=mix(c,c.map(v=>v*.82),sm(.45,.7,n2)*.6);
+      let fld=0;for(const[a,b,d,rr]of MV){const ang=Math.acos(Math.max(-1,Math.min(1,x*a+y*b+zz*d))),q=ang/rr;fld+=Math.exp(-q*q*q*q);}const wn=fbm(x*5+11,y*5+3,zz*5+7,4),ma=sm(.42,.62,fld+.55*(wn-.5)+.18*(n2-.5));
+      c=mix(c,mix([84,84,88],[104,103,104],n2),ma*.92);
+      for(const[a,b,d,rr]of cr){const ang=Math.acos(Math.max(-1,Math.min(1,x*a+y*b+zz*d)));if(ang<rr*1.3){const q=ang/rr;c=q<1?mix(c,c.map(v=>v*.86),.4*(1-q*q)*(1-ma*.4)):mix(c,[214,212,206],.35*(1.3-q)/.3);}}
+      for(const[a,b,d,rr,k,e1,e2]of RV){const dot=x*a+y*b+zz*d,ang=Math.acos(Math.max(-1,Math.min(1,dot)));if(ang>1.4)continue;const az=Math.atan2(x*e2[0]+y*e2[1]+zz*e2[2],x*e1[0]+y*e1[1]+zz*e1[2]),
+          ray=Math.pow(noise3(Math.cos(az)*9+a*40,Math.sin(az)*9+b*40,d*40),7)*2.2*Math.exp(-ang/(rr*12*k+.04)),halo=Math.exp(-((ang/(rr*2.5))**2));c=mix(c,[222,220,214],Math.min(.7,k*(ray*.55+halo*.8)));if(ang<rr){c=mix(c,[120,118,114],.5*(1-ang/rr));}}
+      return c;},[.1,1.05]);
   return TEX={earth,moon};}
 function planetDisc(B,x,y,rr,ang){if(B.earth){const at=g.createRadialGradient(x,y,rr*.95,x,y,rr*1.2);at.addColorStop(0,'rgba(110,175,255,.55)');at.addColorStop(1,'rgba(90,160,255,0)');g.fillStyle=at;g.beginPath();g.arc(x,y,rr*1.2,0,7);g.fill();}
   if(rr<3){g.fillStyle=B.col;g.beginPath();g.arc(x,y,Math.max(rr,2),0,7);g.fill();return;}const T=textures(),im=B.earth?T.earth:T.moon;if(ang){g.save();g.translate(x,y);g.rotate(ang);g.drawImage(im,-rr,-rr,2*rr,2*rr);g.restore();}else g.drawImage(im,x-rr,y-rr,2*rr,2*rr);}
