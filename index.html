@@ -296,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 57</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 58</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1256,7 +1256,7 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
     const T=thrustAt(P,air)*th,del=v.clamped?0:P.gim*ctl.rot,fbx=T*Math.sin(del),fby=T*Math.cos(del),bx=(p.x-v.com.x)*UNIT,by=-(p.y+P.h/2-v.com.y)*UNIT;
     tau+=bx*fby-by*fbx;Fx+=fbx*pxv[0]+fby*axv[0];Fy+=fbx*pxv[1]+fby*axv[1];drain[sg]=(drain[sg]||0)+mdotOf(P)*th*dt;v.firing.push({p,th,air});}
   if(!CH.fuel)for(const sg in drain){const k=Math.min(1,drain[sg]/sf[sg]);v.parts.forEach((p,i)=>{if(v.seg[i]==sg&&p.fuel>0)p.fuel=Math.max(0,p.fuel-p.fuel*k);});}
-  if(v.cap&&!v.clamped)tau+=ctl.rot*PT(v.cap).torque; // giroscópio da cápsula
+  if(v.cap&&!v.clamped)tau+=ctl.rot*Math.max(PT(v.cap).torque,v.I*.18); // giroscópio da cápsula + jatos de manobra: gira mesmo com o motor desligado (nave grande não fica travada)
   if(ctl.rcs&&v.rcs&&v.rcs.length&&!v.clamped){const n=v.rcs.length,tot=Object.values(sf).reduce((a,b)=>a+b,0);if(tot>0){tau+=ctl.rot*2500*n;const F=900*n,tx=ctl.rcs.x||0,ty=ctl.rcs.y||0;if(tx||ty){Fx+=F*(tx*pxv[0]+ty*axv[0]);Fy+=F*(tx*pxv[1]+ty*axv[1]);v.rcsPuff=(v.rcsPuff||0)+dt;
     if(!CH.fuel){const use=F*Math.hypot(tx,ty)/(120*G0)*dt;v.parts.forEach(p=>{if(p.fuel>0&&use>0)p.fuel=Math.max(0,p.fuel-use*p.fuel/tot);});}}}}
   if(v.chute>.3&&v.ground)v.chute=Math.max(.3,v.chute-dt*.12);v.chDown=v.ground&&v.chute>0?Math.min(1,(v.chDown||0)+dt*.5):0;
@@ -1421,8 +1421,10 @@ function gravTurnHold(){const bp=S.dom.pos(S.t),up=Math.atan2(V.y-bp[1],V.x-bp[0
   // programa de inclinação (ângulo ideal pela altitude), mas no ar grosso o bico não se afasta da velocidade (ângulo de ataque pequeno)
   const aT=(90-idealPitch(alt,air))*Math.PI/180,pro=Math.atan2(S.rvy,S.rvx),aP=Math.max(0,Math.min(Math.PI/2,Math.atan2(Math.sin(up-pro),Math.cos(up-pro)))),q=V.q||0,
     lim=(q>25000?4:q>10000?7:q>2000?14:90)*Math.PI/180,a=Math.max(aP-lim,Math.min(aP+lim,aT));return up-Math.max(0,Math.min(Math.PI/2,a));}
-function tgtOm(user){if(user){V.hold=null;if(V.aim){V.aim=null;aimUI();}return user*TURN_RATE;}if(V.hold==null)V.hold=V.hdg;const e=Math.atan2(Math.sin(V.hold-V.hdg),Math.cos(V.hold-V.hdg));return Math.max(-TURN_RATE,Math.min(TURN_RATE,e*1.2));}
-function steer(user,dt){const err=tgtOm(user)-V.om;V.trim=Math.max(-1,Math.min(1,(V.trim||0)+err*dt*3)); // trim: compensa empuxo fora do centro
+function tgtOm(user){if(user){V.hold=null;if(V.aim){V.aim=null;aimUI();}return user*TURN_RATE;}if(V.hold==null){const a=Math.max(PT(V.cap||V.parts[0]).torque||0,(V.I||1)*.18)/(V.I||1)+(V.firing&&V.firing.length?.25:0);V.hold=V.hdg+V.om*Math.abs(V.om)/(2*a);}const e=Math.atan2(Math.sin(V.hold-V.hdg),Math.cos(V.hold-V.hdg));return Math.max(-TURN_RATE,Math.min(TURN_RATE,e*holdGain()));}
+// ganho do estabilizador conforme a força de giro da nave: nave pesada (que acelera devagar) recebe ganho menor e não fica balançando
+function holdGain(){if(!V||!V.cap||!V.I)return 1.2;const a=Math.max(PT(V.cap).torque,V.I*.18)/V.I+(V.firing&&V.firing.length?.25:0);return Math.max(.3,Math.min(1.2,4*a/2.6));}
+function steer(user,dt){const err=tgtOm(user)-V.om;V.trim=V.firing&&V.firing.length?Math.max(-1,Math.min(1,(V.trim||0)+err*dt*3)):(V.trim||0)*Math.max(0,1-dt*2); // trim: compensa empuxo fora do centro
   return Math.max(-1,Math.min(1,err*4+V.trim));}
 // a nave acompanha o horizonte: o estabilizador segura o ângulo em relação ao chão (não às estrelas),
 // e no tempo bem acelerado (trilho) ela gira junto com a volta no planeta em vez de parecer girar sozinha
@@ -1463,7 +1465,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=57;
+const GAME_VER=58;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
