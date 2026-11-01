@@ -66,6 +66,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #flight.on{display:block}
 #sky{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 .glass{background:rgba(7,11,22,.6);backdrop-filter:blur(8px);border:1px solid rgba(120,140,190,.22);border-radius:12px}
+#countdown{position:absolute;left:50%;top:26%;transform:translateX(-50%);text-align:center;color:#fff;z-index:4;pointer-events:none;text-shadow:0 2px 12px rgba(0,0,0,.6)}#countdown small,#countdown span{display:block;font:700 13px var(--display,system-ui);letter-spacing:.2em;text-transform:uppercase;opacity:.85}#countdown b{display:block;font:800 76px/1 var(--display,system-ui)}#countdown b.pop{animation:cdPop .5s}@keyframes cdPop{0%{transform:scale(1.35);opacity:.4}100%{transform:scale(1);opacity:1}}#cdSkip{pointer-events:auto;margin-top:8px;padding:5px 12px;font-size:12px;background:rgba(7,11,22,.55);border-radius:10px}
 #ccWrap{position:absolute;top:calc(112px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));width:min(170px,42vw);aspect-ratio:17/10;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.28);box-shadow:0 6px 22px rgba(0,0,0,.45);opacity:0;transition:opacity .6s;pointer-events:none;z-index:3}
 #ccWrap.on{opacity:1}#crowdCam{width:100%;height:100%;display:block}#ccLbl{position:absolute;left:6px;top:5px;font:700 9px/1 var(--display,system-ui);letter-spacing:.06em;color:#fff;background:rgba(0,0,0,.45);padding:3px 6px;border-radius:6px}#ccLbl i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff3b30;margin-right:4px;vertical-align:1px;animation:ccBlink 1s infinite}@keyframes ccBlink{50%{opacity:.25}}
 @media (orientation:landscape) and (max-height:500px){#ccWrap{top:10px;right:auto;left:50%;transform:translateX(-50%);width:150px}}
@@ -299,10 +300,11 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 60</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 61</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
+  <div id="countdown" hidden><small>T-menos</small><b id="cdN">10</b><span id="cdT">segundos</span><button id="cdSkip">pular ▸</button></div>
   <div id="ccWrap" aria-hidden="true"><canvas id="crowdCam"></canvas><span id="ccLbl"><i></i>AO VIVO · público</span></div>
   <div id="read" class="glass">
     <div class="eyebrow" id="rLayer">Troposfera</div>
@@ -455,7 +457,7 @@ const PARTS={
   atTank:{n:'Tanque Atlas',t:'tank',m:1000,fuel:19500,w:1.5,h:3.8,cd:.9,k:.1,pack:1,d:'19,5 t num tanque-balão de aço fino: leve para o tamanho. Dá para a órbita, com uma folga.'},
   atBase:{n:'Base Atlas',t:'sep',atlas:true,m:300,w:1.5,h:.25,cd:.9,k:1.2,fin:2.2,pack:1,d:'Segura os motores XLR-89 embaixo do tanque Atlas. Ao separar, solta os motores laterais e o LR-105 do meio sobe e continua.'},
   atSus:{n:'Motor LR-105',t:'eng',sus:true,m:450,thrust:190000,ispV:315,ispA:215,gim:.08,w:.44,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor do meio (sustentador). Fica no foguete quando a Base Atlas solta.'},
-  atBoost:{n:'Motor XLR-89',t:'eng',m:650,thrust:380000,ispV:290,ispA:255,gim:.06,w:.6,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor de reforço do Atlas (dois, nas pontas da Base Atlas). Cai junto com a base.'},
+  atBoost:{n:'Motor XLR-89',t:'eng',m:650,thrust:150000,ispV:290,ispA:255,gim:.06,w:.6,h:.9,cd:.9,k:.1,fl:'kero',pack:1,d:'Motor de reforço do Atlas (dois, nas pontas da Base Atlas). Cai junto com a base.'},
   srb:{n:'Propulsor sólido',t:'eng',solid:true,m:900,fuel:7000,thrust:260000,ispV:240,ispA:215,gim:0,w:.9,h:3.4,cd:.9,k:.1,fl:'solid',d:'Combustível e motor juntos. Depois de aceso, não desliga.'},
 };
 const PT=p=>PARTS[p.type];
@@ -509,7 +511,7 @@ function validate(ps){const errs=[],warns=[],bad=new Set();
   const seg=segments(ps,adj);
   ps.forEach((p,i)=>{const P=PT(p);if(P.t!=='eng'||P.les)return;const b=blocker(ps,i);if(b&&PT(b).t!=='sep'){bad.add(p);errs.push(P.n+' com a saída tapada por '+PT(b).n.toLowerCase());}
     if(!P.solid&&!P.fuel&&!ps.some((q,j)=>seg[j]===seg[i]&&PT(q).t==='tank')){bad.add(p);errs.push(P.n+' sem tanque no mesmo estágio');}});
-  const act=activeEng(ps).filter(i=>!PT(ps[i]).les),c=centerOfMass(ps),moonStart=(()=>{try{const cm=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);return!!(cm&&cm.start==='moon');}catch(e){return false;}})(),gS=moonStart?MOON.mu/(MOON.r*MOON.r):G0,T=act.reduce((s,i)=>s+thrustAt(PT(ps[i]),moonStart?0:1),0),twr=T/(c.m*gS);
+  const act=activeEng(ps).filter(i=>!PT(ps[i]).les),c=centerOfMass(ps),moonStart=(()=>{try{const cm=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);return!!(cm&&cm.start==='moon');}catch(e){return false;}})(),gS=moonStart?MOON.mu/(MOON.r*MOON.r):G0,T=act.reduce((s,i)=>s+thrustAt(PT(ps[i]),moonStart?0:1)*(ps[i].thrPct??1),0),twr=T/(c.m*gS);
   if(!act.length)(ps.some(p=>PT(p).t==='wheel')?warns:errs).push(ps.some(p=>PT(p).t==='wheel')?'Sem motor: é um rover, só anda com as rodas':'Nenhum motor com a saída livre para decolar');
   else if(twr<1&&ps.some(p=>PT(p).t==='hover'))warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+' na Terra: aqui só flutua com o hover; na Lua decola fácil');else if(twr<1)errs.push('Empuxo ÷ peso = '+twr.toFixed(2)+': pesado demais para sair do chão');else if(twr<1.2)warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+': vai subir devagar e gastar muito');
   const crew=ci>=0&&!PT(ps[ci]).probe;if(crew&&!ps.some(p=>PT(p).t==='para'||PT(p).chute||PT(p).t==='paraL'))warns.push('Sem paraquedas: dá para subir, mas não para voltar');
@@ -823,17 +825,17 @@ const CATS=[['Comando',['para','paraL','probe','capPingo','capDupla','shield']],
 const mk=(type,x,y)=>({uid:uidN++,type,x,y});
 // 'tankG:2.2' = peça com altura própria (tanque mais curto/longo: o combustível acompanha o volume)
 function stackUp(list,x,bottom){let y=bottom;return list.slice().reverse().map(t0=>{const[t,hs]=String(t0).split(':'),h=hs?+hs:PARTS[t].h;y-=h;const q=mk(t,x,y+h/2);if(hs)q.h=h;return q;});}
-function presetTwo(){const core=stackUp(['para','capPingo','sep','tankM:0.4','engVaga','sep','tankG:1','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;return[...core,a,b];}
+function presetTwo(){const core=stackUp(['para','capPingo','sep','tankM:0.4','engVaga','sep','tankG:1','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.thrPct=b.thrPct=.53;a.mir=b.uid;b.mir=a.uid;return[...core,a,b];}
 function presetSides(){const ps=presetTwo(),low=ps.find(p=>p.type==='tankG'&&box(p).b>-2.2),out=[...ps],add={};
-  for(const s of[-1,1]){const sx=s*(.9+.45);add[s]=[mk('sepLat',s*(.65+.125),low.y),Object.assign(mk('srb',sx,-1.3),{h:2.6}),mk('cone',sx,-3.1)];out.push(...add[s]);}
+  for(const s of[-1,1]){const sx=s*(.9+.45);add[s]=[mk('sepLat',s*(.65+.125),low.y),Object.assign(mk('srb',sx,-1.3),{h:2.6,thrPct:.45}),mk('cone',sx,-3.1)];out.push(...add[s]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 // módulo lunar: cápsula + estágio de pouso com pés + 2 estágios de subida com laterais líquidos
-function presetLunar(){const core=stackUp(['para','capPingo','sep','tankM','tankM:1.2','engVaga','sep','tankG:1.6','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
+function presetLunar(){const core=stackUp(['para','capPingo','sep','tankM','tankM:1.2','engVaga','sep','tankG:1.6','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;a.thrPct=b.thrPct=.8;const out=[...core,a,b];
   const up=core.filter(p=>p.type==='tankM'),lo=up.reduce((m,p)=>p.y>m.y?p:m),add={},low=core.find(p=>p.type==='tankG'&&box(p).b>-2.2);
-  for(const sd of[-1,1]){add[sd]=[mk('leg',sd*(.5+.15),lo.y),mk('sepLat',sd*(.65+.125),low.y),mk('liqb',sd*(.9+.45),-1.7),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
+  for(const sd of[-1,1]){add[sd]=[mk('leg',sd*(.5+.15),lo.y),mk('sepLat',sd*(.65+.125),low.y),Object.assign(mk('liqb',sd*(.9+.45),-1.7),{thrPct:.8}),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 // sonda sem tripulante: ogiva, sonda com motor próprio (estágio de chute), estágio superior e primeiro estágio
-function presetProbe(){const core=stackUp(['probe','sep','tankP:0.8','engVaga','sep','tankG:1.4','tankG','aleta'],0,-1);for(const q of core)if(q.type==='tankG'||q.type==='aleta')q.w=1.5;const t=mk('engTita',0,-1+PARTS.engTita.h/2);
+function presetProbe(){const core=stackUp(['probe','sep','tankP:0.8','engVaga','sep','tankG:1.4','tankG','aleta'],0,-1);for(const q of core)if(q.type==='tankG'||q.type==='aleta')q.w=1.5;const t=mk('engTita',0,-1+PARTS.engTita.h/2);t.thrPct=.49;
   // carenagem oca em volta da carga: corpo sobre o separador de cima + bico
   const sp=core.filter(q=>q.type==='sep').sort((a,b)=>a.y-b.y)[0],top=box(sp).t,hh=top-box(core.find(q=>q.type==='probe')).t+.15,fb=Object.assign(mk('fairBody',0,top-hh/2),{h:hh}),fc=mk('fair',0,top-hh-PARTS.fair.h/2);return[...core,t,fb,fc];}
 // pacote Redstone/Atlas e hover
@@ -975,7 +977,7 @@ $('#sWide').onclick=()=>{const p=selPart();if(!p)return;const P0=PT(p),ws=[...ne
   for(const q of[p,parts.find(o=>o.uid===p.mir)].filter(Boolean)){const d=(nw-W(q))/2,gl=grpBeyond(q,'l'),gr=grpBeyond(q,'r');shift(gl,-d,0);shift(gr,d,0);q.w=nw;if(['cone','fair','adapt'].includes(P0.t)&&P0.shape!=='body'){const nh=P0.h*nw/P0.w,dh=nh-H(q);q.h=nh;q.y-=dh/2;}if(parts.some(o=>o!==q&&overlaps(q,o)))ok=false;}
   if(!ok){parts=JSON.parse(hist.pop());}refresh();};
 function refresh(){if(feP&&!parts.includes(feP)){feP=null;$('#fuelEd').hidden=true;}if(sel!=null&&!selPart())sel=null;if(sel==null)$('#paintEd').hidden=true;drawEditor();
-  const v=validate(parts),c=centerOfMass(parts),act=activeEng(parts).filter(i=>!PT(parts[i]).les),T=act.reduce((s,i)=>s+thrustAt(PT(parts[i]),1),0),ph=parts.some(p=>PT(p).t==='cap')?plan(parts):[];
+  const v=validate(parts),c=centerOfMass(parts),act=activeEng(parts).filter(i=>!PT(parts[i]).les),T=act.reduce((s,i)=>s+thrustAt(PT(parts[i]),1)*(parts[i].thrPct??1),0),ph=parts.some(p=>PT(p).t==='cap')?plan(parts):[];
   $('#sMass').textContent=(c.m/1000).toFixed(1)+' t';$('#sTwr').textContent=act.length?(T/(c.m*G0)).toFixed(2):'—';$('#sDv').textContent=Math.round(ph.reduce((s,p)=>s+p.dv,0)).toLocaleString('pt-BR')+' m/s';
   const cnt=a=>Object.entries(a.reduce((m,n)=>(m[n]=(m[n]||0)+1,m),{})).map(([n,k])=>(k>1?k+'× ':'')+n).join(', ');
   $('#stageList').innerHTML=ph.map((p,i)=>'<li>'+(p.eng.length?'<b>'+(i?'Depois: ':'Decolagem: ')+cnt(p.eng)+'</b> · '+Math.round(p.dv).toLocaleString('pt-BR')+' m/s<br>':'')+(p.drop?'Em seguida solta '+(p.drop.includes('sepLat')?'os propulsores laterais':'o estágio de baixo'):'Fim da sequência')+'</li>').join('');
@@ -1238,7 +1240,7 @@ const MISSIONS=[
  {id:'land',t:'Pousar na Lua',h:'Abra os pés de pouso (toque neles ou G), vire o bico contra o movimento e use o motor para frear. Toque o chão a menos de 8 m/s, de pé.',why:'Na Lua não tem ar: nada de paraquedas, só o motor freia. Os pés seguram a nave em pé no chão irregular, como no módulo lunar Eagle da Apollo 11.',done:()=>S.dom===MOON_B&&V.ground&&Math.hypot(S.rvx,S.rvy)<1},
  {id:'home',t:'Voltar para casa',h:'Vire contra o movimento e freie até o perigeu cair abaixo de 40 km. Solte tudo e fique só com a cápsula, escudo térmico para frente (bico virado contra o movimento). No ar, toque no paraquedas.',why:'Para descer você freia: menos velocidade baixa o outro lado da órbita até ele tocar o ar, que faz o resto.',done:()=>S.landedEarth},
 ];
-function launch(){rauStop();audioInit();musicStop(true);PHZ.ph={};PHZ.n=null;PHZ.rate=0;PHZ.dur=0;rdv=null;const ps=parts.map(p=>({...p,fuel:fuelOf(p),on:false}));const c=centerOfMass(ps),bot=Math.max(...ps.map(p=>box(p).b));
+function launch(){rauStop();try{$('#countdown').hidden=true;crowdMurmur(false);}catch(e){}audioInit();musicStop(true);PHZ.ph={};PHZ.n=null;PHZ.rate=0;PHZ.dur=0;rdv=null;const ps=parts.map(p=>({...p,fuel:fuelOf(p),on:false}));const c=centerOfMass(ps),bot=Math.max(...ps.map(p=>box(p).b));
   V=makeVessel(ps,c.x*UNIT,R+(bot-c.y)*UNIT,0,0,Math.PI/2);V.clamped=true;V.main=true;V.hold=Math.PI/2;if(!propAct(V).length)V.clamped=false;
   S={t:0,thr:0,count:null,liftT:-1,alt:0,altE:0,rvx:0,rvy:0,spaced:false,landedEarth:false,dead:false,done:new Set(),layer:-1,dom:EARTH_B,el:null,padParts:parts.map(p=>({...p}))};
   debris=[];particles=[];meteors=[];warp=1;view2='flight';snaps=[];snapT=0;$('#deadBox').hidden=true;zoomUser=1;zs=0;
@@ -1259,8 +1261,8 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
   let Fx=0,Fy=0,tau=0;v.firing=[];const sf={};v.parts.forEach((p,i)=>{if(p.fuel>0)sf[v.seg[i]]=(sf[v.seg[i]]||0)+p.fuel;});
   const drain={};
   for(const i of v.act){const p=v.parts[i],P=PT(p),sg=v.seg[i];if(!(sf[sg]>0))continue;const lk=P.solid||P.lock;if(lk&&p.on&&ctl.master&&!p.lit&&!P.les)p.lit=true;const go=lk?p.lit:p.on&&ctl.master,th=(!go?0:P.solid?1:ctl.thr)*(p.jet?.22:1);if(th<=0)continue;
-    const T=thrustAt(P,air)*th,del=v.clamped?0:P.gim*ctl.rot,fbx=T*Math.sin(del),fby=T*Math.cos(del),bx=(p.x-v.com.x)*UNIT,by=-(p.y+P.h/2-v.com.y)*UNIT;
-    tau+=bx*fby-by*fbx;Fx+=fbx*pxv[0]+fby*axv[0];Fy+=fbx*pxv[1]+fby*axv[1];drain[sg]=(drain[sg]||0)+mdotOf(P)*th*dt;v.firing.push({p,th,air});}
+    const T=thrustAt(P,air)*th*(p.thrPct??1),del=v.clamped?0:P.gim*ctl.rot,fbx=T*Math.sin(del),fby=T*Math.cos(del),bx=(p.x-v.com.x)*UNIT,by=-(p.y+P.h/2-v.com.y)*UNIT;
+    tau+=bx*fby-by*fbx;Fx+=fbx*pxv[0]+fby*axv[0];Fy+=fbx*pxv[1]+fby*axv[1];drain[sg]=(drain[sg]||0)+mdotOf(P)*th*(p.thrPct??1)*dt;v.firing.push({p,th,air});}
   if(!CH.fuel)for(const sg in drain){const k=Math.min(1,drain[sg]/sf[sg]);v.parts.forEach((p,i)=>{if(v.seg[i]==sg&&p.fuel>0)p.fuel=Math.max(0,p.fuel-p.fuel*k);});}
   if(v.cap&&!v.clamped)tau+=ctl.rot*Math.max(PT(v.cap).torque,v.I*.18); // giroscópio da cápsula + jatos de manobra: gira mesmo com o motor desligado (nave grande não fica travada)
   if(ctl.rcs&&v.rcs&&v.rcs.length&&!v.clamped){const n=v.rcs.length,tot=Object.values(sf).reduce((a,b)=>a+b,0);if(tot>0){tau+=ctl.rot*2500*n;const F=900*n,tx=ctl.rcs.x||0,ty=ctl.rcs.y||0;if(tx||ty){Fx+=F*(tx*pxv[0]+ty*axv[0]);Fy+=F*(tx*pxv[1]+ty*axv[1]);v.rcsPuff=(v.rcsPuff||0)+dt;
@@ -1293,7 +1295,7 @@ function stepV(v,dt,ctl){updateMass(v);if(ctl.rails)return rails(v,dt);const h=v
       const up=Math.atan2(uy,ux),err=Math.atan2(Math.sin(up-v.hdg),Math.cos(up-v.hdg));tau+=(err*6-v.om*4)*v.I;
       if(!CH.fuel){const use=Math.hypot(aUp,aT)*v.m/(320*G0)*dt;v.parts.forEach(p=>{if(p.fuel>0&&tot>0)p.fuel=Math.max(0,p.fuel-use*p.fuel/tot);});}
       v.hovOn=true;for(const q of v.hov)q.glow=Math.min(1,(q.glow||0)+dt*4);if(v.main){S.hovDist=(S.hovDist||0)+Math.abs(vt)*dt;S.hovUsed=true;}}}
-  if(v.clamped){if(Fx*axv[0]+Fy*axv[1]>v.m*G0*1.02){v.clamped=false;if(v.main){S.liftT=S.t;sfx('clamp');}}else{v.vx=v.vy=0;v.om=0;return;}}
+  if(v.clamped){if(!(S.count&&v.main)&&Fx*axv[0]+Fy*axv[1]>v.m*G0*1.02){v.clamped=false;if(v.main){S.liftT=S.t;sfx('clamp');}}else{v.vx=v.vy=0;v.om=0;return;}}
   const[gx,gy]=G_(v.x,v.y,S.t);v.vx+=(Fx/v.m+gx)*dt;v.vy+=(Fy/v.m+gy)*dt;v.om=Math.max(-2.5,Math.min(2.5,v.om+tau/v.I*dt));v.hdg+=v.om*dt;v.x+=v.vx*dt;v.y+=v.vy*dt;
   contact(v,dom);}
 function contact(v,dom){const bp=dom.pos(S.t),sn=Math.sin(v.hdg),cs=Math.cos(v.hdg);let mh=Infinity,ux=0,uy=0;const PTS=[],legsDown=!!(v.legs&&v.legs.some(p=>p.dep));
@@ -1476,7 +1478,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=60;
+const GAME_VER=61;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -1488,7 +1490,7 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
     emit(real);const li=layerAt(S.altE);if(S.dom.earth&&li!==S.layer){if(li>S.layer&&li>0){layerBanner(li);if(S.layer>=0)sfx('chime');}S.layer=li;}
     if(CAMP_CUR){const cm=CAMP.find(c=>c.id===CAMP_CUR),m=MS.find(q=>!S.done.has(q.id));if(m&&m.done()){S.done.add(m.id);sfx('chime');buildMissions();const nx=MS.find(q=>!S.done.has(q.id));if(nx)toast(m.t+' ✓','Agora: '+nx.t+'. '+nx.h);else if(S.dom.earth&&V.ground&&V.cap&&!S.hover){S.pendWin=cm;S.pendAt=S.t;}else campWin(cm);}}
     else for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
-    rescueTick();roverTick(real);gtTip();crowdCam();if(S.liftT>=0&&!S.cheer&&S.dom.earth&&S.altE<3000&&S.padParts){S.cheer=1;crowdCheer();}if(target&&S.dom===target){target=null;rdv=null;pred=null;predTimer=0;}
+    rescueTick();roverTick(real);gtTip();countTick();hypeTick(real);crowdCam();if(S.liftT>=0&&!S.cheer&&S.dom.earth&&S.altE<3000&&S.padParts){S.cheer=1;crowdMurmur(false);crowdCheer();}if(target&&S.dom===target){target=null;rdv=null;pred=null;predTimer=0;}
     if(S.dom!==S.lastDom){const ci=S.lastDom&&capInfo();if(ci&&!ci.hit)toast('Na gravidade '+S.dom.de,ci.bound?'Você já está preso numa órbita aqui.':'A '+Math.round(ci.v)+' m/s você passa reto (escape aqui: '+Math.round(ci.esc)+' m/s). Para ficar: vire o bico contra o movimento e freie '+Math.round(ci.dv)+' m/s no Pe.');S.lastDom=S.dom;}}
   else{if(ccOn){ccOn=false;$('#ccWrap').classList.remove('on');}stepWorldDead(real);if(!S.tipShown&&(S.t-(S.deadAt??(S.deadAt=S.t))>.8)){S.tipShown=1;$('#deadTip').textContent='💡 Dica: '+deathTip();}$('#deadBox').hidden=!S.tipShown;$('#btnRewind').hidden=!snaps.length;}
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
@@ -1576,9 +1578,17 @@ function switchTo(d){debris=debris.filter(x=>x!==d);V.main=false;V.t=0;debris.pu
 function toggleLegs(cx,cy){if(!V||!V.legs.length||S.dead)return;const open=!V.legs.every(p=>p.dep);V.legs.forEach(p=>p.dep=open);sfx('clamp');tip(cx??innerWidth/2,cy??innerHeight*.5,open?'Pés de pouso abertos ✓':'Pés de pouso fechados');}
 $('#btnLegs').onclick=()=>toggleLegs();$('#btnAbort').onclick=()=>doAbort();$('#btnRcs').onclick=()=>{S.rcs=!S.rcs;rcsUI();};$('#btnRover').onclick=()=>roverBtn();$('#btnRamp').onclick=()=>toggleRamp();$('#btnHover').onclick=()=>{S.hover=!S.hover;sfx('clamp');if(S.hover)tip(innerWidth/2,innerHeight*.45,'Hover ligado: perto do chão a nave flutua; ◀ ▶ para andar');rcsUI();};
 document.querySelectorAll('#rcsPad button').forEach(b=>{const[x,y]=b.dataset.r.split(',').map(Number),on=e=>{e.preventDefault();RCST.x=x;RCST.y=y;},off=()=>{RCST.x=RCST.y=0;};b.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,off));});
-function engKey(){setMaster(!S.master);}
+function engKey(){if(S&&S.count){countAbort();return;}if(V&&V.clamped&&V.main&&S.liftT<0&&!S.master&&!S.countDone&&!S.dead&&propAct(V).some(i=>V.parts[i].on)){countStart();return;}setMaster(!S.master);}
+// ================= CONTAGEM REGRESSIVA (como nos lançamentos de verdade) =================
+const CD_WORDS=['zero','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez'];
+function countStart(){S.count={t0:S.t,T:10,last:11,ign:false};$('#countdown').hidden=false;$('#cdN').textContent='10';$('#cdT').textContent='segundos';$('#engLbl').textContent='CONTAGEM';sfx('clamp');say('Contagem regressiva');crowdMurmur(true);}
+function countAbort(){S.count=null;$('#countdown').hidden=true;setMaster(false);say('Contagem interrompida');crowdMurmur(false);tip(innerWidth/2,innerHeight*.4,'Contagem interrompida · toque em LIGAR para recomeçar');}
+function countTick(){const C=S.count;if(!C)return;const rem=C.T-(S.t-C.t0),n=Math.max(0,Math.ceil(rem-1e-6));
+  if(n<C.last){C.last=n;$('#cdN').textContent=n;const el=$('#cdN');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');if(n===3)say('três. Ignição!');else if(n<=10&&n>0)say(CD_WORDS[n]);if(n<=3&&n>0)sfx('chime');}
+  if(rem<=3.2&&!C.ign){C.ign=true;if(S.thr<=0)setThr(1);setMaster(true);$('#cdT').textContent='ignição';}
+  if(rem<=0){S.count=null;S.countDone=true;$('#cdN').textContent='0';$('#cdT').textContent='decolagem!';setTimeout(()=>{if(!S.count)$('#countdown').hidden=true;},1400);say('Decolagem!');}}
 function leverUI(){const b=$('#btnEng'),on=!!(S&&S.master);b.classList.toggle('on',on);b.setAttribute('aria-checked',on);$('#engLbl').textContent=on?'LIGADOS':'LIGAR';}
-$('#btnEng').onclick=engKey;
+$('#btnEng').onclick=engKey;$('#cdSkip').onclick=()=>{const C=S&&S.count;if(!C)return;const rem=C.T-(S.t-C.t0);if(rem>3.4)C.t0-=rem-3.4;};
 let lbTimer,tTimer;
 function layerBanner(i){const L=LAYERS[i];$('#lbAlt').textContent=(L.a/1000)+' a '+(L.b>=1e7?'10.000':L.b/1000)+' km';$('#lbName').textContent=L.n;$('#lbFact').textContent=L.f;$('#layerFact').innerHTML='<b style="color:var(--ink)">'+L.n+'</b> · '+L.f;$('#layerBox').classList.add('on');const rl=$('#rLayer');rl.classList.remove('flash');void rl.offsetWidth;rl.classList.add('flash');clearTimeout(lbTimer);lbTimer=setTimeout(()=>$('#layerBox').classList.remove('on'),mobile()?3500:7000);}
 function toast(t,b){const el=$('#toast');$('#tTitle').textContent=t;$('#tBody').textContent=b;el.classList.add('on');el.classList.remove('full');el.classList.toggle('mini',mobile()||landM());clearTimeout(tTimer);tTimer=setTimeout(()=>el.classList.remove('on'),mobile()?3500:8000);}
@@ -2228,7 +2238,10 @@ function evaTick(){if(S.dead||!V)return;
   if(S.sample&&!S.sample.got&&V.isRover){const[rx,ry]=moonPt(S.sample.ang,0);if(Math.hypot(V.x-rx,V.y-ry)<4.5&&Math.hypot(S.rvx,S.rvy)<2.5){S.sample.got=true;sfx('chime');toast('Amostra coletada! 🪨','Rocha guardada no rover. Agora leve de volta: dirija até a rampa e toque em ⬆ GUARDAR O ROVER.');}}}
 // ================= PÚBLICO ASSISTINDO O LANÇAMENTO =================
 // empolgação: 0 parado · cresce na contagem/ignição · máxima na decolagem (vai baixando depois)
-function crowdHype(){if(!S||S.dead)return 0;if(S.liftT>=0){const a=S.t-S.liftT;return a<0?0:Math.max(.25,1-Math.max(0,a-12)/25);}return V&&V.clamped?(V.firing&&V.firing.length?.6:.08):0;}
+function hypeTarget(){if(!S||S.dead)return 0;if(S.liftT>=0){const a=S.t-S.liftT;return a<0?0:Math.max(.25,1-Math.max(0,a-14)/25);}
+  if(S.count){const rem=S.count.T-(S.t-S.count.t0);return S.count.ign?.62:.1+.42*Math.max(0,1-rem/10);}return V&&V.clamped?(V.firing&&V.firing.length?.55:.06):0;}
+function hypeTick(real){const tg=hypeTarget(),h=S.hypeS??tg;S.hypeS=h+(tg-h)*Math.min(1,(real||0)*(tg>h?1.1:.5));}
+function crowdHype(){return S?(S.hypeS??hypeTarget()):0;}
 const CROWD=(()=>{let sd=7;const rnd=()=>((sd=(sd*16807)%2147483647)/2147483647);const cols=['#e94b3c','#2e86de','#f6b93b','#20bf6b','#ffffff','#8854d0','#fd9644','#45aaf2','#eb3b5a','#26de81','#f7f1e3','#3867d6'],skin=['#f1c27d','#c68642','#8d5524','#e0ac69','#ffdbac','#a0662f'];
   const P=[];for(let i=0;i<64;i++)P.push({c:cols[(rnd()*cols.length)|0],k:skin[(rnd()*skin.length)|0],h:.9+rnd()*.22,ph:rnd()*6.28,ph2:rnd()*6.28,phone:rnd()<.3,flag:rnd()<.08,kid:rnd()<.07,hat:rnd()<.25?cols[(rnd()*cols.length)|0]:null,hair:['#2b1d14','#4a3021','#111','#7a4b28','#c9a25a','#3b2a20','#8a8a8a'][(rnd()*7)|0],x:rnd(),style:(rnd()*5)|0,jersey:rnd()<.16,stripe:rnd()<.18,shoulders:rnd()<.12,sleeve:rnd()<.7});return P;})();
 // gente em metros (y para cima), no desenho da base
@@ -2249,12 +2262,12 @@ function drawSpectators(gy,t,night){const hype=crowdHype();
   for(const[a,b,n]of[[-157,-134,17],[306,334,18]]){const y0=gy((a+b)/2);g.strokeStyle='rgba(220,224,230,.8)';g.lineWidth=.08;g.beginPath();g.moveTo(a-1,y0+1.1);g.lineTo(b+1,y0+1.1);for(let x=a-1;x<=b+1;x+=2){g.moveTo(x,y0);g.lineTo(x,y0+1.2);}g.stroke();
     for(let i=0;i<n;i++){const P=CROWD[(i*7+Math.abs(a|0))%CROWD.length],x=a+(i+.5)*(b-a)/n+(P.x-.5)*.6;drawPersonM(x,gy(x)-.02,P,hype,t,P.kid?.7:1);}}}
 // torcedor visto de costas (quadrinho ao vivo): ombros, pescoço, cabelo variado, camisa com detalhe, braços e celular
-function drawFan(c,x,yb,s,P,t,hype,glow,front,kid){const ch=hype>.3,j=ch?Math.max(0,Math.sin(t*7+P.ph))*4*s*hype:Math.sin(t*1.2+P.ph)*.4*s,y=yb-j,shY=y-26*s,sw=13*s,headY=shY-11*s;
+function drawFan(c,x,yb,s,P,t,hype,glow,front,kid){const ch=hype>.7,j=ch?Math.max(0,Math.sin(t*7+P.ph))*4*s*hype:Math.sin(t*1.2+P.ph)*.4*s,y=yb-j,shY=y-26*s,sw=13*s,headY=shY-11*s;
   const shirt=P.jersey?'#ffd400':P.c,dk=(col,k)=>{const n=parseInt(col.slice(1),16),f=v=>Math.max(0,Math.min(255,Math.round(v*k)));return'rgb('+f(n>>16)+','+f((n>>8)&255)+','+f(n&255)+')';};
-  const up=ch&&Math.sin(t*3+P.ph2)>-.7,arm=(sd)=>{const wav=Math.sin(t*6+P.ph+sd)*2.5*s,ex=x+sd*(sw+3*s),ey=shY-6*s,hx=up?x+sd*(sw-1*s)+wav:x+sd*(sw+2*s),hy=up?shY-34*s:shY+16*s;
+  const up=hype>.7&&Math.sin(t*3+P.ph2)>-.7,clap=!up&&hype>.18&&Math.sin(P.ph2*3)>-.4,cl=Math.abs(Math.sin(t*(6+P.ph)))*4*s,arm=(sd)=>{const wav=Math.sin(t*6+P.ph+sd)*2.5*s,ex=x+sd*(sw+3*s),ey=shY-6*s,hx=up?x+sd*(sw-1*s)+wav:clap?x+sd*(2*s+cl):x+sd*(sw+2*s),hy=up?shY-34*s:clap?shY-14*s:shY+16*s;
     c.lineCap='round';c.strokeStyle=P.sleeve?shirt:P.k;c.lineWidth=7*s;c.beginPath();c.moveTo(x+sd*(sw-3*s),shY+3*s);c.lineTo(ex,ey);c.stroke();c.strokeStyle=P.k;c.lineWidth=5.5*s;c.beginPath();c.moveTo(ex,ey);c.lineTo(hx,hy);c.stroke();c.fillStyle=P.k;c.beginPath();c.arc(hx,hy,3.4*s,0,7);c.fill();return[hx,hy];};
   // braços atrás do corpo primeiro (o que vai para cima fica na frente da cabeça depois)
-  let hand=null;if(!up){arm(-1);hand=arm(1);}
+  let hand=null;if(!up&&!clap){arm(-1);hand=arm(1);}
   // tronco com ombros arredondados e luz suave de cima
   const gr=c.createLinearGradient(x-sw,shY,x+sw,shY+30*s);gr.addColorStop(0,dk(shirt,1.12));gr.addColorStop(1,dk(shirt,.78));c.fillStyle=gr;c.beginPath();c.moveTo(x-sw,kid?shY+16*s:yb+40*s);c.lineTo(x-sw,shY+6*s);c.quadraticCurveTo(x-sw,shY,x-sw+7*s,shY);c.lineTo(x+sw-7*s,shY);c.quadraticCurveTo(x+sw,shY,x+sw,shY+6*s);c.lineTo(x+sw,kid?shY+16*s:yb+40*s);c.closePath();c.fill();
   if(P.jersey&&!kid){c.fillStyle='#009c3b';c.fillRect(x-5*s,shY,10*s,2.2*s);c.font='800 '+(10*s)+'px Chakra Petch, system-ui';c.textAlign='center';c.fillText('10',x,shY+15*s);}
@@ -2267,7 +2280,7 @@ function drawFan(c,x,yb,s,P,t,hype,glow,front,kid){const ch=hype>.3,j=ch?Math.ma
   if(P.style===2){c.beginPath();c.ellipse(x,headY+9*s,2.6*s,5*s,0,0,7);c.fill();c.fillStyle=P.c;c.fillRect(x-2*s,headY+4.5*s,4*s,1.6*s);}
   c.fillStyle='rgba(255,255,255,.16)';c.beginPath();c.arc(x-2.5*s,headY-3*s,hr*.45,0,7);c.fill();
   if(P.hat||P.style===4){const hc=P.hat||'#e94b3c';c.fillStyle=hc;c.beginPath();c.arc(x,headY-1*s,8.4*s,Math.PI,0);c.fill();c.fillStyle=dk(hc,.7);c.fillRect(x-4*s,headY+.5*s,8*s,1.4*s);}
-  if(up){arm(-1);hand=arm(1);}
+  if(up||clap){arm(-1);hand=arm(1);}
   // celular gravando: a tela mostra o foguete
   if(P.phone&&hand&&(up||hype>.05)){const[hx,hy]=hand,pw=7*s,ph=11*s;c.fillStyle='#16181d';c.beginPath();c.roundRect?c.roundRect(hx-pw/2,hy-ph-2*s,pw,ph,1.4*s):c.rect(hx-pw/2,hy-ph-2*s,pw,ph);c.fill();c.fillStyle='#bfe0ff';c.fillRect(hx-pw/2+1*s,hy-ph-1*s,pw-2*s,ph-2*s);c.fillStyle='#fff';c.fillRect(hx-.6*s,hy-ph+1.5*s,1.2*s,5*s);if(V.firing&&V.firing.length){c.fillStyle='#ffb347';c.fillRect(hx-.8*s,hy-ph+6.5*s,1.6*s,2*s);}}
   // criança no ombro (só na fileira da frente)
@@ -2279,7 +2292,7 @@ function crowdCam(){const show=!!(S&&V&&!S.dead&&view2==='flight'&&S.dom&&S.dom.
   const W=Math.round(ccv.clientWidth*DPR),H=Math.round(ccv.clientHeight*DPR);if(!W||!H)return;if(ccv.width!==W||ccv.height!==H){ccv.width=W;ccv.height=H;}const c=ccx,t=performance.now()/1000,hype=crowdHype(),u=H/100;
   const sky=skyAt(0),night=parseInt(sky.slice(1,3),16)<60;const sg=c.createLinearGradient(0,0,0,H*.7);sg.addColorStop(0,sky);sg.addColorStop(1,night?'#20304a':'#cfe3f5');c.fillStyle=sg;c.fillRect(0,0,W,H);
   // foguete ao longe: sobe com a altitude real
-  const alt=Math.max(0,S.altE||0),rx=W*.6,base=H*.62,ry=base-Math.min(H*3,alt*.06*u)-(S.liftT>=0?Math.min(H,(S.t-S.liftT)*(S.t-S.liftT)*.6*u):0);
+  const alt=Math.max(0,S.altE||0),rx=W*.6,base=H*.62,ry=base-Math.min(H*4,alt*.45*u);
   c.fillStyle=night?'#3a4252':'#9aa3ae';c.fillRect(rx-9*u,base-34*u,3.4*u,34*u);
   if(V.firing&&V.firing.length){const fl=(11+Math.random()*5)*u;const fg=c.createLinearGradient(0,ry,0,ry+fl*2.2);fg.addColorStop(0,'#fff6d0');fg.addColorStop(.4,'#ffb347');fg.addColorStop(1,'rgba(255,90,40,0)');c.fillStyle=fg;c.beginPath();c.moveTo(rx-2.2*u,ry);c.lineTo(rx+2.2*u,ry);c.lineTo(rx,ry+fl*2.2);c.closePath();c.fill();
     c.fillStyle='rgba(235,235,235,.75)';for(let i=0;i<7;i++){const k=i/7;c.beginPath();c.arc(rx+(Math.sin(t*2+i)*3+(i-3)*2.4)*u*(S.liftT>=0?1:2),Math.min(base,ry+fl*2.2+(i*3)*u),(4+i*1.4)*u,0,7);c.fill();}}
@@ -2293,7 +2306,11 @@ function crowdCam(){const show=!!(S&&V&&!S.dead&&view2==='flight'&&S.dom&&S.dom.
   for(let row=0;row<3;row++){const sc=[.5,.7,.98][row]*u,n=[10,7,5][row],yb=H-[22,10,-12][row]*u;
     for(let i=0;i<n+1;i++){const P=CROWD[(row*17+i*5)%CROWD.length],x=(i+(row%2?.5:.15))*W/n+(P.x-.5)*6*u;if(Math.abs(x-rx)<[9,13,16][row]*u)continue;drawFan(c,x,yb,sc,P,t,hype,glow,row===2);}
     if(row<2){c.fillStyle=night?'rgba(20,30,48,'+(.35-row*.15)+')':'rgba(200,222,240,'+(.32-row*.14)+')';c.fillRect(0,0,W,H);}}
+  if(S.count){const n=Math.max(0,Math.ceil(S.count.T-(S.t-S.count.t0)));c.font='800 '+(16*u)+'px Chakra Petch, system-ui';c.textAlign='right';c.fillStyle='rgba(0,0,0,.45)';c.fillText('T-'+n,W-3.5*u,15.5*u);c.fillStyle='#fff';c.fillText('T-'+n,W-4*u,15*u);}
   if(hype>.9&&S.liftT>=0&&S.t-S.liftT<4){c.fillStyle='rgba(255,255,255,'+(.25*Math.random())+')';c.fillRect(0,0,W,H);}}
+// murmúrio do público crescendo na contagem
+let murm=null;function crowdMurmur(on){if(!snd.ac)return;const ac=snd.ac,t=ac.currentTime;try{if(on&&!murm){const src=ac.createBufferSource();src.buffer=noiseBuf(ac,'pink',6);src.loop=true;const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=650;bp.Q.value=.9;const gn=ac.createGain();gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(.05,t+1.5);gn.gain.linearRampToValueAtTime(.16,t+10);src.connect(bp).connect(gn).connect(snd.master);src.start(t);murm={src,gn};}
+  else if(!on&&murm){murm.gn.gain.cancelScheduledValues(t);murm.gn.gain.setValueAtTime(murm.gn.gain.value,t);murm.gn.gain.linearRampToValueAtTime(0,t+1.2);murm.src.stop(t+1.3);murm=null;}}catch(e){}}
 // som da torcida: gritos (ruído filtrado na faixa da voz) + palmas, na decolagem
 function crowdCheer(){if(!snd.ac)return;const ac=snd.ac,t=ac.currentTime,out=snd.master;try{
   const src=ac.createBufferSource();src.buffer=noiseBuf(ac,'pink',9);const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1100;bp.Q.value=.7;const bp2=ac.createBiquadFilter();bp2.type='peaking';bp2.frequency.value=2600;bp2.gain.value=6;
