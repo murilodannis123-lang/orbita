@@ -296,7 +296,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 58</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 59</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -490,11 +490,11 @@ function centerOfPressure(ps){let s=0,x=0,y=0;for(const p of ps){const a=latArea
 function axialCdA(ps){let s=0;for(const p of ps){const w=W(p),B=box(p);let cov=0;for(const q of ps)if(q!==p&&below(q,p)){const Q=box(q);cov+=Math.max(0,ovl(B.l,B.r,Q.l,Q.r));}s+=Math.max(0,w-cov)/w*Math.PI/4*(w*UNIT)**2*PT(p).cd;}return s;}
 // campanha: só as peças da nave da missão (mesma quantidade) + peças de segurança/aerodinâmica, e combustível até o da nave original
 const CAMP_FREE=new Set(['aleta','aletaL','cone','para','paraL','sep','sepLat','fair','fairBody']);
-function campLimits(){if(typeof CAMP_CUR==='undefined'||!CAMP_CUR)return null;if(campLimits.id===CAMP_CUR)return campLimits.v;const c=CAMP.find(q=>q.id===CAMP_CUR);if(!c)return null;const ps=c.preset(),cnt={};for(const q of ps)cnt[q.type]=(cnt[q.type]||0)+1;campLimits.id=CAMP_CUR;return campLimits.v={cnt,fuel:ps.reduce((a,q)=>a+capOf(q),0)};}
+function campLimits(){if(typeof CAMP_CUR==='undefined'||!CAMP_CUR)return null;if(campLimits.id===CAMP_CUR)return campLimits.v;const c=CAMP.find(q=>q.id===CAMP_CUR);if(!c)return null;const ps=c.preset(),cnt={};for(const q of ps)cnt[q.type]=(cnt[q.type]||0)+1;campLimits.id=CAMP_CUR;return campLimits.v={cnt,fuel:ps.reduce((a,q)=>a+fuelOf(q),0)};}
 const campOk=id=>{const L=campLimits();return!L||CAMP_FREE.has(id)||!!L.cnt[id];};
 function campCheck(ps,errs,bad){const L=campLimits();if(!L)return;const cnt={};for(const q of ps)cnt[q.type]=(cnt[q.type]||0)+1;
   for(const t in cnt){if(CAMP_FREE.has(t))continue;const mine=ps.filter(q=>q.type===t);if(!L.cnt[t]){mine.forEach(q=>bad.add(q));errs.push(PARTS[t].n+': peça fora da nave desta missão');}else if(cnt[t]>L.cnt[t]){mine.forEach(q=>bad.add(q));errs.push('Nesta missão: no máximo '+L.cnt[t]+'× '+PARTS[t].n);}}
-  const f=ps.reduce((a,q)=>a+capOf(q),0);if(f>L.fuel*1.002)errs.push('Combustível acima do limite da missão: '+(f/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t de '+(L.fuel/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t (tanques maiores contam)');}
+  const f=ps.reduce((a,q)=>a+fuelOf(q),0);if(f>L.fuel*1.002)errs.push('Combustível acima do limite da missão: '+(f/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t de '+(L.fuel/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t (tanques maiores contam)');}
 function validate(ps){const errs=[],warns=[],bad=new Set();
   if(!ps.length)return{errs:['Arraste peças para a bancada'],warns,bad};campCheck(ps,errs,bad);
   const caps=ps.filter(p=>PT(p).t==='cap');if(!caps.length)errs.push('Precisa de um comando: cápsula ou sonda');else if(caps.length>1)warns.push('Mais de um comando: o de cima pilota. Depois de separar, toque na outra nave para trocar');
@@ -505,7 +505,7 @@ function validate(ps){const errs=[],warns=[],bad=new Set();
   const seg=segments(ps,adj);
   ps.forEach((p,i)=>{const P=PT(p);if(P.t!=='eng'||P.les)return;const b=blocker(ps,i);if(b&&PT(b).t!=='sep'){bad.add(p);errs.push(P.n+' com a saída tapada por '+PT(b).n.toLowerCase());}
     if(!P.solid&&!P.fuel&&!ps.some((q,j)=>seg[j]===seg[i]&&PT(q).t==='tank')){bad.add(p);errs.push(P.n+' sem tanque no mesmo estágio');}});
-  const act=activeEng(ps).filter(i=>!PT(ps[i]).les),c=centerOfMass(ps),T=act.reduce((s,i)=>s+thrustAt(PT(ps[i]),1),0),twr=T/(c.m*G0);
+  const act=activeEng(ps).filter(i=>!PT(ps[i]).les),c=centerOfMass(ps),moonStart=(()=>{try{const cm=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);return!!(cm&&cm.start==='moon');}catch(e){return false;}})(),gS=moonStart?MOON.mu/(MOON.r*MOON.r):G0,T=act.reduce((s,i)=>s+thrustAt(PT(ps[i]),moonStart?0:1),0),twr=T/(c.m*gS);
   if(!act.length)(ps.some(p=>PT(p).t==='wheel')?warns:errs).push(ps.some(p=>PT(p).t==='wheel')?'Sem motor: é um rover, só anda com as rodas':'Nenhum motor com a saída livre para decolar');
   else if(twr<1&&ps.some(p=>PT(p).t==='hover'))warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+' na Terra: aqui só flutua com o hover; na Lua decola fácil');else if(twr<1)errs.push('Empuxo ÷ peso = '+twr.toFixed(2)+': pesado demais para sair do chão');else if(twr<1.2)warns.push('Empuxo ÷ peso = '+twr.toFixed(2)+': vai subir devagar e gastar muito');
   const crew=ci>=0&&!PT(ps[ci]).probe;if(crew&&!ps.some(p=>PT(p).t==='para'||PT(p).chute||PT(p).t==='paraL'))warns.push('Sem paraquedas: dá para subir, mas não para voltar');
@@ -831,19 +831,25 @@ function presetLunar(){const core=stackUp(['para','capPingo','sep','tankM','tank
 // sonda sem tripulante: ogiva, sonda com motor próprio (estágio de chute), estágio superior e primeiro estágio
 function presetProbe(){const core=stackUp(['probe','sep','tankP:0.8','engVaga','sep','tankG:1.4','tankG','aleta'],0,-1);for(const q of core)if(q.type==='tankG'||q.type==='aleta')q.w=1.5;const t=mk('engTita',0,-1+PARTS.engTita.h/2);
   // carenagem oca em volta da carga: corpo sobre o separador de cima + bico
-  const sp=core.filter(q=>q.type==='sep').sort((a,b)=>a.y-b.y)[1],top=box(sp).t,hh=top-box(core.find(q=>q.type==='probe')).t+.15,fb=Object.assign(mk('fairBody',0,top-hh/2),{h:hh}),fc=mk('fair',0,top-hh-PARTS.fair.h/2);return[...core,t,fb,fc];}
+  const sp=core.filter(q=>q.type==='sep').sort((a,b)=>a.y-b.y)[0],top=box(sp).t,hh=top-box(core.find(q=>q.type==='probe')).t+.15,fb=Object.assign(mk('fairBody',0,top-hh/2),{h:hh}),fc=mk('fair',0,top-hh-PARTS.fair.h/2);return[...core,t,fb,fc];}
 // pacote Redstone/Atlas e hover
 function presetMR(){return stackUp(['les','capMerc','retro','rdSep','rdFus','rdTank','rdEng'],0,-1);}
 function presetMA(){const core=stackUp(['les','capMerc','retro','rdSep','atAdapt','atTank','atBase'],0,-1),bb=box(core.find(q=>q.type==='atBase')).b,a=mk('atBoost',-.53,bb+.45),c=mk('atBoost',.53,bb+.45),su=mk('atSus',0,bb+.45);a.mir=c.uid;c.mir=a.uid;const tb=box(core.find(q=>q.type==='atTank')),fx=(PARTS.atTank.w+PARTS.aletaL.w)/2,fy=tb.b-PARTS.aletaL.h/2-.05,fl=mk('aletaL',-fx,fy),fr=mk('aletaL',fx,fy);fl.mir=fr.uid;fr.mir=fl.uid;return[...core,fl,fr,a,c,su];}
 function presetExplorer(){const core=stackUp(['probe','sep','tankP:0.85','aleta','engVaga','rdSep','rdFus','rdTank','aleta','rdEng'],0,-1),tk=core.find(q=>q.type==='tankP'),pr=core.find(q=>q.type==='probe'),top=box(tk).t,hh=top-box(pr).t+.12,fb=Object.assign(mk('fairBody',0,top-hh/2),{w:1.15,h:hh}),fc=Object.assign(mk('fair',0,0),{w:1.15,h:PARTS.fair.h*.75});fc.y=top-hh-fc.h/2;return[...core,fb,fc];}
 function presetHover(){const core=stackUp(['para','capPingo','sep','tankM','beam'],0,-1),bb=-1,e=mk('engFalcao',0,bb+PARTS.engFalcao.h/2),a=mk('hover',-.7,bb+PARTS.hover.h/2),b=mk('hover',.7,bb+PARTS.hover.h/2);a.mir=b.uid;b.mir=a.uid;return[...core,e,a,b];}
 // foguete lunar completo com a nave do rover em cima (Terra → Lua → rover)
-function presetRoverFull(){const core=stackUp(['para','capPingo','sep','tankM:1.6','roverBay','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
+function presetRoverFull(){const core=stackUp(['para','capPingo','sep','tankM','tankM','tankM:0.6','roverBay','engVaga','sep','tankG','tankG','tankG','aleta'],0,-1);const a=mk('engJabuti',-.325,-.5),b=mk('engJabuti',.325,-.5);a.mir=b.uid;b.mir=a.uid;const out=[...core,a,b];
   const bay=core.find(p=>p.type==='roverBay'),add={},low=core.find(p=>p.type==='tankG'&&box(p).b>-2.2);
   for(const sd of[-1,1]){add[sd]=[mk('legG',sd*(.5+.2),bay.y),mk('sepLat',sd*(.65+.125),low.y),mk('liqb',sd*(.9+.45),-1.7),mk('cone',sd*(.9+.45),-3.9)];out.push(...add[sd]);}
   add[1].forEach((p,i)=>{p.mir=add[-1][i].uid;add[-1][i].mir=p.uid;});return out;}
 function presetRover(){const core=stackUp(['para','capPingo','sep','tankM','roverBay','engFalcao'],0,-1),bay=core.find(q=>q.type==='roverBay'),L=[];
   for(const sd of[-1,1]){const l=mk('legG',sd*(.5+.2),bay.y);l.dep=true;l.depT=1;L.push(l);}L[0].mir=L[1].uid;L[1].mir=L[0].uid;return[...core,...L];}
+// lugar do pouso na Lua (salvo quando a bandeira é fincada) e combustível que sobrou; as missões seguintes começam ali
+const LANDER_MIN_FRAC=.28;
+function moonSite(){let o=null;try{o=JSON.parse(localStorage.getItem('orbita.moonSite')||'null');}catch(e){}const ang=o&&isFinite(o.ang)?o.ang:1.25;
+  return{ang,flagAng:o&&isFinite(o.flagAng)?o.flagAng:ang-7/MOON.r,frac:Math.max(LANDER_MIN_FRAC,Math.min(1,o&&isFinite(o.frac)?o.frac:LANDER_MIN_FRAC)),saved:!!o};}
+function presetLander(){const ps=presetRoverFull(),seps=ps.filter(q=>q.type==='sep').sort((a,b)=>a.y-b.y),cut=box(seps[1]).t,keep=ps.filter(q=>q!==seps[1]&&box(q).b<=cut+1e-6);
+  const dy=-1-Math.max(...keep.filter(q=>q.type!=='legG').map(q=>box(q).b));for(const q of keep){q.y+=dy;if(q.type==='legG'){q.dep=true;q.depT=1;}}const fr=moonSite().frac;for(const q of keep)if(PT(q).t==='tank')q.fuelPct=fr;return keep;}
 const PRESETS={btnP1:presetTwo,btnP2:presetSides,btnP3:presetLunar,btnP4:presetProbe,btnP5:presetMR,btnP6:presetMA,btnP7:presetExplorer,btnP8:presetHover,btnP9:presetRoverFull};
 function save(){hist.push(JSON.stringify(parts));if(hist.length>60)hist.shift();}
 const mobile=()=>matchMedia('(max-width:860px)').matches,landM=()=>matchMedia('(orientation:landscape) and (max-height:500px)').matches;
@@ -1144,7 +1150,7 @@ let S,V,debris=[],particles=[],meteors=[],keys={},warp=1,WARPS=[1,2,3,5,50,100,5
 const map={s:1e-4,cx:0,cy:0,ox:0,oy:0};let pred=null;
 // ================= CAMPANHA =================
 let CAMP_CUR=null;
-const sp_=()=>Math.hypot(S.rvx,S.rvy),probeOnly=()=>!!(V.cap&&PT(V.cap).probe),onMoon=()=>S.dom===MOON_B&&V.ground&&sp_()<1;
+const sp_=()=>Math.hypot(S.rvx,S.rvy),probeOnly=()=>!!(V.cap&&PT(V.cap).probe),moonOrbit=pe=>S.dom===MOON_B&&!V.ground&&!!S.el&&S.el.bound&&S.el.pe>pe&&S.el.ap+MOON.r<MOON.soi*.9,onMoon=()=>S.dom===MOON_B&&V.ground&&sp_()<1;
 const CAMP=[
  {id:'c1',t:'Primeiro salto',ship:'Mercury-Redstone',preset:()=>presetMR(),txt:'Como Alan Shepard em 1961: um arco até o espaço e volta, sem entrar em órbita.',steps:[
   {id:'a',t:'Decolar',h:'Toque no motor A-7 para armar, acelerador no máximo e LIGAR.',done:()=>S.altE>5000},
@@ -1164,31 +1170,27 @@ const CAMP=[
   {id:'b',t:'Órbita acima de 120 km',h:'Com o Redstone solto, use o motor de cima (Vaga-lume): acelere para frente até o Ap passar de 140 km, espere chegar no Ap e acelere de novo até o Pe passar de 120 km. O satélite viaja protegido dentro da carenagem.',done:()=>S.dom.earth&&S.el&&S.el.pe>120000},
   {id:'c',t:'Abrir a carenagem e soltar o satélite',h:'Em órbita, aperte ESTÁGIO: a carenagem lá em cima abre em duas metades e o satélite sai sozinho.',done:()=>!V.parts.some(q=>PT(q).t==='fair')&&probeOnly()&&V.parts.length<=4},
   {id:'d',t:'Painéis abertos',h:'Solto, o satélite abre os painéis solares sozinho.',done:()=>probeOnly()&&V.parts.length<=4&&(V.cap.depT||0)>.95}]},
- {id:'c4',t:'Até a Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande uma sonda até a gravidade da Lua.',steps:[
+ {id:'c4',t:'Sonda na Lua',ship:'Sonda',preset:()=>presetProbe(),payAt:'moon',txt:'Leve uma sonda até a Lua e solte ela lá. Ela vai fechada na carenagem, que só abre quando chegar.',steps:[
+  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km. Quando o primeiro estágio apagar, ESTÁGIO solta ele (a carenagem fica).',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Navegar até a Lua',h:'Abra o mapa, toque na Lua e escolha Navegar.',done:()=>target===MOON_B||S.dom===MOON_B},
+  {id:'c',t:'Entrar na gravidade da Lua',h:'Espere chegar no ponto verde e acelere para frente o que o mapa pedir. Depois é só esperar (use o tempo acelerado).',done:()=>S.dom===MOON_B},
+  {id:'d',t:'Soltar a sonda na Lua',h:'Na gravidade da Lua, aperte ESTÁGIO: a carenagem abre em duas metades e a sonda sai sozinha e abre os painéis.',done:()=>S.dom===MOON_B&&probeOnly()&&V.parts.length<=2}]},
+ {id:'c5',t:'Órbita da Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Chegue na Lua e freie para ficar presa em órbita dela, com a órbita inteira dentro da gravidade da Lua.',steps:[
+  {id:'a',t:'Entrar na gravidade da Lua',h:'Órbita, Navegar até a Lua, acelere no ponto verde e siga a linha verde.',done:()=>S.dom===MOON_B},
+  {id:'b',t:'Ficar em órbita da Lua',h:'No ponto mais perto (Pe), vire o bico contra o movimento e freie o que o mapa pedir, até o mapa mostrar Em órbita da Lua (a rota fecha em volta dela, sem sair).',done:()=>moonOrbit(5000)}]},
+ {id:'c7',t:'Pouso na Lua',ship:'Lunar com rover',preset:()=>presetRoverFull(),txt:'Como a Apollo 11: chegue na Lua, pouse de pé e finque a bandeira. Esta mesma nave é a das próximas missões na Lua.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
-  {id:'b',t:'Navegar até a Lua',h:'Abra o mapa, toque na Lua e escolha Navegar.',done:()=>target===MOON_B},
-  {id:'c',t:'Entrar na gravidade da Lua',h:'Siga a linha verde até a mira laranja.',done:()=>S.dom===MOON_B}]},
- {id:'c5',t:'Órbita da Lua',ship:'Sonda',preset:()=>presetProbe(),txt:'Chegue na Lua e freie para ficar presa em órbita dela.',steps:[
-  {id:'a',t:'Entrar na gravidade da Lua',h:'Órbita, Navegar até a Lua e siga a linha verde.',done:()=>S.dom===MOON_B},
-  {id:'b',t:'Ficar em órbita da Lua',h:'No ponto mais perto (Pe), vire o bico contra o movimento e freie o que o mapa pedir.',done:()=>S.dom===MOON_B&&S.el&&S.el.bound&&S.el.pe>5000}]},
- {id:'c6',t:'Passeio de rover',ship:'Lunar com rover',preset:()=>presetRover(),start:'moon',txt:'Você já começa pousado na Lua, com um rover guardado na baia da nave. Solte ele e dirija pelo chão de outro mundo, como na Apollo 15.',steps:[
-  {id:'a',t:'Soltar o rover',h:'Toque em 🚗 SOLTAR ROVER (ou na baia do rover): a porta vira rampa e o rover desce.',done:()=>!!S.roverOut},
-  {id:'b',t:'Dirigir 500 m',h:'Segure ◀ ou ▶ para andar. Na Lua tudo é leve: vá com calma nas descidas.',done:()=>(S.rovDist||0)>500},
-  {id:'c',t:'Guardar o rover',h:'Dirija de volta até o pé da rampa e toque em ⬆ GUARDAR O ROVER: ele sobe e entra na baia.',done:()=>(S.rovDist||0)>500&&!V.isRover&&(S.roverHome||(!!S.rover&&Math.hypot(S.rover.x-V.x,S.rover.y-V.y)<20))}]},
- {id:'c7',t:'Pouso na Lua',ship:'Lunar',preset:()=>presetLunar(),txt:'Como a Apollo 11: chegue na Lua e pouse de pé.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
-  {id:'b',t:'Entrar na gravidade da Lua',h:'Navegar até a Lua e siga a linha verde.',done:()=>S.dom===MOON_B},
-  {id:'c',t:'Pousar na Lua',h:'Abra os pés (G). Primeiro freie com o bico contra o movimento até quase parar de andar de lado; perto do chão, bico para cima e desça devagar. Toque o chão a menos de 8 m/s.',done:()=>onMoon()}]},
- {id:'c8',t:'Volta para casa',ship:'Lunar',preset:()=>presetLunar(),txt:'Pouse na Lua e traga a cápsula de volta para a Terra.',steps:[
-  {id:'a',t:'Pousar na Lua',h:'Mesmo caminho da missão anterior.',done:()=>onMoon()},
-  {id:'b',t:'Voltar para a gravidade da Terra',h:'Decole, acelere para frente até escapar da Lua de volta.',done:()=>S.done.has('a')&&S.dom.earth},
-  {id:'c',t:'Pousar na Terra',h:'Só a cápsula, escudo para frente, paraquedas armado.',done:()=>S.landedEarth}]},
- {id:'c8r',t:'Rover na Lua',ship:'Lunar com rover',preset:()=>presetRoverFull(),txt:'Como a Apollo 15: leve um rover da Terra até a Lua, pouse e saia dirigindo.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
-  {id:'b',t:'Entrar na gravidade da Lua',h:'No mapa, toque na Lua, Navegar e siga a linha verde.',done:()=>S.dom===MOON_B},
+  {id:'b',t:'Entrar na gravidade da Lua',h:'No mapa toque na Lua, Navegar, espere o ponto verde, acelere o que ele pedir e siga a linha verde.',done:()=>S.dom===MOON_B},
   {id:'c',t:'Pousar na Lua',h:'Abra os pés (G). Primeiro freie com o bico contra o movimento até quase parar de andar de lado; perto do chão, bico para cima e desça devagar. Toque o chão a menos de 8 m/s.',done:()=>onMoon()},
-  {id:'d',t:'Soltar o rover',h:'Toque em 🚗 SOLTAR ROVER: a porta vira rampa e o rover desce.',done:()=>!!S.roverOut},
-  {id:'e',t:'Dirigir 300 m',h:'Segure ◀ ou ▶ e explore a Lua.',done:()=>(S.rovDist||0)>300}]},
+  {id:'d',t:'Fincar a bandeira',h:'Pousado e parado, a rampa abre e os 2 astronautas descem para fincar a bandeira.',done:()=>!!S.flagDone}]},
+ {id:'c6',t:'Passeio de rover',ship:'Lunar com rover',preset:()=>presetLander(),start:'moon',txt:'Continuação do pouso: a mesma nave, no mesmo lugar, com a bandeira fincada. Solte o rover, busque uma rocha para análise e traga de volta, como na Apollo 15.',steps:[
+  {id:'a',t:'Soltar o rover',h:'Toque em 🚗 SOLTAR ROVER (ou na baia do rover): a porta vira rampa e o rover desce.',done:()=>!!S.roverOut},
+  {id:'b',t:'Coletar a amostra',h:'Dirija até a rocha marcada (uns 220 m para a direita, siga a seta 🪨) e pare do lado dela: o rover pega a amostra.',done:()=>!!(S.sample&&S.sample.got)},
+  {id:'c',t:'Trazer a amostra para a nave',h:'Volte até o pé da rampa e toque em ⬆ GUARDAR O ROVER: ele sobe com a amostra.',done:()=>!!(S.sample&&S.sample.got&&S.roverHome)}]},
+ {id:'c8',t:'Volta para casa',ship:'Lunar com rover',preset:()=>presetLander(),start:'moon',txt:'Continuação: decole da Lua com o combustível que sobrou do pouso e traga a cápsula de volta para a Terra.',steps:[
+  {id:'a',t:'Decolar e entrar em órbita da Lua',h:'LIGAR e suba reto uns 2 km; depois deite para o lado e acelere até o Ap passar de 20 km. No Ap, acelere deitado até o Pe passar de 15 km.',done:()=>moonOrbit(10000)},
+  {id:'b',t:'Voltar para a gravidade da Terra',h:'Acelere para frente uns 450 m/s quando a sua nave estiver andando no sentido contrário ao da Lua em volta da Terra: a rota sai da gravidade da Lua e cai de volta para a Terra (o mapa mostra).',done:()=>S.dom.earth},
+  {id:'c',t:'Pousar na Terra',h:'Na Terra, deixe o Pe entre 20 e 40 km. Perto de chegar, solte tudo e fique só com a cápsula, escudo para frente; o paraquedas abre sozinho se estiver armado.',done:()=>S.landedEarth}]},
  {id:'c9',t:'Rumo a Marte',ship:'Sonda',preset:()=>presetProbe(),txt:'Mande a sonda até a gravidade de Marte. Use o tempo acelerado.',steps:[
   {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. O painel mostra seu ângulo e o ideal. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Navegar até Marte',h:'No mapa, afaste até ver os planetas, toque em Marte e escolha Navegar.',done:()=>target&&target.n==='Marte'},
@@ -1238,9 +1240,9 @@ function launch(){rauStop();audioInit();musicStop(true);PHZ.ph={};PHZ.n=null;PHZ
   debris=[];particles=[];meteors=[];warp=1;view2='flight';snaps=[];snapT=0;$('#deadBox').hidden=true;zoomUser=1;zs=0;
   const cm=CAMP_CUR&&CAMP.find(c=>c.id===CAMP_CUR);MS=cm?cm.steps:MISSIONS;S.hover=false;S.rcs=false;$('#campWin').hidden=true;
   $('#hangar').style.display='none';$('#flight').classList.add('on');flight.on=true;buildStrip();buildMissions();aimUI();leverUI();hidePop();
-  if(cm&&cm.start==='moon'){spawnOn(MOON_B);toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);}else if(cm)toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);else toast('Pronto para decolar','Toque nos motores para armar, ajuste o acelerador e aperte LIGAR.');lastTs=0;requestAnimationFrame(loop);}
+  if(cm&&cm.start==='moon'){const st=moonSite();spawnOn(MOON_B,st.ang);S.flag={ang:st.flagAng,k:1};if(cm.id==='c6')S.sample={ang:st.ang-220/MOON.r,got:false};toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);}else if(cm)toast(cm.t,cm.steps[0].t+': '+cm.steps[0].h);else toast('Pronto para decolar','Toque nos motores para armar, ajuste o acelerador e aperte LIGAR.');lastTs=0;requestAnimationFrame(loop);}
 // começa pousado em outro mundo (missões da campanha)
-function spawnOn(B){const a=1.25,bp=B.pos(S.t),bv=B.vel(S.t),bot=Math.max(...V.parts.map(p=>box(p).b)),d=B.r+(bot-V.com.y)*UNIT+.05;V.x=bp[0]+d*Math.cos(a);V.y=bp[1]+d*Math.sin(a);V.vx=bv[0];V.vy=bv[1];V.hdg=a;V.om=0;V.hold=a;V.clamped=false;S.liftT=0;S.spaced=true;domain();}
+function spawnOn(B,a=1.25){bp=B.pos(S.t),bv=B.vel(S.t),bot=Math.max(...V.parts.map(p=>box(p).b)),d=B.r+(bot-V.com.y)*UNIT+.05;V.x=bp[0]+d*Math.cos(a);V.y=bp[1]+d*Math.sin(a);V.vx=bv[0];V.vy=bv[1];V.hdg=a;V.om=0;V.hold=a;V.clamped=false;S.liftT=0;S.spaced=true;domain();}
 function makeVessel(ps,x,y,vx,vy,hdg,om){const v={parts:ps,x,y,vx,vy,hdg,om:om||0,lit:false,chute:0,armed:false,firing:[],q:0,com:centerOfMass(ps)};restructure(v);updateMass(v);return v;}
 function restructure(v){v.adj=graph(v.parts);v.seg=segments(v.parts,v.adj);v.act=activeEng(v.parts);v.cda=axialCdA(v.parts);v.sideA=v.parts.reduce((s,p)=>s+W(p)*H(p),0)*UNIT*UNIT;
   v.cap=v.parts[capIdx(v.parts)];v.wheels=v.parts.filter(p=>PT(p).t==='wheel');v.solars=v.parts.filter(p=>PT(p).t==='solar');v.legs=v.parts.filter(p=>PT(p).t==='leg');v.paraL=v.parts.filter(p=>PT(p).t==='paraL');v.para=v.parts.find(p=>PT(p).t==='para'||PT(p).chute)||v.paraL[0];v.rcs=v.parts.filter(p=>PT(p).t==='rcs');v.hov=v.parts.filter(p=>PT(p).t==='hover');v.groups=v.cap?stageGroups(v.parts,v.adj):[];}
@@ -1364,7 +1366,12 @@ function crash(v,imp,why){if(v.main){S.dWhy=why||(S.dom&&S.dom.earth?'impacto':'
   v.dead=true;const bv=S.dom.vel(S.t);boomAt({x:v.x,y:v.y,vx:bv[0]+(v.vx-bv[0])*.2,vy:bv[1]+(v.vy-bv[1])*.2},v.main?1:.45);if(!v.main)sfx('boom');}
 function stage(){if(!V||S.dead)return;const hasF=V.parts.some(q=>PT(q).t==='fair');
   // como no SFS/vida real: a carenagem sai quando já não há ar (acima de ~60 km), antes de soltar a carga
-  if(hasF&&!V.clamped&&(!S.dom.earth||S.altE>60000)){releaseFair();const orb=S.el&&S.el.bound&&S.el.pe>120000,pay=V.groups.length===1&&V.parts.some(q=>PT(q).probe);if(pay&&orb){S.payRel=S.t+.9;tip(innerWidth/2,innerHeight*.4,'Carenagem aberta ✓ soltando o satélite…');}else{tip(innerWidth/2,innerHeight*.4,'Carenagem solta ✓');if(pay)setTimeout(()=>toast('Satélite preso até a órbita','Ele não tem motor para chegar lá sozinho. Quando o Pe passar de 120 km, aperte ESTÁGIO de novo para soltar.'),60);}return;}
+  if(hasF&&!V.clamped&&V.groups.length<=1&&(!S.dom.earth||S.altE>60000)){const cm=CAMP_CUR&&CAMP.find(c=>c.id===CAMP_CUR),pay=V.groups.length===1&&V.parts.some(q=>PT(q).probe);
+    // os estágios de foguete saem antes; a carenagem só abre na hora de soltar a carga
+    if(pay){const where=cm&&cm.payAt,ok=where==='moon'?S.dom===MOON_B:(S.dom===MOON_B||!!(S.el&&S.el.bound&&S.el.pe>120000));
+      if(!ok){toast('Carenagem fechada',where==='moon'?'A sonda só sai na gravidade da Lua: lá, aperte ESTÁGIO e a carenagem abre e solta ela.':'O satélite só sai em órbita (Pe acima de 120 km): nessa hora a carenagem abre e solta ele.');return;}
+      releaseFair();S.payRel=S.t+.9;tip(innerWidth/2,innerHeight*.4,'Carenagem aberta ✓ soltando a sonda…');return;}
+    releaseFair();tip(innerWidth/2,innerHeight*.4,'Carenagem solta ✓');return;}
   if(V.groups.length)fire(V.groups[0]);}
 function releaseFair(){const n0=debris.length;fire(V.parts.map((q,k)=>PT(q).t==='fair'?k:-1).filter(k=>k>=0));
   const sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),px=[sn,-cs];for(const d of debris.splice(n0)){if(!d.parts.every(q=>PT(q).t==='fair')){debris.push(d);continue;}
@@ -1465,7 +1472,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=58;
+const GAME_VER=59;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -1477,7 +1484,7 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
     emit(real);const li=layerAt(S.altE);if(S.dom.earth&&li!==S.layer){if(li>S.layer&&li>0){layerBanner(li);if(S.layer>=0)sfx('chime');}S.layer=li;}
     if(CAMP_CUR){const cm=CAMP.find(c=>c.id===CAMP_CUR),m=MS.find(q=>!S.done.has(q.id));if(m&&m.done()){S.done.add(m.id);sfx('chime');buildMissions();const nx=MS.find(q=>!S.done.has(q.id));if(nx)toast(m.t+' ✓','Agora: '+nx.t+'. '+nx.h);else if(S.dom.earth&&V.ground&&V.cap&&!S.hover){S.pendWin=cm;S.pendAt=S.t;}else campWin(cm);}}
     else for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
-    rescueTick();roverTick(real);gtTip();
+    rescueTick();roverTick(real);gtTip();if(target&&S.dom===target){target=null;rdv=null;pred=null;predTimer=0;}
     if(S.dom!==S.lastDom){const ci=S.lastDom&&capInfo();if(ci&&!ci.hit)toast('Na gravidade '+S.dom.de,ci.bound?'Você já está preso numa órbita aqui.':'A '+Math.round(ci.v)+' m/s você passa reto (escape aqui: '+Math.round(ci.esc)+' m/s). Para ficar: vire o bico contra o movimento e freie '+Math.round(ci.dv)+' m/s no Pe.');S.lastDom=S.dom;}}
   else{stepWorldDead(real);if(!S.tipShown&&(S.t-(S.deadAt??(S.deadAt=S.t))>.8)){S.tipShown=1;$('#deadTip').textContent='💡 Dica: '+deathTip();}$('#deadBox').hidden=!S.tipShown;$('#btnRewind').hidden=!snaps.length;}
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
@@ -1853,7 +1860,7 @@ function drawVessel(v,day){const[ox,oy]=bodyToWorld(v,0,0);frame(ox,oy);const sp
     g.globalAlpha=.35*k;g.drawImage(SPR.plasma,fx-rr*4,fy-rr*4,rr*8,rr*8);g.globalAlpha=1;g.globalCompositeOperation='source-over';}
   g.rotate(v.hdg-Math.PI/2);g.scale(1,-1);const X=x=>x*UNIT,Y=y=>y*UNIT;
   for(const f of v.firing){const P=PT(f.p);drawFlame(X(f.p.x),Y(f.p.y+P.h/2)-.1,P.w*UNIT*(P.solid||P.lock?.7:.92),f.th,f.air,P.fl,day);}
-  if(v.sink)g.globalAlpha=Math.max(.1,1-v.sink.d/20);drawCraft(g,v.parts,UNIT,X,Y,1);g.globalAlpha=1;if(v.parts.some(q=>q.type==='roverBay'&&((q.rampK||0)>0||q.mv)))drawBayRamp(v,X,Y);
+  if(v.sink)g.globalAlpha=Math.max(.1,1-v.sink.d/20);drawCraft(g,v.parts,UNIT,X,Y,1);g.globalAlpha=1;if(v.parts.some(q=>q.type==='roverBay'&&((q.rampK||0)>0||q.mv)))drawBayRamp(v,X,Y);if(S.eva&&v===V)drawEVA(v,X,Y);
   if((v.heat||0)>.03&&sp>1){const vb=[(v.vx*Math.sin(v.hdg)-v.vy*Math.cos(v.hdg))/sp,-(v.vx*Math.cos(v.hdg)+v.vy*Math.sin(v.hdg))/sp],L2=Math.max(.5,len/UNIT/2);g.globalCompositeOperation='lighter';
     for(const p of v.parts){const fr=Math.max(0,Math.min(1,.5+((p.x-v.com.x)*vb[0]+(p.y-v.com.y)*vb[1])/L2*.6)),a=v.heat*(.15+.65*fr)*(.85+.3*Math.random());if(a<.02)continue;const B=box(p);
       const gg=g.createLinearGradient(X(p.x)+vb[0]*W(p)*UNIT*.5,Y(p.y)+vb[1]*H(p)*UNIT*.5,X(p.x)-vb[0]*W(p)*UNIT*.5,Y(p.y)-vb[1]*H(p)*UNIT*.5);gg.addColorStop(0,'rgba(255,120,40,'+a+')');gg.addColorStop(1,'rgba(255,40,10,'+a*.25+')');g.fillStyle=gg;g.fillRect(X(B.l),Y(B.t),W(p)*UNIT,H(p)*UNIT);}
@@ -2135,7 +2142,7 @@ function returnRover(){const L=S.lander,b=bayAll(L),rv=S.rover;if(!L||!b||!rv)re
 function toggleRamp(){const v=V&&!V.isRover?V:S.lander,b=bayAll(v);if(!b||b.mv||S.dead)return;if((b.ramp||0)>0){b.ramp=0;b.want=null;sfx('hyd');tip(innerWidth/2,innerHeight*.45,'Rampa fechando');}
   else{if(!(v.ground||v.clamped)||!bayGeom(v,b).ok){tip(innerWidth/2,innerHeight*.45,'Só dá para abrir a rampa pousado, perto do chão',true);return;}b.ramp=1;sfx('hyd');tip(innerWidth/2,innerHeight*.45,'Rampa abrindo');}}
 function switchV(to){if(!to||to===V||S.dead)return;const i=debris.indexOf(to);if(i<0)return;debris.splice(i,1);V.main=false;to.main=true;debris.push(V);V=to;zoomUser=1;S.thr=0;S.master=false;try{aimUI();leverUI();buildStrip();hidePop();}catch(e){}domain();rcsUI();}
-function roverTick(real){
+function roverTick(real){evaTick();
   for(const v of[V,...debris]){if(!v||!v.parts)continue;const b=bayAll(v);if(!b)continue;const dt=Math.max(0,Math.min(.2,S.t-(b.lastT??S.t)));b.lastT=S.t;
     const tg=b.ramp||0,k=b.rampK||0;if(k!==tg){b.rampK=tg>k?Math.min(tg,k+dt/RAMP_T):Math.max(tg,k-dt/RAMP_T);if(b.rampK===1||b.rampK===0)sfx('thunk');}
     if(b.want==='out'&&b.rampK>=1&&!b.mv&&b.rov!=='out'){b.want=null;b.mv={dir:'out',t0:S.t};sfx('ignite');}
@@ -2143,11 +2150,11 @@ function roverTick(real){
   if(V&&V.isRover&&!S.dead){const bp0=S.dom.pos(S.t),rx=V.x-bp0[0],ry=V.y-bp0[1],p0=S.rovP;if(p0&&p0[2]===S.dom)S.rovDist=(S.rovDist||0)+Math.min(30,Math.hypot(rx-p0[0],ry-p0[1]));S.rovP=[rx,ry,S.dom];
     const sp=Math.hypot(S.rvx,S.rvy);if(V.ground&&sp>.6&&Math.random()<real*12){const a=Math.atan2(V.y-S.dom.pos(S.t)[1],V.x-S.dom.pos(S.t)[0]),bp=S.dom.pos(S.t),rr=S.dom.r+.2,o=(Math.random()-.5)*2.5;particles.push({type:'smoke',x:bp[0]+Math.cos(a)*rr-Math.sin(a)*o,y:bp[1]+Math.sin(a)*rr+Math.cos(a)*o,vx:S.dom.vel(S.t)[0]+Math.cos(a)*(.3+Math.random()*.6),vy:S.dom.vel(S.t)[1]+Math.sin(a)*(.3+Math.random()*.6),life:.7,max:.9,size:.35,grow:.7,v:(Math.random()*6)|0,rot:Math.random()*6,heat:0,spread:1,dust:S.dom.earth?1:0});}}
   else S.rovP=null;
-  const btn=$('#btnRover');if(!btn)return;let lab='',on=false;if(!S.dead){if(V.isRover&&S.lander&&!S.lander.dead){if(nearRamp()){lab='⬆ Guardar o rover';on=true;}else lab='🚀 Ir para a nave';}
+  const btn=$('#btnRover');if(!btn)return;let lab='',on=false;if(!S.dead&&CAMP_CUR!=='c7'){if(V.isRover&&S.lander&&!S.lander.dead){if(nearRamp()){lab='⬆ Guardar o rover';on=true;}else lab='🚀 Ir para a nave';}
     else if(S.rover&&!S.rover.dead&&!V.isRover)lab='🚗 Ir para o rover';else if(bayOf(V)){lab=canDeploy()?'🚗 Soltar rover':'🚗 Rover (pouse para soltar)';on=canDeploy();}}
-  if(!S.dead&&bayOf(V)&&V.ground&&!V.clamped&&canDeploy()&&!S.rovHint&&S.liftT>=0&&S.t-S.liftT>8&&(S.dom!==EARTH_B||Math.abs(Math.atan2(V.y,V.x)-Math.PI/2)*R>300)){S.rovHint=1;toast('Pousou! 🚗','Toque em 🚗 SOLTAR ROVER (ou na baia do rover): a rampa abre e o rover desce.');}
+  if(!S.dead&&CAMP_CUR!=='c7'&&bayOf(V)&&V.ground&&!V.clamped&&canDeploy()&&!S.rovHint&&S.liftT>=0&&S.t-S.liftT>8&&(S.dom!==EARTH_B||Math.abs(Math.atan2(V.y,V.x)-Math.PI/2)*R>300)){S.rovHint=1;toast('Pousou! 🚗','Toque em 🚗 SOLTAR ROVER (ou na baia do rover): a rampa abre e o rover desce.');}
   btn.hidden=!lab;if(lab&&btn.textContent!==lab)btn.textContent=lab;btn.classList.toggle('on',on);
-  const rb=$('#btnRamp'),lv=V&&!V.isRover?V:null,bb=lv&&bayAll(lv);if(rb){const show=!S.dead&&!!bb&&((lv.ground||lv.clamped)||(bb.rampK||0)>0);rb.hidden=!show;if(show){const tx='Rampa: '+((bb.ramp||0)>0?'aberta':'fechada');if(rb.textContent!==tx)rb.textContent=tx;rb.classList.toggle('on',(bb.ramp||0)>0);}}}
+  const rb=$('#btnRamp'),lv=V&&!V.isRover?V:null,bb=lv&&bayAll(lv);if(rb){const show=!S.dead&&CAMP_CUR!=='c7'&&!!bb&&((lv.ground||lv.clamped)||(bb.rampK||0)>0);rb.hidden=!show;if(show){const tx='Rampa: '+((bb.ramp||0)>0?'aberta':'fechada');if(rb.textContent!==tx)rb.textContent=tx;rb.classList.toggle('on',(bb.ramp||0)>0);}}}
 function roverBtn(){if(V.isRover){if(nearRamp())returnRover();else if(S.lander){const d=Math.hypot(V.x-S.lander.x,V.y-S.lander.y);switchV(S.lander);if(d>15)tip(innerWidth/2,innerHeight*.45,'O rover ficou a '+Math.round(d)+' m da nave');}}else if(S.rover&&!S.rover.dead)switchV(S.rover);else deployRover();}
 // rampa (porta + extensão) e rover andando nela, no referencial da nave
 function drawBayRamp(v,X,Y){const b=bayAll(v);if(!b||(!(b.rampK>0)&&!b.mv))return;// fechada: a placa já vem desenhada na peça
@@ -2165,6 +2172,55 @@ const G=bayGeom(v,b),k=b.rampK||0,P=PARTS.roverCar;
   if(b.mv){const t=S.t-b.mv.t0,q0=Math.max(0,Math.min(1,t/MV_T)),q=b.mv.dir==='out'?ease(q0):ease(1-q0),inX=(G.B.l+G.B.r)/2,outX=G.hx+P.w*.45,[gx2,gy2]=roverHomePt(v,b);let px,py,ang;
     if(q<.35){const r=q/.35;px=inX+(outX-inX)*r;py=G.hy-P.h/2;ang=0;}else{const r=(q-.35)/.65;px=outX+(gx2-outX)*r;py=(G.hy-P.h/2)+(gy2-(G.hy-P.h/2))*r;ang=r<.85?G.a1*Math.min(1,r/.15):G.a1*(1-(r-.85)/.15);}
     g.save();g.beginPath();g.rect(X(G.hx),Y(G.B.t-2),UNIT*20,UNIT*20);g.clip();g.translate(X(px),Y(py));g.rotate(ang);drawPart(g,'roverCar',0,0,UNIT,null,null,null,{type:'roverCar',rot:(b.mv.dir==='out'?-1:1)*t*4});g.restore();}}
+// ================= POUSO NA LUA: rampa, 2 astronautas e a bandeira; PASSEIO: rocha de amostra =================
+const EVA_T={first:2.0,gap:1.1,inT:1.2,rampT:1.8,groundT:1.6,plant0:6.8,plantT:1.5,end:9.2};
+function evaPose(k,t,G){const t0=EVA_T.first+k*EVA_T.gap;if(t<t0)return null;let u=t-t0;const inX=(G.B.l+G.B.r)/2,tx=G.ex+(k?.55:1.45);
+  if(u<EVA_T.inT){const r=u/EVA_T.inT;return{x:inX+(G.hx-inX)*r,y:G.hy,walk:1,inside:1};}u-=EVA_T.inT;
+  if(u<EVA_T.rampT){const r=u/EVA_T.rampT;return{x:G.hx+(G.ex-G.hx)*r,y:G.hy+(G.ey-G.hy)*r,walk:1};}u-=EVA_T.rampT;
+  const r=Math.min(1,u/EVA_T.groundT);return{x:G.ex+(tx-G.ex)*r,y:G.gy,walk:r<1?1:0};}
+function drawAstro(X,Y,x,yf,walk,ph,u,salute){const sw=walk?Math.sin(ph)*.13:0,ol=.025*u,out='rgba(20,24,32,.85)';g.lineCap='round';g.lineJoin='round';
+  // pernas (traje branco) e botas
+  for(const sd of[1,-1]){const fx=x+sw*sd;g.strokeStyle=out;g.lineWidth=.13*u+ol*2;g.beginPath();g.moveTo(X(x+.03*sd),Y(yf-.38));g.lineTo(X(fx),Y(yf-.06));g.stroke();g.strokeStyle='#eef0f3';g.lineWidth=.13*u;g.stroke();
+    g.fillStyle='#5b6170';g.fillRect(X(fx-.07),Y(yf-.07),.15*u,.07*u);}
+  // mochila (sistema de suporte de vida)
+  g.fillStyle='#b9bec7';g.strokeStyle=out;g.lineWidth=ol;g.beginPath();g.rect(X(x-.23),Y(yf-.82),.13*u,.36*u);g.fill();g.stroke();g.fillStyle='#8c939e';g.fillRect(X(x-.21),Y(yf-.78),.09*u,.05*u);
+  // tronco
+  g.fillStyle='#f6f7f9';g.beginPath();g.rect(X(x-.13),Y(yf-.8),.27*u,.46*u);g.fill();g.stroke();g.fillStyle='#d23b3b';g.fillRect(X(x-.1),Y(yf-.7),.06*u,.035*u);g.fillStyle='#1d6fd6';g.fillRect(X(x+.02),Y(yf-.66),.08*u,.06*u);
+  // braço (acenando depois de fincar a bandeira) e luva
+  const hx=salute?x+.16:x+.12-sw*.6,hy=salute?yf-.98:yf-.44;g.strokeStyle=out;g.lineWidth=.1*u+ol*2;g.beginPath();g.moveTo(X(x+.08),Y(yf-.72));g.lineTo(X(hx),Y(hy));g.stroke();g.strokeStyle='#eef0f3';g.lineWidth=.1*u;g.stroke();
+  g.fillStyle='#d9dde4';g.beginPath();g.arc(X(hx),Y(hy),.055*u,0,7);g.fill();
+  // capacete com viseira dourada
+  g.fillStyle='#fbfbfc';g.strokeStyle=out;g.lineWidth=ol;g.beginPath();g.arc(X(x+.02),Y(yf-.93),.15*u,0,7);g.fill();g.stroke();
+  const vg=g.createLinearGradient(X(x+.02),Y(yf-1.02),X(x+.14),Y(yf-.86));vg.addColorStop(0,'#ffe08a');vg.addColorStop(.5,'#d49a12');vg.addColorStop(1,'#7a5206');g.fillStyle=vg;g.beginPath();g.ellipse(X(x+.075),Y(yf-.93),.085*u,.1*u,0,0,7);g.fill();
+  g.fillStyle='rgba(255,255,255,.7)';g.beginPath();g.arc(X(x+.05),Y(yf-.97),.025*u,0,7);g.fill();g.lineCap='butt';g.lineJoin='miter';}
+function drawEVA(v,X,Y){const E=S.eva,b=bayAll(v);if(!E||!b||v!==V)return;const G=bayGeom(v,b),t=S.t-E.t0;
+  for(const k of[1,0]){const P=evaPose(k,t,G);if(!P)continue;drawAstro(X,Y,P.x,P.y,P.walk,(t+k)*7,UNIT,!P.walk&&t>EVA_T.plant0+EVA_T.plantT&&k===1);}}
+function brFlag(cx,cy,ux,uy,rx,ry,L,Hh){// bandeira do Brasil: retângulo verde, losango amarelo, círculo azul
+  const P=(a,b)=>[cx+rx*a+ux*b,cy+ry*a+uy*b];g.fillStyle='#009c3b';g.beginPath();[[0,0],[L,0],[L,Hh],[0,Hh]].forEach(([a,b],i)=>{const q=P(a,b);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]);});g.closePath();g.fill();
+  g.fillStyle='#ffdf00';g.beginPath();[[L*.08,Hh/2],[L/2,Hh*.9],[L*.92,Hh/2],[L/2,Hh*.1]].forEach(([a,b],i)=>{const q=P(a,b);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]);});g.closePath();g.fill();
+  const c=P(L/2,Hh/2);g.fillStyle='#002776';g.beginPath();g.arc(c[0],c[1],Hh*.24*Math.hypot(ux,uy),0,7);g.fill();}
+function moonPt(ang,hgt){const bp=MOON_B.pos(S.t),r=MOON.r+(hgt||0);return[bp[0]+Math.cos(ang)*r,bp[1]+Math.sin(ang)*r];}
+function drawMoonStuff(){if(S.dom!==MOON_B&&!(S.flag||S.sample))return;const near=Math.hypot(V.x-MOON_B.pos(S.t)[0],V.y-MOON_B.pos(S.t)[1])-MOON.r;if(near>4000)return;g.setTransform(DPR,0,0,DPR,0,0);
+  const frame=ang=>{const[bx,by]=moonPt(ang,0),[sx,sy]=toScreen(bx,by),[tx,ty]=toScreen(...moonPt(ang,1)),ux=tx-sx,uy=ty-sy,rx=-uy,ry=ux;return{sx,sy,ux,uy,rx,ry};};
+  if(S.flag){const f=frame(S.flag.ang),k=S.flag.k??1,H=2.1*k,L=1.15,Hh=.78;const[px,py]=[f.sx+f.ux*H,f.sy+f.uy*H];
+    g.strokeStyle='#d8dbe0';g.lineWidth=Math.max(1,.07*Math.hypot(f.ux,f.uy));g.beginPath();g.moveTo(f.sx,f.sy);g.lineTo(px,py);g.stroke();
+    if(k>.55){const kk=Math.min(1,(k-.55)/.45);g.strokeStyle='#d8dbe0';g.beginPath();g.moveTo(px,py);g.lineTo(px+f.rx*L*kk,py+f.ry*L*kk);g.stroke();brFlag(px+f.ux*0,py+f.uy*0,-f.ux,-f.uy,f.rx,f.ry,L*kk,Hh);}}
+  if(S.sample&&!S.sample.got){const f=frame(S.sample.ang),m=Math.hypot(f.ux,f.uy),bl=Math.sin(S.t*5)>0;
+    g.fillStyle='#6f7584';g.beginPath();const pts=[[-.55,0],[-.45,.38],[-.1,.62],[.3,.55],[.55,.2],[.5,0]];pts.forEach(([a,b],i)=>{const x=f.sx+f.rx*a+f.ux*b,y=f.sy+f.ry*a+f.uy*b;i?g.lineTo(x,y):g.moveTo(x,y);});g.closePath();g.fill();
+    g.strokeStyle='rgba(255,210,63,.9)';g.lineWidth=Math.max(1.5,.06*m);g.stroke();g.strokeStyle='#cfd3da';g.lineWidth=Math.max(1,.04*m);g.beginPath();g.moveTo(f.sx+f.rx*.9,f.sy+f.ry*.9);g.lineTo(f.sx+f.rx*.9+f.ux*1.6,f.sy+f.ry*.9+f.uy*1.6);g.stroke();
+    if(bl){g.fillStyle='#ffd23f';g.beginPath();g.arc(f.sx+f.rx*.9+f.ux*1.65,f.sy+f.ry*.9+f.uy*1.65,Math.max(2.5,.12*m),0,7);g.fill();}
+    // seta na borda da tela quando a rocha está fora de vista
+    const[sx,sy]=[f.sx+f.ux*.8,f.sy+f.uy*.8],M=34,off=sx<M||sy<M||sx>VW-M||sy>VH-M;
+    if(off){const rk=moonPt(S.sample.ang,0),d=Math.round(Math.hypot(V.x-rk[0],V.y-rk[1]));const cx=VW/2,cy=VH/2,a=Math.atan2(sy-cy,sx-cx),ex=Math.max(M,Math.min(VW-M,cx+Math.cos(a)*VW)),ey=Math.max(M+60,Math.min(VH-M-90,cy+Math.sin(a)*VH));
+        g.fillStyle='rgba(255,210,63,.95)';g.save();g.translate(ex,ey);g.rotate(a);g.beginPath();g.moveTo(12,0);g.lineTo(-6,-8);g.lineTo(-6,8);g.closePath();g.fill();g.restore();
+        g.font='700 12px Chakra Petch, system-ui';const ca=Math.cos(a);g.textAlign=ca>.3?'right':ca<-.3?'left':'center';g.fillText('🪨 amostra'+(d?' · '+d+' m':''),ex-ca*18,ey-Math.sin(a)*20+4);}}}
+function saveMoonSite(){try{const bp=MOON_B.pos(S.t),ang=Math.atan2(V.y-bp[1],V.x-bp[0]),tk=V.parts.filter(q=>PT(q).t==='tank'),cap=tk.reduce((a,q)=>a+capOf(q),0),fu=tk.reduce((a,q)=>a+(q.fuel||0),0);
+  localStorage.setItem('orbita.moonSite',JSON.stringify({ang,flagAng:S.flag?S.flag.ang:ang-7/MOON.r,frac:cap>0?fu/cap:LANDER_MIN_FRAC}));}catch(e){}}
+function evaTick(){if(S.dead||!V)return;
+  if(CAMP_CUR==='c7'&&!S.eva&&S.done.has('c')&&onMoon()&&bayAll(V)){const b=bayAll(V);S.eva={t0:S.t+.6};b.ramp=1;b.want=null;sfx('hyd');toast('Pousou na Lua! 🇧🇷','A rampa está abrindo: os 2 astronautas vão descer e fincar a bandeira.');}
+  const E=S.eva;if(E&&!S.flagDone){const t=S.t-E.t0,b=bayAll(V);if(b&&t>=EVA_T.plant0&&!S.flag){const G=bayGeom(V,b),[wx,wy]=bodyToWorld(V,G.ex+1.75,G.gy),bp=MOON_B.pos(S.t);S.flag={ang:Math.atan2(wy-bp[1],wx-bp[0]),k:0,t0:S.t};sfx('thunk');}
+    if(S.flag&&S.flag.t0!=null)S.flag.k=Math.min(1,(S.t-S.flag.t0)/EVA_T.plantT);if(t>=EVA_T.end){S.flagDone=true;saveMoonSite();}}
+  if(S.sample&&!S.sample.got&&V.isRover){const[rx,ry]=moonPt(S.sample.ang,0);if(Math.hypot(V.x-rx,V.y-ry)<4.5&&Math.hypot(S.rvx,S.rvy)<2.5){S.sample.got=true;sfx('chime');toast('Amostra coletada! 🪨','Rocha guardada no rover. Agora leve de volta: dirija até a rampa e toque em ⬆ GUARDAR O ROVER.');}}}
 // ================= RESGATE DEPOIS DO POUSO (como na vida real) =================
 // em terra: helicópteros (estilo Mi-8 da busca e resgate) e caminhões 6x6 todo-terreno; no mar: navio de resgate com heliponto, botes e helicóptero da Marinha
 function startRescue(){const a0=Math.atan2(V.y,V.x),sea=!landAt(a0),t0=S.t,U=[];
@@ -2290,7 +2346,9 @@ function drawCities(viewM){if(viewM>140000)return;const th=Math.atan2(camYw,camX
 function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.width!==Math.round(VW*DPR)||cv.height!==Math.round(VH*DPR)){cv.width=VW*DPR;cv.height=VH*DPR;}
   if(view2==='map'){SHX=SHY=0;drawMap(real);if(RAU.u.length)rauUpdate(S.t);return;}
   {const sh=(!S.dead&&V.plasma>.15?V.plasma*3.5:0)+(S.shake||0);SHX=(Math.random()-.5)*sh;SHY=(Math.random()-.5)*sh;}
-  const zT=baseZ()*zoomUser;zs=zs?zs*Math.pow(zT/zs,Math.min(1,real*3)):zT;z=zs;{const tgt=chuteExt()*.45;S.ceS=S.ceS==null?tgt:S.ceS+(tgt-S.ceS)*Math.min(1,(real||0)*2.5);const ce=S.ceS,rr=Math.hypot(V.x,V.y);camX=V.x+V.x/rr*ce;camYw=V.y+V.y/rr*ce;}{const q=Math.max(0,S.alt-(S.dom.earth?Math.max(0,surfR(Math.atan2(V.y,V.x))-R):0))*z/VH,kc=Math.max(0,Math.min(1,(q-.2)/.4,(2-q)/.8));camY=VH*(.6-.28*kc);}
+  const zT=baseZ()*zoomUser*(S.eva&&!S.dead?1.8:1);zs=zs?zs*Math.pow(zT/zs,Math.min(1,real*3)):zT;z=zs;{const tgt=chuteExt()*.45;S.ceS=S.ceS==null?tgt:S.ceS+(tgt-S.ceS)*Math.min(1,(real||0)*2.5);const ce=S.ceS,rr=Math.hypot(V.x,V.y);camX=V.x+V.x/rr*ce;camYw=V.y+V.y/rr*ce;
+    // astronautas e bandeira saem pela direita: a câmera acompanha a cena (e não fica atrás do painel)
+    const lt=S.eva&&!S.dead?6.5:0;S.latS=(S.latS||0)+(lt-(S.latS||0))*Math.min(1,(real||0)*1.5);if(Math.abs(S.latS)>.01){camX+=Math.sin(V.hdg)*S.latS;camYw-=Math.cos(V.hdg)*S.latS;}}{const q=Math.max(0,S.alt-(S.dom.earth?Math.max(0,surfR(Math.atan2(V.y,V.x))-R):0))*z/VH,kc=Math.max(0,Math.min(1,(q-.2)/.4,(2-q)/.8));camY=VH*(.6-.28*kc);}
   const B=S.dom,bp=B.pos(S.t),th=Math.atan2(V.y-bp[1],V.x-bp[0]);rot=Math.PI/2-th;const disc=B.r*z<1500,viewM=VH/z,earthNear=B.earth,day=earthNear&&S.altE<45000,lowSky=earthNear&&!disc&&Math.abs(V.x)<60000&&S.altE<60000;
   g.setTransform(DPR,0,0,DPR,0,0);if(earthNear&&!disc){const sk=g.createLinearGradient(0,0,0,VH);sk.addColorStop(0,skyAt(S.altE+viewM*.6));sk.addColorStop(1,skyAt(S.altE-viewM*.4));g.fillStyle=sk;}else g.fillStyle='#03050c';g.fillRect(0,0,VW,VH);
   const sa=disc||!earthNear?1:Math.min(1,Math.max(0,(S.altE-18000)/45000));if(sa>0){g.fillStyle='#fff';stars.forEach(s=>{g.globalAlpha=sa*(.3+.7*s[2]);const d=s[2]>.85?2:1;g.fillRect(s[0]*VW,s[1]*VH,d,d);});g.globalAlpha=1;}
@@ -2316,7 +2374,7 @@ function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.w
     g.strokeStyle='rgba(255,'+Math.round(120+90*k)+','+Math.round(40+70*k)+','+Math.min(1,k*1.3)+')';g.lineWidth=Math.max(1,Math.min(3,p.size*z*1.5));g.beginPath();g.moveTo(sx,sy);g.lineTo(tx,ty);g.stroke();}g.globalCompositeOperation='source-over';
   g.globalCompositeOperation='lighter';for(const p of particles){if(p.type!=='fire')continue;const[sx,sy]=toScreen(p.x,p.y),s=p.size*z;if(s<.5)continue;const a=Math.atan2(p.vy-V.vy,p.vx-V.vx)+rot,c=Math.cos(a),si=-Math.sin(a),k=p.life/p.max;
     g.setTransform(DPR*c,DPR*si,-DPR*si,DPR*c,DPR*sx,DPR*sy);g.globalAlpha=Math.max(0,k)*(day?.55:.8);g.drawImage(p.fl==='blue'||p.fl==='ion'?SPR.blue:p.fl==='plasma'?SPR.plasma:SPR.fire,-s*1.4,-s*.45,s*2.8,s*.9);}g.globalAlpha=1;g.globalCompositeOperation='source-over';
-  if(!disc){for(const d of debris)drawVessel(d,day);if(!S.dead)drawVessel(V,day);if(earthNear&&WATERF&&S.altE<3000){frame(camX,camYw);WATERF();}}else if(!S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.translate(VW/2,camY);g.rotate(-(V.hdg-th));g.fillStyle='#ffb347';g.beginPath();g.moveTo(0,-9);g.lineTo(6,7);g.lineTo(-6,7);g.closePath();g.fill();}
+  if(!disc){drawMoonStuff();for(const d of debris)drawVessel(d,day);if(!S.dead)drawVessel(V,day);if(earthNear&&WATERF&&S.altE<3000){frame(camX,camYw);WATERF();}}else if(!S.dead){g.setTransform(DPR,0,0,DPR,0,0);g.translate(VW/2,camY);g.rotate(-(V.hdg-th));g.fillStyle='#ffb347';g.beginPath();g.moveTo(0,-9);g.lineTo(6,7);g.lineTo(-6,7);g.closePath();g.fill();}
   if(earthNear&&!disc)drawClouds(true,viewM);
   if(target&&!S.dead){
     // a seta aponta para o PONTO DE ENCONTRO (fixo) até a rota já entrar na gravidade do alvo; aí passa a apontar para ele
@@ -2337,7 +2395,7 @@ function segBrake(sg){const P=sg.pts,i=Math.max(1,Math.min(P.length-2,P.findInde
   return{vrel,dv:Math.max(0,vrel-Math.sqrt(b.mu/rp)),esc:Math.sqrt(2*b.mu/rp),alt:rp-b.r};}
 // passagem por um corpo (Lua, planeta): compara com a velocidade de escape e calcula o freio no Pe
 function capInfo(){const B=S.dom,e=S.el;if(!e||B.earth||B.sun||V.ground)return null;const bp=B.pos(S.t),r=Math.hypot(V.x-bp[0],V.y-bp[1]),v=Math.hypot(S.rvx,S.rvy),esc=Math.sqrt(2*B.mu/r),rp=e.pe+B.r;
-  const vpe=e.pe>0?Math.sqrt(v*v+2*B.mu*(1/rp-1/r)):0,vc=e.pe>0?Math.sqrt(B.mu/rp):0;return{v,esc,bound:e.bound,hit:e.pe<0,dv:Math.max(0,vpe-vc),vpe,escPe:e.pe>0?Math.sqrt(2*B.mu/rp):0};}
+  const vpe=e.pe>0?Math.sqrt(v*v+2*B.mu*(1/rp-1/r)):0,vc=e.pe>0?Math.sqrt(B.mu/rp):0;return{v,esc,bound:e.bound&&e.ap+B.r<(B.soi||1e15)*.92,hit:e.pe<0,dv:Math.max(0,vpe-vc),vpe,escPe:e.pe>0?Math.sqrt(2*B.mu/rp):0};}
 function drawMap(real){const t=S.t,[ex,ey]=earthH(t);map.cx=ex+V.x+map.ox;map.cy=ey+V.y+map.oy;$('#mapCenter').hidden=!(map.ox||map.oy);
   const s=map.s,W2=VW/2,H2=VH/2,X=x=>W2+(x-map.cx)*s,Y=y=>H2-(y-map.cy)*s;mapHits=[];g.setTransform(DPR,0,0,DPR,0,0);g.fillStyle='#02040a';g.fillRect(0,0,VW,VH);
   g.fillStyle='#fff';stars.forEach(st=>{g.globalAlpha=.25+.6*st[2];g.fillRect(st[0]*VW,st[1]*VH,st[2]>.85?2:1,st[2]>.85?2:1);});g.globalAlpha=1;
@@ -2421,9 +2479,11 @@ function steerTarget(){const b=target,now=S.t;
 function planGuide(X,Y,ex,ey,lab,dot){const b=target;if(!b)return;const e=S.el;
   if(!rdv||rdv.b!==b)rdv=makePlan(b);if(!rdv)return;
   const scr=rdv.frame==='terra'?[X(ex+rdv.P[0]),Y(ey+rdv.P[1])]:[X(rdv.P[0]),Y(rdv.P[1])],rr=Math.max(b.r*map.s,5);
-  g.strokeStyle='#ffb347';g.lineWidth=2;g.setLineDash([4,4]);g.beginPath();g.arc(scr[0],scr[1],rr,0,7);g.stroke();g.setLineDash([]);g.beginPath();for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){g.moveTo(scr[0]+dx*(rr+4),scr[1]+dy*(rr+4));g.lineTo(scr[0]+dx*(rr+14),scr[1]+dy*(rr+14));}g.stroke();
-  lab('Ponto de encontro',scr[0],scr[1],rr+14,'#ffb347',10);
-  const enc=pred&&pred.segs.find(q=>q.b===b),sent=b===MOON_B?S.dom.earth&&e&&(e.ap+R>MOON.a*.8||!e.bound):!S.dom.earth;
+  const enc=pred&&pred.segs.find(q=>q.b===b),encNow=!!enc;
+  // com a rota já chegando no alvo, o ponto de encontro planejado não serve mais: some (a rota de verdade é o que vale)
+  if(!encNow){g.strokeStyle='#ffb347';g.lineWidth=2;g.setLineDash([4,4]);g.beginPath();g.arc(scr[0],scr[1],rr,0,7);g.stroke();g.setLineDash([]);g.beginPath();for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){g.moveTo(scr[0]+dx*(rr+4),scr[1]+dy*(rr+4));g.lineTo(scr[0]+dx*(rr+14),scr[1]+dy*(rr+14));}g.stroke();
+  lab('Ponto de encontro',scr[0],scr[1],rr+14,'#ffb347',10);}
+  const sent=b===MOON_B?S.dom.earth&&e&&(e.ap+R>MOON.a*.8||!e.bound):!S.dom.earth;
   if(enc){const br=enc.at?segBrake(enc):null,tIn=enc.t0-S.t;
     guideTxt='<b style="color:var(--good)">Encontro ✓</b> '+(tIn>1?'· entra na gravidade '+b.de+' em '+fmtT(tIn):'')+(br&&pred.hit!==b?'<br>Passa a '+fmt(br.alt)+(br.vrel>br.esc?' · freie <b>'+Math.round(br.dv)+' m/s</b> no ponto laranja para ficar':' · já fica presa'):pred.hit===b?'<br>Rota bate '+b.em+': freie antes':'');return;}
   if(!sent&&b===MOON_B){const r=rdv.r0,thb=Math.atan2(rdv.P[1],rdv.P[0])+Math.PI,bx=X(ex+r*Math.cos(thb)),by=Y(ey+r*Math.sin(thb));
