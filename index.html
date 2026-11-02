@@ -140,6 +140,8 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #toast p{margin:0;color:var(--ink);font-size:13px}
 #mapUI{position:absolute;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);display:none;flex-direction:column;align-items:center;gap:8px;max-width:calc(100vw - 260px)}
 #mapUI.on{display:flex}
+#navCue{position:absolute;left:50%;top:calc(66px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:6;pointer-events:none;padding:7px 14px;font-size:14px;font-weight:600;text-align:center;max-width:calc(100vw - 420px)}#navCue.go{color:#5ee2a0;border-color:rgba(94,226,160,.6);animation:cuePulse 1s infinite}@keyframes cuePulse{50%{box-shadow:0 0 18px rgba(94,226,160,.55)}}
+@media (max-width:700px){#navCue{top:calc(150px + env(safe-area-inset-top,0px));max-width:calc(100vw - 24px);font-size:12px}}
 #mapInfo{padding:8px 14px;text-align:center;font-size:13px}
 #mapInfo b{font-family:var(--display);font-size:15px;color:var(--orbit)}#mapInfo .mi-n{color:var(--muted);font-size:12px;white-space:nowrap}#mapInfo .mi-l{font-size:12px;margin-top:2px;color:#d7deef}#mapInfo .mi-l b{font-size:12px;font-family:inherit;color:inherit}
 @media (max-width:860px){
@@ -300,7 +302,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 65</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button><p class="hint">Fone de ouvido recomendado · versão 66</p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -318,6 +320,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   <div id="warpHint" class="glass">Com motor ligado ou no chão, no máximo 5×</div>
   <div id="strip"></div>
   <div id="layerBox" class="glass"><div class="eyebrow" id="lbAlt"></div><h2 id="lbName"></h2><p id="lbFact"></p></div>
+  <div id="navCue" class="glass" hidden></div>
   <div id="mapUI"><div id="mapInfo" class="glass" title="Toque para esconder"></div><button id="mapCenter" class="glass" hidden>◎ Centralizar</button><button id="miBtn" class="glass" hidden aria-label="Mostrar informações da órbita">ⓘ Órbita</button></div>
   <div id="ctlL"><button class="round" data-k="a" aria-label="Girar para a esquerda">⟲</button><button class="round" data-k="d" aria-label="Girar para a direita">⟳</button></div>
   <div id="rcsPad" hidden><button data-r="0,1" aria-label="RCS frente">▲</button><button data-r="-1,0" aria-label="RCS esquerda">◀</button><button data-r="0,-1" aria-label="RCS trás">▼</button><button data-r="1,0" aria-label="RCS direita">▶</button></div>
@@ -342,6 +345,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
       <button id="mFs">Tela cheia (celular deitado)</button>
       <button id="mSas" class="on">Estabilizador: ligado</button>
       <button id="mSnd" class="on">Som: ligado</button>
+      <button id="mVoz" class="on">Voz: padrão</button>
       <label class="vol"><span class="eyebrow">Volume</span><input type="range" id="mVol" min="0" max="100" value="85" aria-label="Volume"></label>
     </div>
     <div><div class="eyebrow">Trapaças <span class="cheatFlag" hidden style="color:var(--accent)">● ativas</span></div><div class="cheatsBox"></div></div>
@@ -1338,7 +1342,16 @@ function tangleMsg(st){sfx('pyro');toast('Paraquedas embaraçou!',st===1?'Abriu 
 // abrir o paraquedas na hora (toque nele, na cápsula ou no botão); rápido demais rasgaria
 // solta tudo o que está embaixo da cápsula (módulo de serviço), como a Soyuz faz antes da reentrada
 // aborto com a torre: corta tudo que está abaixo da cápsula (e do pacote retro), com ou sem separador
-function say(t){try{if(!snd.on||!window.speechSynthesis)return;const u=new SpeechSynthesisUtterance(t);u.lang='pt-BR';const vs=speechSynthesis.getVoices(),v=vs.find(x=>/^pt[-_]BR/i.test(x.lang))||vs.find(x=>/^pt/i.test(x.lang));if(v)u.voice=v;u.rate=1.12;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+// voz: escolhe a mais natural do aparelho (as "Natural/Online" do Edge, a do Google no Chrome/Android, as "Premium" da Apple); dá para trocar ou desligar no menu
+let VOZ=null;try{VOZ=localStorage.getItem('orbita.voz');}catch(e){}
+function vozes(){if(!window.speechSynthesis)return[];const sc=v=>(/^pt[-_]BR/i.test(v.lang)?100:/^pt/i.test(v.lang)?40:-999)+(/natural|neural|online/i.test(v.name)?40:0)+(/google/i.test(v.name)?30:0)+(/premium|enhanced|aprimorad|melhorad/i.test(v.name)?25:0)+(/luciana|francisca|thalita|antonio|felipe/i.test(v.name)?10:0)-(/espeak|maria|daniel/i.test(v.name)?25:0);
+  return speechSynthesis.getVoices().filter(v=>sc(v)>0).sort((a,b)=>sc(b)-sc(a));}
+function vozAtual(){if(VOZ==='off')return null;const vs=vozes();return vs.find(v=>v.name===VOZ)||vs[0]||null;}
+function vozUI(){const b=$('#mVoz');if(!b)return;const v=vozAtual();b.textContent='Voz: '+(VOZ==='off'?'desligada':v?v.name.replace(/Microsoft |Google |\(.*?\)| - .*$/g,'').trim()||v.name:'padrão');b.classList.toggle('on',VOZ!=='off');}
+// fila curta: deixa a palavra atual terminar; só descarta o que ficou acumulado (nunca corta no meio nem atrasa a contagem)
+function say(t,urg){try{if(!snd.on||!window.speechSynthesis||VOZ==='off')return;const u=new SpeechSynthesisUtterance(t);u.lang='pt-BR';const v=vozAtual();if(v){u.voice=v;u.lang=v.lang;}u.rate=1.08;u.pitch=.95;u.volume=Math.min(1,(snd.vol??.85)+.15);
+  if(urg||speechSynthesis.pending)speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+if(window.speechSynthesis)speechSynthesis.addEventListener?.('voiceschanged',()=>vozUI());
 // vigia de perigo: superaquecimento chegando no limite ou impacto rápido com o chão em poucos segundos → alarme, voz, tempo 1× e botão ABORTAR (se a torre estiver presa)
 function dangerCheck(){if(S.dead||V.clamped||V.sink||S.liftT<0||S.hover){S.dng=null;return null;}
   const lim=V.shield?2600:1250,temp=V.temp??15,dtg=S.t-(S.dgT??S.t),rate=dtg>0?(temp-(S.dgTemp??temp))/dtg:0;if(dtg>.25||S.dgT==null){S.dgT=S.t;S.dgTemp=temp;}S.dgRate=dtg>.25?rate:(S.dgRate||0);
@@ -1503,7 +1516,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=65;
+const GAME_VER=66;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -1515,7 +1528,7 @@ function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs
     emit(real);const li=layerAt(S.altE);if(S.dom.earth&&li!==S.layer){if(li>S.layer&&li>0){layerBanner(li);if(S.layer>=0)sfx('chime');}S.layer=li;}
     if(CAMP_CUR){const cm=CAMP.find(c=>c.id===CAMP_CUR),m=MS.find(q=>!S.done.has(q.id));if(m&&m.done()){S.done.add(m.id);sfx('chime');buildMissions();const nx=MS.find(q=>!S.done.has(q.id));if(nx)toast(m.t+' ✓','Agora: '+nx.t+'. '+nx.h);else if(S.dom.earth&&V.ground&&V.cap&&!S.hover){S.pendWin=cm;S.pendAt=S.t;}else campWin(cm);}}
     else for(const m of MISSIONS)if(!S.done.has(m.id)&&m.done()){S.done.add(m.id);toast(m.t,m.why);sfx('chime');buildMissions();}
-    rescueTick();roverTick(real);gtTip();countTick();hypeTick(real);fxTick(real);crowdCam();if(S.liftT>=0&&!S.cheer&&S.dom.earth&&S.altE<3000&&S.padParts){S.cheer=1;crowdMurmur(false);crowdCheer();}if(target&&S.dom===target){target=null;rdv=null;pred=null;predTimer=0;}
+    rescueTick();roverTick(real);gtTip();countTick();navCue();hypeTick(real);fxTick(real);crowdCam();if(S.liftT>=0&&!S.cheer&&S.dom.earth&&S.altE<3000&&S.padParts){S.cheer=1;crowdMurmur(false);crowdCheer();}if(target&&S.dom===target){target=null;rdv=null;pred=null;predTimer=0;}
     if(S.dom!==S.lastDom){const ci=S.lastDom&&capInfo();if(ci&&!ci.hit)toast('Na gravidade '+S.dom.de,ci.bound?'Você já está preso numa órbita aqui.':'A '+Math.round(ci.v)+' m/s você passa reto (escape aqui: '+Math.round(ci.esc)+' m/s). Para ficar: vire o bico contra o movimento e freie '+Math.round(ci.dv)+' m/s no Pe.');S.lastDom=S.dom;}}
   else{if(ccOn){ccOn=false;$('#ccWrap').classList.remove('on');}stepWorldDead(real);if(!S.tipShown&&(S.t-(S.deadAt??(S.deadAt=S.t))>.8)){S.tipShown=1;$('#deadTip').textContent='💡 Dica: '+deathTip();}$('#deadBox').hidden=!S.tipShown;$('#btnRewind').hidden=!snaps.length;}
   if(!S.dead){snapT+=real;if(snapT>=1){snapT=0;snaps.push(snapshot());if(snaps.length>45)snaps.shift();}}
@@ -1606,14 +1619,16 @@ document.querySelectorAll('#rcsPad button').forEach(b=>{const[x,y]=b.dataset.r.s
 function engKey(){if(S&&S.count){countAbort();return;}if(V&&V.clamped&&V.main&&S.liftT<0&&!S.master&&!S.countDone&&!S.dead&&propAct(V).some(i=>V.parts[i].on)){countStart();return;}setMaster(!S.master);}
 // ================= CONTAGEM REGRESSIVA (como nos lançamentos de verdade) =================
 const CD_WORDS=['zero','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez'];
-function countStart(){S.count={t0:S.t,T:10,last:11,ign:false};$('#countdown').hidden=false;$('#cdN').textContent='10';$('#cdT').textContent='segundos';$('#engLbl').textContent='CONTAGEM';sfx('clamp');say('Contagem regressiva');crowdMurmur(true);}
-function countAbort(){S.count=null;$('#countdown').hidden=true;setMaster(false);say('Contagem interrompida');crowdMurmur(false);tip(innerWidth/2,innerHeight*.4,'Contagem interrompida · toque em LIGAR para recomeçar');}
-function countTick(){const C=S.count;if(!C)return;const rem=C.T-(S.t-C.t0),n=Math.max(0,Math.ceil(rem-1e-6));
-  if(n<C.last){C.last=n;$('#cdN').textContent=n;const el=$('#cdN');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');if(n===3)say('três. Ignição!');else if(n<=10&&n>0)say(CD_WORDS[n]);if(n<=3&&n>0)sfx('chime');}
+// a contagem anda no relógio de verdade (não no tempo do jogo, que fica lento quando a fumaça pesa no celular): um número por segundo, sempre
+const cdRem=()=>S.count?S.count.T-S.count.el:99;
+function countStart(){S.count={T:11.4,el:0,w:performance.now(),last:12,ign:false};$('#countdown').hidden=false;$('#cdN').textContent='10';$('#cdT').textContent='segundos';$('#engLbl').textContent='CONTAGEM';sfx('clamp');say('Contagem regressiva',true);crowdMurmur(true);}
+function countAbort(){S.count=null;$('#countdown').hidden=true;setMaster(false);say('Contagem interrompida',true);crowdMurmur(false);tip(innerWidth/2,innerHeight*.4,'Contagem interrompida · toque em LIGAR para recomeçar');}
+function countTick(){const C=S.count;if(!C)return;const now=performance.now();C.el+=Math.min(.25,Math.max(0,(now-(C.w||now))/1000));C.w=now;const rem=C.T-C.el,n=Math.max(0,Math.ceil(rem-1e-6));
+  if(n<C.last&&n<=10){C.last=n;$('#cdN').textContent=n;const el=$('#cdN');el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');if(n<=10&&n>0)say(CD_WORDS[n]);if(VOZ==='off'||n<=3&&n>0)sfx('chime');}
   if(rem<=3.2&&!C.ign){C.ign=true;if(S.thr<=0)setThr(1);setMaster(true);$('#cdT').textContent='ignição';}
-  if(rem<=0){S.count=null;S.countDone=true;$('#cdN').textContent='0';$('#cdT').textContent='decolagem!';setTimeout(()=>{if(!S.count)$('#countdown').hidden=true;},1400);say('Decolagem!');}}
+  if(rem<=0){S.count=null;S.countDone=true;$('#cdN').textContent='0';$('#cdT').textContent='decolagem!';setTimeout(()=>{if(!S.count)$('#countdown').hidden=true;},1400);say('Decolagem!',true);}}
 function leverUI(){const b=$('#btnEng'),on=!!(S&&S.master);b.classList.toggle('on',on);b.setAttribute('aria-checked',on);$('#engLbl').textContent=on?'LIGADOS':'LIGAR';}
-$('#btnEng').onclick=engKey;$('#cdSkip').onclick=()=>{const C=S&&S.count;if(!C)return;const rem=C.T-(S.t-C.t0);if(rem>3.4)C.t0-=rem-3.4;};
+$('#btnEng').onclick=engKey;$('#cdSkip').onclick=()=>{const C=S&&S.count;if(!C)return;const rem=C.T-C.el;if(rem>4.05){C.el+=rem-4.05;C.last=Math.min(C.last,5);}};
 let lbTimer,tTimer;
 function layerBanner(i){const L=LAYERS[i];$('#lbAlt').textContent=(L.a/1000)+' a '+(L.b>=1e7?'10.000':L.b/1000)+' km';$('#lbName').textContent=L.n;$('#lbFact').textContent=L.f;$('#layerFact').innerHTML='<b style="color:var(--ink)">'+L.n+'</b> · '+L.f;$('#layerBox').classList.add('on');const rl=$('#rLayer');rl.classList.remove('flash');void rl.offsetWidth;rl.classList.add('flash');clearTimeout(lbTimer);lbTimer=setTimeout(()=>$('#layerBox').classList.remove('on'),mobile()?3500:7000);}
 function toast(t,b){const el=$('#toast');$('#tTitle').textContent=t;$('#tBody').textContent=b;el.classList.add('on');el.classList.remove('full');el.classList.toggle('mini',mobile()||landM());clearTimeout(tTimer);tTimer=setTimeout(()=>el.classList.remove('on'),mobile()?3500:8000);}
@@ -1623,7 +1638,7 @@ function buildMissions(){const L=MS||MISSIONS,cur=L.find(m=>!S.done.has(m.id));$
 const STRIP_TOP=150000,spos=a=>Math.sqrt(Math.max(0,Math.min(a,STRIP_TOP))/STRIP_TOP);
 function buildStrip(){$('#strip').innerHTML=LAYERS.filter(l=>l.a<STRIP_TOP).map(l=>'<div class="sl" style="bottom:'+spos(l.a)*100+'%;height:'+(spos(Math.min(l.b,STRIP_TOP))-spos(l.a))*100+'%;background:'+l.c+'"><span>'+l.n+'</span></div>').join('')+'<div class="km" style="bottom:'+spos(SPACE)*100+'%"><span>100 km · espaço</span></div><i id="mark"></i>';}
 function fmt(v){const a=Math.abs(v);return a>=1e9?(v/1e9).toFixed(2)+' Gm':a>=1e6?(v/1e3).toLocaleString('pt-BR',{maximumFractionDigits:0})+' km':a>=1e4?(v/1e3).toFixed(1)+' km':Math.round(v)+' m';}
-const fmtT=s=>s<3600?Math.round(s/60)+' min':s<2*DAY?(s/3600).toFixed(1)+' h':(s/DAY).toFixed(1)+' dias';
+const fmtT=s=>s<90?Math.max(1,Math.round(s))+' s':s<3600?Math.round(s/60)+' min':s<2*DAY?(s/3600).toFixed(1)+' h':(s/DAY).toFixed(1)+' dias';
 function hud(){rcsUI();const sp=Math.hypot(S.rvx,S.rvy);{const bp=S.dom.pos(S.t),up=Math.atan2(V.y-bp[1],V.x-bp[0]),pit=90-Math.abs(Math.atan2(Math.sin(V.hdg-up),Math.cos(V.hdg-up)))*57.2958,vr=(S.rvx*(V.x-bp[0])+S.rvy*(V.y-bp[1]))/Math.hypot(V.x-bp[0],V.y-bp[1]),show=!S.dead&&!V.ground&&!V.clamped&&vr>-5&&S.alt<(S.dom.earth?130000:25000)&&!V.isRover;$('#rowPitch').hidden=!show;
     if(show){const id=idealPitch(S.alt,!!S.dom.earth),d=pit-id,el=$('#rPitch');el.textContent=Math.round(pit)+'° · ideal '+Math.round(id)+'°';el.style.color=Math.abs(d)<12?'':d<0?'#ffb020':'#9ecbff';}}$('#rLayer').textContent=S.dom.earth?LAYERS[layerAt(S.altE)].n:S.dom.sun?'Em órbita do Sol':S.dom===MOON_B&&V.hgt!=null&&S.alt<3000?'Lua · radar de pouso':'Perto '+S.dom.de;$('#rAlt').textContent=fmt(S.dom===MOON_B&&V.hgt!=null&&S.alt<3000?Math.max(0,V.hgt):S.alt);$('#rVel').textContent=Math.round(sp).toLocaleString('pt-BR')+' m/s';
   const segs=new Set(propAct(V).map(i=>V.seg[i]));let f=0,f0=0;V.parts.forEach((p,i)=>{if(segs.has(V.seg[i])&&!PT(p).les){f+=p.fuel||0;f0+=capOf(p);}});const fp=f0?f/f0:0;$('#fuelFill').style.height=fp*100+'%';$('#fuelFill').classList.toggle('low',fp<.2);$('#fuelPct').textContent=f0?Math.round(100*fp)+'%':'—';
@@ -1664,6 +1679,7 @@ const chuteWarp=()=>!!(V&&!S.dead&&!V.clamped&&!V.ground&&S.dom&&S.dom.earth&&S.
 const warpLimited=()=>S.altE<SPACE*1.05||S.thr>0||solidLit(V)||V.ground||V.clamped; // no ar ou com motor, a física precisa de passos curtos
 $('#wDn').onclick=()=>setWarp(-1);$('#wUp').onclick=()=>setWarp(1);
 function toggleSas(){sas=!sas;$('#mSas').textContent='Estabilizador: '+(sas?'ligado':'desligado');$('#mSas').classList.toggle('on',sas);}$('#mSas').onclick=toggleSas;
+$('#mVoz').onclick=()=>{const vs=vozes(),names=[...vs.map(v=>v.name),'off'],cur=VOZ==='off'?'off':(vozAtual()||{}).name,i=names.indexOf(cur);VOZ=names[(i+1)%names.length];try{localStorage.setItem('orbita.voz',VOZ);}catch(e){}vozUI();say(VOZ==='off'?'':'Contagem regressiva. Três, dois, um.',true);};vozUI();
 $('#mSnd').onclick=()=>{snd.on=!snd.on;$('#mSnd').textContent='Som: '+(snd.on?'ligado':'desligado');$('#mSnd').classList.toggle('on',snd.on);if(snd.master)snd.master.gain.value=snd.on?snd.vol:0;};
 $('#mVol').oninput=e=>{snd.vol=e.target.value/100;if(snd.master&&snd.on)snd.master.gain.value=snd.vol;};
 $('#btnMenu').onclick=()=>$('#drawer').classList.toggle('open');$('#btnClose').onclick=()=>$('#drawer').classList.remove('open');$('#chip').onclick=()=>$('#drawer').classList.add('open');
@@ -2402,9 +2418,9 @@ function flameSplash(v,gc){const tt=performance.now()/1000;let best=null;
 function padNear(){return S.dom&&S.dom.earth&&Math.abs(Math.atan2(V.y,V.x)-Math.PI/2)*R<80&&S.altE<400;}
 function fxTick(real){if(S.dead||!V)return;
   // faíscas dos ignitores embaixo dos bocais, pouco antes da ignição
-  if(S.count){const rem=S.count.T-(S.t-S.count.t0);if(rem<5.5&&rem>3.1)for(const q of V.parts){const P=PT(q);if(P.t!=='eng'||!q.on||P.les)continue;const[ex,ey]=bodyToWorld(V,q.x,q.y+P.h/2);for(let i=0;i<Math.ceil(real*45);i++){const a=Math.PI*1.5+(Math.random()-.5)*2.4,sp=6+Math.random()*16;particles.push({type:'spark',x:ex+(Math.random()-.5)*P.w*UNIT*.6,y:ey,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:.25+Math.random()*.45,max:.7,size:.1+Math.random()*.12,grow:0});}}}
+  if(S.count){const rem=cdRem();if(rem<5.5&&rem>3.1)for(const q of V.parts){const P=PT(q);if(P.t!=='eng'||!q.on||P.les)continue;const[ex,ey]=bodyToWorld(V,q.x,q.y+P.h/2);for(let i=0;i<Math.ceil(real*45);i++){const a=Math.PI*1.5+(Math.random()-.5)*2.4,sp=6+Math.random()*16;particles.push({type:'spark',x:ex+(Math.random()-.5)*P.w*UNIT*.6,y:ey,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:.25+Math.random()*.45,max:.7,size:.1+Math.random()*.12,grow:0});}}}
   // dilúvio: os canhões d'água da plataforma molham o fosso da ignição até logo depois da decolagem
-  const del=!!(S.dom&&S.dom.earth&&Math.abs(Math.atan2(V.y,V.x)-Math.PI/2)*R<80&&S.altE<3000&&((S.count&&S.count.T-(S.t-S.count.t0)<7)||(V.clamped&&V.firing.length)||(S.liftT>=0&&S.t-S.liftT<14)));S.delK=(S.delK||0)+((del?1:0)-(S.delK||0))*Math.min(1,real*(del?2.5:.8));
+  const del=!!(S.dom&&S.dom.earth&&Math.abs(Math.atan2(V.y,V.x)-Math.PI/2)*R<80&&S.altE<3000&&((S.count&&cdRem()<7)||(V.clamped&&V.firing.length)||(S.liftT>=0&&S.t-S.liftT<14)));S.delK=(S.delK||0)+((del?1:0)-(S.delK||0))*Math.min(1,real*(del?2.5:.8));
   if(del){const n=Math.ceil(real*70);for(const sd of[-1,1])for(let i=0;i<n;i++){const x=sd*(42.4+Math.random()*.4),y=5.4+Math.random()*.4;particles.push({type:'drop',x,y:R+y,vx:-sd*(15+Math.random()*9),vy:9+Math.random()*7,life:3,max:3,size:.18+Math.random()*.22});}
     if(V.firing.length&&Math.random()<real*14){const s=Math.random()<.5?-1:1;particles.push({type:'smoke',x:s*(4+Math.random()*16),y:R+1+Math.random()*2,vx:s*(4+Math.random()*10),vy:6+Math.random()*10,life:6+Math.random()*6,max:12,size:4+Math.random()*4,grow:3+Math.random()*2,v:(Math.random()*4)|0,heat:0,flip:Math.random()<.5,spread:1});}}
   // tremor da câmera: ronco na ignição, forte na decolagem, vai sumindo com a altura
@@ -2412,7 +2428,7 @@ function fxTick(real){if(S.dead||!V)return;
 // ================= PÚBLICO ASSISTINDO O LANÇAMENTO =================
 // empolgação: 0 parado · cresce na contagem/ignição · máxima na decolagem (vai baixando depois)
 function hypeTarget(){if(!S||S.dead)return 0;if(S.liftT>=0){const a=S.t-S.liftT;return a<0?0:Math.max(.25,1-Math.max(0,a-14)/25);}
-  if(S.count){const rem=S.count.T-(S.t-S.count.t0);return S.count.ign?.62:.1+.42*Math.max(0,1-rem/10);}return V&&V.clamped?(V.firing&&V.firing.length?.55:.06):0;}
+  if(S.count){const rem=cdRem();return S.count.ign?.62:.1+.42*Math.max(0,1-rem/10);}return V&&V.clamped?(V.firing&&V.firing.length?.55:.06):0;}
 function hypeTick(real){const tg=hypeTarget(),h=S.hypeS??tg;S.hypeS=h+(tg-h)*Math.min(1,(real||0)*(tg>h?1.1:.5));}
 function crowdHype(){return S?(S.hypeS??hypeTarget()):0;}
 const CROWD=(()=>{let sd=7;const rnd=()=>((sd=(sd*16807)%2147483647)/2147483647);const cols=['#e94b3c','#2e86de','#f6b93b','#20bf6b','#ffffff','#8854d0','#fd9644','#45aaf2','#eb3b5a','#26de81','#f7f1e3','#3867d6'],skin=['#f1c27d','#c68642','#8d5524','#e0ac69','#ffdbac','#a0662f'];
@@ -2479,7 +2495,7 @@ function crowdCam(){const show=!!(S&&V&&!S.dead&&view2==='flight'&&S.dom&&S.dom.
   for(let row=0;row<3;row++){const sc=[.5,.7,.98][row]*u,n=[10,7,5][row],yb=H-[22,10,-12][row]*u;
     for(let i=0;i<n+1;i++){const P=CROWD[(row*17+i*5)%CROWD.length],x=(i+(row%2?.5:.15))*W/n+(P.x-.5)*6*u;if(Math.abs(x-rx)<[9,13,16][row]*u)continue;drawFan(c,x,yb,sc,P,t,hype,glow,row===2);}
     if(row<2){c.fillStyle=night?'rgba(20,30,48,'+(.35-row*.15)+')':'rgba(200,222,240,'+(.32-row*.14)+')';c.fillRect(0,0,W,H);}}
-  if(S.count){const n=Math.max(0,Math.ceil(S.count.T-(S.t-S.count.t0)));c.font='800 '+(16*u)+'px Chakra Petch, system-ui';c.textAlign='right';c.fillStyle='rgba(0,0,0,.45)';c.fillText('T-'+n,W-3.5*u,15.5*u);c.fillStyle='#fff';c.fillText('T-'+n,W-4*u,15*u);}
+  if(S.count){const n=Math.max(0,Math.min(10,Math.ceil(cdRem())));c.font='800 '+(16*u)+'px Chakra Petch, system-ui';c.textAlign='right';c.fillStyle='rgba(0,0,0,.45)';c.fillText('T-'+n,W-3.5*u,15.5*u);c.fillStyle='#fff';c.fillText('T-'+n,W-4*u,15*u);}
   if(hype>.9&&S.liftT>=0&&S.t-S.liftT<4){c.fillStyle='rgba(255,255,255,'+(.25*Math.random())+')';c.fillRect(0,0,W,H);}}
 // murmúrio do público crescendo na contagem
 let murm=null;function crowdMurmur(on){if(!snd.ac)return;const ac=snd.ac,t=ac.currentTime;try{if(on&&!murm){const src=ac.createBufferSource();src.buffer=noiseBuf(ac,'pink',6);src.loop=true;const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=650;bp.Q.value=.9;const gn=ac.createGain();gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(.05,t+1.5);gn.gain.linearRampToValueAtTime(.16,t+10);src.connect(bp).connect(gn).connect(snd.master);src.start(t);murm={src,gn};}
@@ -2720,6 +2736,19 @@ function placeLabels(LB,extra){g.font='12px IBM Plex Sans, system-ui, sans-serif
 let rdv=null;
 // viagem a um planeta: a "velocidade de sobra" (v∞) que precisa ter ao escapar da Terra e a que você tem agora. Como v∞ é pequena perto da velocidade de escape,
 // 10 m/s a menos na queima viram ~100 m/s a menos lá fora: por isso a conta é feita ao vivo, no ponto em que você está, e não uma vez só
+// aviso do ponto verde também fora do mapa, e o tempo acelerado desacelera sozinho perto dele (a 50× o ponto passa em poucos segundos)
+function navCue(){const el=$('#navCue');if(!el)return;let t='',go=false;
+  if(target&&rdv&&(target===MOON_B||target.planet)&&!S.dead&&S.dom.earth&&!V.ground&&!V.clamped&&S.el&&S.el.bound&&S.altE>SPACE*.6||target&&rdv&&target.planet&&S.dom.earth&&!S.dead&&S.el&&!S.el.bound){
+    const isM=target===MOON_B,r=Math.hypot(V.x,V.y),v=Math.hypot(S.rvx,S.rvy),ei=isM?null:escInfo(target.planet),sent=isM?S.el.ap+R>MOON.a*.8||!S.el.bound:ei.have>=ei.need*.97,
+      dv=Math.round(isM?Math.max(0,Math.sqrt(MU*(2/r-2/(r+MOON.a)))-v):ei.dv),pr=V.parts.some(q=>PT(q).probe)&&!probeOnly();
+    if(!isM&&S.t-(rdv.tp||0)>120&&!V.firing.length){const np=makePlan(target);if(np){rdv.thb=np.thb;rdv.r0=np.r0;}rdv.tp=S.t;}
+    if(sent){rdv.okT=rdv.okT??S.t;if(S.t-rdv.okT<40||V.firing.length)t='✓ Rota certa '+(isM?'até a Lua':'rumo a '+target.n)+' · pode desligar'+(pr?' e soltar a sonda (ESTÁGIO)':'');}
+    else{const thb=isM?Math.atan2(rdv.P[1],rdv.P[0])+Math.PI:rdv.thb,wv=v/Math.max(1,r),ang=((Math.atan2(V.y,V.x)-thb)%(2*Math.PI)+2*Math.PI)%(2*Math.PI),tLeft=wv>0?ang/wv:0,burning=V.firing.length&&S.thr>0;
+      if(burning||!isM&&ei.have>0){t='🔥 Continue acelerando para frente: faltam ~'+dv+' m/s';go=true;}
+      else if(tLeft<6||ang>2*Math.PI-.04){t='🟢 ACELERE AGORA para frente: ~'+dv+' m/s';go=true;}
+      else t='🟢 Ponto verde em '+fmtT(tLeft)+' · lá, acelere para frente ~'+dv+' m/s';
+      if(warp>1&&tLeft<warp*2.5+10&&ang<6.2){let w=1;for(const k of WARPS)if(k<=Math.max(1,(tLeft-10)/2.5))w=k;if(w<warp){warp=w;if(w===1)tip(innerWidth/2,innerHeight*.4,'Chegando no ponto verde: tempo normal');}}}}
+  el.hidden=!t||view2==='map';el.classList.toggle('go',go);if(t&&el.textContent!==t)el.textContent=t;}
 function escInfo(p){const r=Math.hypot(V.x,V.y),v=Math.hypot(S.rvx,S.rvy),need=Math.abs(Math.sqrt(MU_SUN/EARTH_P.a)*(Math.sqrt(2*p.a/(EARTH_P.a+p.a))-1)),h2=v*v-2*MU/r;
   return{need,have:h2>0?Math.sqrt(h2):-Math.sqrt(-h2),dv:Math.max(0,Math.sqrt(need*need*1.03+2*MU/r)-v)};}
 function makePlan(b){const t=S.t,e=S.el,inOrb=!!(S.dom.earth&&e&&e.bound&&e.pe>SPACE*.6);
