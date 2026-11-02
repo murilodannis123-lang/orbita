@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#070b16">
+<meta name="theme-color" content="#03060f">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Órbita">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
@@ -17,7 +17,8 @@
   --display:'Chakra Petch',system-ui,sans-serif;--body:'IBM Plex Sans',system-ui,sans-serif;
   color-scheme:dark;
 }
-html,body{height:100%}
+html,body{height:100%;background:#03060f}
+html #intro,html #film{bottom:calc(-1 * var(--gapB,0px))}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);font-variant-numeric:tabular-nums;overflow:hidden}
 *{box-sizing:border-box}
 button{font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer}
@@ -64,7 +65,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 html,body,#hangar,#stack,#catalog,.pgrid{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}input,textarea{-webkit-user-select:text;user-select:text}.pgrid .part{touch-action:pan-x pan-y}
 button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 #flight.on{display:block}
-#sky{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#sky{position:absolute;inset:0 0 auto 0;width:100%;height:calc(100% + var(--gapB,0px));display:block;touch-action:none}
 .glass{background:rgba(7,11,22,.6);backdrop-filter:blur(8px);border:1px solid rgba(120,140,190,.22);border-radius:12px}
 #countdown{position:absolute;left:50%;top:26%;transform:translateX(-50%);text-align:center;color:#fff;z-index:4;pointer-events:none;text-shadow:0 2px 12px rgba(0,0,0,.6)}#countdown small,#countdown span{display:block;font:700 13px var(--display,system-ui);letter-spacing:.2em;text-transform:uppercase;opacity:.85}#countdown b{display:block;font:800 76px/1 var(--display,system-ui)}#countdown b.pop{animation:cdPop .5s}@keyframes cdPop{0%{transform:scale(1.35);opacity:.4}100%{transform:scale(1);opacity:1}}#cdSkip{pointer-events:auto;margin-top:8px;padding:5px 12px;font-size:12px;background:rgba(7,11,22,.55);border-radius:10px}
 #ccWrap{position:absolute;top:calc(112px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));width:min(170px,42vw);aspect-ratio:17/10;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.28);box-shadow:0 6px 22px rgba(0,0,0,.45);opacity:0;transition:opacity .6s;pointer-events:none;z-index:3}
@@ -351,7 +352,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <button id="btnCampI" class="inItem"><b>Campanha</b><small>Do primeiro salto, em 1961, até Marte</small></button>
     <button id="btnRaceI" class="inItem"><b>Corrida Espacial</b><small>EUA contra URSS, a partir de 1957</small></button>
   </nav>
-  <p class="hint">Melhor com fone de ouvido <span>versão 72</span></p></div></div>
+  <p class="hint">Melhor com fone de ouvido <span>versão 73</span></p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -580,6 +581,11 @@ function plan(ps0){let ps=ps0.map(p=>({...p,fuel:fuelOf(p)}));const out=[];
       ph.dv=isp*G0*Math.log(m0/(m0-burn));ps.forEach((q,j)=>{if(segs.has(seg[j]))q.fuel=0;});}
     const gr=stageGroups(ps,adj);ph.drop=gr.length?gr[0].map(i=>PT(ps[i]).t):null;out.push(ph);if(!gr.length)break;for(const i of gr[0])if(PT(ps[i]).atlas)for(const q of ps)if(PT(q).sus&&below(ps[i],q))q.y-=H(ps[i]);ps=detach(ps,gr[0]).keep;}
   return out;}
+</script>
+<script>
+let GAPB=0;(function(){const fix=()=>{const ios=/iP(hone|od|ad)/.test(navigator.userAgent)||navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1,app=matchMedia('(display-mode: standalone),(display-mode: fullscreen)').matches||navigator.standalone;
+  let g=0;if(ios&&app){const port=innerHeight>innerWidth,sh=port?Math.max(screen.height,screen.width):Math.min(screen.height,screen.width);g=Math.max(0,Math.round(sh-innerHeight));if(g>140)g=0;}
+  GAPB=g;document.documentElement.style.setProperty('--gapB',g+'px');};fix();addEventListener('resize',()=>setTimeout(fix,60));addEventListener('orientationchange',()=>setTimeout(fix,300));})();
 </script>
 <script>
 // ================= DESENHO DAS PEÇAS (ctx com y para baixo; cx,cy = centro; u = px por unidade) =================
@@ -1361,7 +1367,7 @@ function filmPlay(done){let el=$('#film');if(!el){el=document.createElement('div
   el.querySelector('.fSkip').onclick=finish;
   const earth=(cx,cy,r,rot)=>{const T=textures(),im=window.EBIG||T.earth;x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.clip();x.translate(cx,cy);x.rotate(rot);x.drawImage(im,-r,-r,2*r,2*r);x.restore();
     const ag=x.createRadialGradient(cx,cy,r*.97,cx,cy,r*1.06);ag.addColorStop(0,'rgba(110,180,255,0)');ag.addColorStop(.4,'rgba(130,200,255,.55)');ag.addColorStop(1,'rgba(60,120,255,0)');x.fillStyle=ag;x.beginPath();x.arc(cx,cy,r*1.06,0,7);x.fill();};
-  function fr(now){if(end)return;const W=innerWidth,H=innerHeight,d=devicePixelRatio||1;if(c.width!==Math.round(W*d)){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);
+  function fr(now){if(end)return;const W=innerWidth,H=innerHeight+GAPB,d=devicePixelRatio||1;if(c.width!==Math.round(W*d)){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);
     const T=(now-t0)/1000;if(T>=total){finish();return;}let a=0,i=0;while(i<FILM.length-1&&T>a+FILM[i].d){a+=FILM[i].d;i++;}const f=FILM[i],lt=T-a,k=lt/f.d;
     if(i!==cur){cur=i;dt.textContent=f.date;cap.textContent=f.t;cap.classList.remove('on');dt.classList.remove('on');void cap.offsetWidth;cap.classList.add('on');dt.classList.add('on');say(f.t,true);}
     x.fillStyle='#02040a';x.fillRect(0,0,W,H);const m=Math.min(W,H),zoom=still?1:1+k*.06;
@@ -1770,7 +1776,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=72;
+const GAME_VER=73;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -2898,7 +2904,7 @@ function drawCities(viewM){if(viewM>140000)return;const th=Math.atan2(camYw,camX
     for(let k=0;k<c.n;k++){const x=(r()-.5)*c.sp*(.4+.6*Math.abs(r()-.5)*2),h=8+Math.pow(r(),2.2)*(c.hmax||110),w=10+r()*28,sh=150+Math.floor(r()*60);g.fillStyle='rgb('+(sh-40)+','+(sh-30)+','+sh+')';g.fillRect(x-w/2,-1,w,h+1);
       if(viewM<25000){g.fillStyle='rgba(255,226,140,.85)';for(let y=4;y<h-2;y+=5)for(let xx=x-w/2+2;xx<x+w/2-2;xx+=4)if(r()<.35)g.fillRect(xx,y,1.8,2.2);}
       if(h>70&&viewM<40000){g.fillStyle=Math.sin(S.t*3+k)>0?'#ff3b30':'#5a1410';g.fillRect(x-.6,h,1.2,1.2);}}g.restore();}}
-function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight;if(cv.width!==Math.round(VW*DPR)||cv.height!==Math.round(VH*DPR)){cv.width=VW*DPR;cv.height=VH*DPR;}
+function draw(real){DPR=devicePixelRatio||1;VW=innerWidth;VH=innerHeight+GAPB;if(cv.width!==Math.round(VW*DPR)||cv.height!==Math.round(VH*DPR)){cv.width=VW*DPR;cv.height=VH*DPR;}
   if(view2==='map'){SHX=SHY=0;drawMap(real);if(RAU.u.length)rauUpdate(S.t);return;}
   {const sh=(!S.dead&&V.plasma>.15?V.plasma*3.5:0)+(S.shake||0);SHX=(Math.random()-.5)*sh;SHY=(Math.random()-.5)*sh;}
   const zT=baseZ()*zoomUser*(S.eva&&!S.dead?1.8:1);zs=zs?zs*Math.pow(zT/zs,Math.min(1,real*3)):zT;z=zs;{const tgt=chuteExt()*.45;S.ceS=S.ceS==null?tgt:S.ceS+(tgt-S.ceS)*Math.min(1,(real||0)*2.5);const ce=S.ceS,rr=Math.hypot(V.x,V.y);camX=V.x+V.x/rr*ce;camYw=V.y+V.y/rr*ce;
@@ -3130,7 +3136,7 @@ $('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick
   const skipI=()=>{if(!skip){skip=true;iT=ID;}};el.addEventListener('pointerdown',skipI);addEventListener('keydown',skipI,{once:true});
   const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
   // nascer do sol visto da órbita: a borda da Terra com a atmosfera acesa e uma cápsula passando devagar
-  function fr(ts){if(!on)return;const W=innerWidth,H=innerHeight,d=devicePixelRatio||1;if(c.width!==Math.round(W*d)||c.height!==Math.round(H*d)){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);if(I0==null){if(!EIMG.complete&&ts-(window.__iw??(window.__iw=ts))<1500){x.setTransform(1,0,0,1,0,0);x.fillStyle='#02040a';x.fillRect(0,0,c.width,c.height);requestAnimationFrame(fr);return;}textures().earth;I0=ts;iL=null;if(still)iT=ID;requestAnimationFrame(fr);return;}if(iT<ID+2){iT+=iL==null?0:Math.min(.05,(ts-iL)/1000);}iL=ts;const ti=iT; // tempo da abertura anda no máximo 1/20 s por quadro: não pula se o aparelho travar carregando
+  function fr(ts){if(!on)return;const W=innerWidth,H=innerHeight+GAPB,d=devicePixelRatio||1;if(c.width!==Math.round(W*d)||c.height!==Math.round(H*d)){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);if(I0==null){if(!EIMG.complete&&ts-(window.__iw??(window.__iw=ts))<1500){x.setTransform(1,0,0,1,0,0);x.fillStyle='#02040a';x.fillRect(0,0,c.width,c.height);requestAnimationFrame(fr);return;}textures().earth;I0=ts;iL=null;if(still)iT=ID;requestAnimationFrame(fr);return;}if(iT<ID+2){iT+=iL==null?0:Math.min(.05,(ts-iL)/1000);}iL=ts;const ti=iT; // tempo da abertura anda no máximo 1/20 s por quadro: não pula se o aparelho travar carregando
     // abertura: um foguete atravessa o espaço até o nascer do Sol na borda da Terra e… bum: clarão, e a tela inicial aparece
     if(ti<ID){introFx(W,H,ti);requestAnimationFrame(fr);return;}if(el.classList.contains('pre')){el.classList.remove('pre','ttl');t0=ts;}
     const t=still?20:(ts-t0)/1000,port=H>W*1.1;
