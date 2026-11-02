@@ -351,7 +351,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <button id="btnCampI" class="inItem"><b>Campanha</b><small>Do primeiro salto, em 1961, até Marte</small></button>
     <button id="btnRaceI" class="inItem"><b>Corrida Espacial</b><small>EUA contra URSS, a partir de 1957</small></button>
   </nav>
-  <p class="hint">Melhor com fone de ouvido <span>versão 71</span></p></div></div>
+  <p class="hint">Melhor com fone de ouvido <span>versão 72</span></p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1354,7 +1354,8 @@ const FILM=[
 let FILMS=null;
 function filmPlay(done){let el=$('#film');if(!el){el=document.createElement('div');el.id='film';el.innerHTML='<canvas></canvas><div class="fDate"></div><p class="fCap"></p><button class="fSkip">Pular filme</button>';document.body.appendChild(el);}
   const c=el.querySelector('canvas'),x=c.getContext('2d'),cap=el.querySelector('.fCap'),dt=el.querySelector('.fDate'),still=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  el.hidden=false;el.classList.remove('out');const st=Array.from({length:220},()=>[Math.random(),Math.random(),Math.random()]),t0=performance.now();let cur=-1,end=false,beepT=0;
+  el.hidden=false;el.classList.remove('out');try{textures().moon;}catch(e){} // a Lua é feita antes de começar (no meio do filme dava um tranco)
+  const st=Array.from({length:220},()=>[Math.random(),Math.random(),Math.random()]),t0=performance.now();let cur=-1,end=false,beepT=0;
   const total=FILM.reduce((a,f)=>a+f.d,0);try{musicStop&&musicStop(true);}catch(e){}
   const finish=()=>{if(end)return;end=true;try{speechSynthesis.cancel();}catch(e){}el.classList.add('out');setTimeout(()=>{el.hidden=true;done&&done();},700);};
   el.querySelector('.fSkip').onclick=finish;
@@ -1769,7 +1770,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=71;
+const GAME_VER=72;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -2223,7 +2224,7 @@ function setSite(k){k=SITES[k]?k:'alc';const st=SITES[k];if(!st.dec){const D=st.
     for(let i=0;i<n;i++){let a=0,a2=0;for(let q=-20;q<=20;q++){const v=Math.max(0,E[(i+q+n)%n]);a+=v;a2+=v*v;}o[i]=1.6*Math.sqrt(Math.max(0,a2/41-(a/41)**2));}
     st.dec={E,C:b64u8(D.C),MT:(()=>{let x=0;return Array.from(new Uint16Array(b64u8(D.MT).buffer),y=>x+=y);})(),R:o};}
   const changed=k!==SITE||!EELV;SITE=k;ELON0=st.LON0;EELV=st.dec.E;ECOL=st.dec.C;EMT=st.dec.MT;EROU=st.dec.R;EM0=st.d.M0;EBAY=st.bay;
-  if(changed){try{CITIES=null;TER=null;if(TEX)TEX.earth=earthTex()||TEX.earth;}catch(e){}}}
+  if(changed){try{CITIES=null;TER=null;if(TEX)TEX.earth=null;}catch(e){}}}
 setSite('alc');
 const dBase=a=>Math.atan2(Math.sin(a-Math.PI/2),Math.cos(a-Math.PI/2));
 const lonOf=a=>{const l=ELON0-dBase(a)*180/Math.PI;return((l+180)%360+360)%360-180;},angOfLon=lon=>Math.PI/2-(((lon-ELON0+180)%360+360)%360-180)*Math.PI/180;
@@ -3094,14 +3095,15 @@ const fbm=(x,y,z,o)=>{let v=0,a=.5,f=1,n=0;for(let i=0;i<o;i++){v+=a*noise3(x*f,
 function sphereTex(size,col,lit){const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d'),img=x.createImageData(size,size),d=img.data,h=size/2,ln=Math.hypot(.5,.5,.7);
   for(let j=0;j<size;j++)for(let i=0;i<size;i++){const u=(i+.5-h)/h,v=(j+.5-h)/h,r2=u*u+v*v;if(r2>1)continue;const w=Math.sqrt(1-r2),k=(j*size+i)*4,cc=col(u,-v,w),dl=Math.max(0,(-.5*u-.5*v+.7*w)/ln),sh=lit[0]+lit[1]*dl;
     d[k]=Math.min(255,cc[0]*sh);d[k+1]=Math.min(255,cc[1]*sh);d[k+2]=Math.min(255,cc[2]*sh);d[k+3]=255*Math.min(1,(1-Math.sqrt(r2))*h*1.5);}x.putImageData(img,0,0);return c;}
-let TEX=null;const EIMG=new Image();EIMG.onload=()=>{if(TEX)TEX.earth=earthTex();};EIMG.src=ED.T;
+let TEX=null;const EIMG=new Image();EIMG.onload=()=>{if(TEX&&!TEX.fromImg)TEX.earth=null;};// (a abertura espera a imagem antes de começar)
+EIMG.src=ED.T;
 // globo de verdade: o plano do jogo é o equador e o leste gira no sentido horário, então a Terra é vista de baixo do polo sul (Antártida no meio, o equador na borda, Alcântara em cima)
 function earthTex(sz){if(!EIMG.complete||!EIMG.naturalWidth)return null;const c=document.createElement('canvas');c.width=EIMG.naturalWidth;c.height=EIMG.naturalHeight;const x=c.getContext('2d');x.drawImage(EIMG,0,0);const W=c.width,Hh=c.height,D=x.getImageData(0,0,W,Hh).data,l0=ELON0*Math.PI/180,bx=Math.cos(l0),by=Math.sin(l0),ex=-by,ey=bx,
   sm=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);},mix=(p,q,k)=>p.map((v,i)=>v+(q[i]-v)*k),px=(i,j)=>{const k=(Math.max(0,Math.min(Hh-1,j))*W+((i%W)+W)%W)*4;return[D[k],D[k+1],D[k+2]];};
   return sphereTex(sz||512,(u,v,w)=>{const X=u*ex+v*bx,Y=u*ey+v*by,lat=Math.asin(Math.min(1,w))*180/Math.PI,lon=Math.atan2(Y,X)*180/Math.PI,fi=(lon+180)/360*W-.5,fj=lat/90*Hh-.5,i0=Math.floor(fi),j0=Math.floor(fj),a=fi-i0,b=fj-j0,
       p=mix(mix(px(i0,j0),px(i0+1,j0),a),mix(px(i0,j0+1),px(i0+1,j0+1),a),b);let c2=p.map(q=>Math.min(255,q*1.12));const cl=sm(.55,.78,fbm(u*3.2+20,v*5.5,w*3.2+11,5));c2=mix(c2,[246,248,252],cl*.7);return mix(c2,[120,180,255],Math.pow(1-w,2.4)*.7);},[.16,1]);}
 function textures(){if(TEX)return TEX;const sm=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);},mix=(p,q,k)=>p.map((v,i)=>v+(q[i]-v)*k);
-  const earth=sphereTex(384,(x,y,z)=>{const n=fbm(x*1.7+5,y*1.7+1,z*1.7+3,6),lat=Math.abs(y),dry=fbm(x*3+9,y*3,z*3,3);let c;
+  const procEarth=()=>sphereTex(384,(x,y,z)=>{const n=fbm(x*1.7+5,y*1.7+1,z*1.7+3,6),lat=Math.abs(y),dry=fbm(x*3+9,y*3,z*3,3);let c;
       if(n<.53)c=mix([10,38,92],[32,104,170],sm(.38,.53,n));else{c=mix([58,118,58],[92,128,66],sm(.53,.64,n));if(lat<.45&&dry>.55)c=mix(c,[196,170,112],sm(.55,.62,dry));if(n>.66)c=mix(c,[120,112,92],sm(.66,.74,n));}
       c=mix(c,[232,238,245],sm(.8,.86,lat+.12*(dry-.5)));const cl=sm(.52,.72,fbm(x*3.2+20,y*5.5,z*3.2+11,5));c=mix(c,[246,248,252],cl*.88);const rim=Math.pow(1-z,2.4);return mix(c,[120,180,255],rim*.75);},[.14,1]);
   // Lua vista de longe: a face de verdade (a que olha pra Terra), com os mares escuros de basalto nas posições reais, terras altas claras e os raios de Tycho, Copérnico e Kepler
@@ -3109,16 +3111,17 @@ function textures(){if(TEX)return TEX;const sm=(a,b,v)=>{const t=Math.max(0,Math
   const MARIA=[[18,-57,24],[5,-50,14],[33,-16,17],[28,17,9.5],[8.5,31,10],[17,59,7],[-8,51,8],[-15,35,5],[-21,-17,9],[-24,-39,5],[-10,-23,4.5],[7,-31,6],[13,4,4],[2,1,3],[55,-20,4],[56,5,4],[56,30,3.5],[-1,-28,6],[-33,-85,3],[5,86,4]],
     RAYC=[[-43.3,-11.2,2.6,1],[9.6,-20.1,2.4,.7],[8.1,-38,1.2,.5],[-.3,-13,.8,.3],[-26.3,-1.3,.9,.3],[-17.3,52.6,1,.35]],
     v3=(la,lo)=>{la*=Math.PI/180;lo*=Math.PI/180;return[Math.cos(la)*Math.sin(lo),Math.sin(la),Math.cos(la)*Math.cos(lo)];},MV=MARIA.map(([la,lo,r])=>[...v3(la,lo),r*Math.PI/180]),RV=RAYC.map(([la,lo,r,k])=>{const[a,b,d]=v3(la,lo),e=[d,0,-a],en=Math.hypot(...e),e1=e.map(v=>v/en),e2=[b*e1[2]-d*e1[1],d*e1[0]-a*e1[2],a*e1[1]-b*e1[0]];return[a,b,d,r*Math.PI/180,k,e1,e2];}),
-    cr=(()=>{const r=rng(31);return Array.from({length:140},()=>{const a=r()*7,b=Math.acos(2*r()-1);return[Math.sin(b)*Math.cos(a),Math.cos(b),Math.sin(b)*Math.sin(a),.008+.06*Math.pow(r(),2.5)];});})();
-  const moon=sphereTex(320,(x0,y0,z0)=>{// a imagem é girada 90° ao desenhar: o norte fica à esquerda dela
+    cr=(()=>{const r=rng(31);return Array.from({length:140},()=>{const a=r()*7,b=Math.acos(2*r()-1);return[Math.sin(b)*Math.cos(a),Math.cos(b),Math.sin(b)*Math.sin(a),.008+.06*Math.pow(r(),2.5)];}).map(q=>[...q,Math.cos(q[3]*1.3)]);})();
+  const buildMoon=()=>sphereTex(320,(x0,y0,z0)=>{// a imagem é girada 90° ao desenhar: o norte fica à esquerda dela
       const x=y0,y=-x0,zz=z0,n=fbm(x*2+3,y*2+8,zz*2,5),n2=fbm(x*7+1,y*7+2,zz*7+5,4);let c=mix([150,148,143],[192,190,184],sm(.3,.7,n));c=mix(c,c.map(v=>v*.82),sm(.45,.7,n2)*.6);
       let fld=0;for(const[a,b,d,rr]of MV){const ang=Math.acos(Math.max(-1,Math.min(1,x*a+y*b+zz*d))),q=ang/rr;fld+=Math.exp(-q*q*q*q);}const wn=fbm(x*5+11,y*5+3,zz*5+7,4),ma=sm(.42,.62,fld+.55*(wn-.5)+.18*(n2-.5));
       c=mix(c,mix([84,84,88],[104,103,104],n2),ma*.92);
-      for(const[a,b,d,rr]of cr){const ang=Math.acos(Math.max(-1,Math.min(1,x*a+y*b+zz*d)));if(ang<rr*1.3){const q=ang/rr;c=q<1?mix(c,c.map(v=>v*.86),.4*(1-q*q)*(1-ma*.4)):mix(c,[214,212,206],.35*(1.3-q)/.3);}}
+      for(const[a,b,d,rr,cc]of cr){const dt=x*a+y*b+zz*d;if(dt<cc)continue;const ang=Math.acos(Math.min(1,dt));{const q=ang/rr;c=q<1?mix(c,c.map(v=>v*.86),.4*(1-q*q)*(1-ma*.4)):mix(c,[214,212,206],.35*(1.3-q)/.3);}}
       for(const[a,b,d,rr,k,e1,e2]of RV){const dot=x*a+y*b+zz*d,ang=Math.acos(Math.max(-1,Math.min(1,dot)));if(ang>1.4)continue;const az=Math.atan2(x*e2[0]+y*e2[1]+zz*e2[2],x*e1[0]+y*e1[1]+zz*e1[2]),
           ray=Math.pow(noise3(Math.cos(az)*9+a*40,Math.sin(az)*9+b*40,d*40),7)*2.2*Math.exp(-ang/(rr*12*k+.04)),halo=Math.exp(-((ang/(rr*2.5))**2));c=mix(c,[222,220,214],Math.min(.7,k*(ray*.55+halo*.8)));if(ang<rr){c=mix(c,[120,118,114],.5*(1-ang/rr));}}
       return c;},[.1,1.05]);
-  return TEX={earth:earthTex()||earth,moon};}
+  // cada textura só é feita na primeira vez que alguém precisa dela (fazer as duas de uma vez travava a abertura ~2 s)
+  let _e=null,_m=null,_img=false;return TEX={get earth(){if(!_e){const im=earthTex();_img=!!im;_e=im||procEarth();}return _e;},set earth(v){_e=v;},get fromImg(){return _img&&!!_e;},get moon(){return _m||(_m=buildMoon());}};}
 function planetDisc(B,x,y,rr,ang){if(B.earth){const at=g.createRadialGradient(x,y,rr*.95,x,y,rr*1.2);at.addColorStop(0,'rgba(110,175,255,.55)');at.addColorStop(1,'rgba(90,160,255,0)');g.fillStyle=at;g.beginPath();g.arc(x,y,rr*1.2,0,7);g.fill();}
   if(rr<3){g.fillStyle=B.col;g.beginPath();g.arc(x,y,Math.max(rr,2),0,7);g.fill();return;}const T=textures(),im=B.earth?T.earth:T.moon;if(ang){g.save();g.translate(x,y);g.rotate(ang);g.drawImage(im,-rr,-rr,2*rr,2*rr);g.restore();}else g.drawImage(im,x-rr,y-rr,2*rr,2*rr);}
 ['contextmenu','selectstart'].forEach(ev=>$('#flight').addEventListener(ev,e=>e.preventDefault()));
@@ -3127,7 +3130,7 @@ $('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick
   const skipI=()=>{if(!skip){skip=true;iT=ID;}};el.addEventListener('pointerdown',skipI);addEventListener('keydown',skipI,{once:true});
   const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
   // nascer do sol visto da órbita: a borda da Terra com a atmosfera acesa e uma cápsula passando devagar
-  function fr(ts){if(!on)return;const W=innerWidth,H=innerHeight,d=devicePixelRatio||1;if(c.width!==Math.round(W*d)||c.height!==Math.round(H*d)){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);if(I0==null){I0=ts;if(still)iT=ID;}if(iT<ID+2){iT+=iL==null?0:Math.min(.05,(ts-iL)/1000);}iL=ts;const ti=iT; // tempo da abertura anda no máximo 1/20 s por quadro: não pula se o aparelho travar carregando
+  function fr(ts){if(!on)return;const W=innerWidth,H=innerHeight,d=devicePixelRatio||1;if(c.width!==Math.round(W*d)||c.height!==Math.round(H*d)){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);if(I0==null){if(!EIMG.complete&&ts-(window.__iw??(window.__iw=ts))<1500){x.setTransform(1,0,0,1,0,0);x.fillStyle='#02040a';x.fillRect(0,0,c.width,c.height);requestAnimationFrame(fr);return;}textures().earth;I0=ts;iL=null;if(still)iT=ID;requestAnimationFrame(fr);return;}if(iT<ID+2){iT+=iL==null?0:Math.min(.05,(ts-iL)/1000);}iL=ts;const ti=iT; // tempo da abertura anda no máximo 1/20 s por quadro: não pula se o aparelho travar carregando
     // abertura: um foguete atravessa o espaço até o nascer do Sol na borda da Terra e… bum: clarão, e a tela inicial aparece
     if(ti<ID){introFx(W,H,ti);requestAnimationFrame(fr);return;}if(el.classList.contains('pre')){el.classList.remove('pre','ttl');t0=ts;}
     const t=still?20:(ts-t0)/1000,port=H>W*1.1;
@@ -3164,12 +3167,11 @@ $('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick
     const[sx,sy]=ePt(cx,cy,a,b,th),sr=Math.max(4.5,9-4*me);x.save();x.globalCompositeOperation='lighter';const sg=x.createRadialGradient(sx,sy,0,sx,sy,sr*4);sg.addColorStop(0,'rgba(255,220,150,'+al+')');sg.addColorStop(1,'rgba(255,150,50,0)');x.fillStyle=sg;x.beginPath();x.arc(sx,sy,sr*4,0,7);x.fill();x.restore();
     x.fillStyle='rgba(255,179,71,'+al+')';x.beginPath();x.arc(sx,sy,sr/2,0,7);x.fill();
     // a Terra, um pontinho azul no foco, que some quando a letra aparece
-    const ea=Math.min(1,ti/.8)*(1-me)*al;if(ea>0){const er=m*.035,ex=cx,ey=cy,T=textures();x.globalAlpha=ea;x.save();x.beginPath();x.arc(ex,ey,er,0,7);x.clip();x.translate(ex,ey);x.drawImage(T.earth,-er,-er,2*er,2*er);x.restore();
+    const ea=Math.min(1,ti/.8)*(1-me)*al;if(ea>0){const er=m*.035,ex=cx,ey=cy;x.globalAlpha=ea;{const eg=x.createRadialGradient(ex-er*.35,ey-er*.35,er*.1,ex,ey,er);eg.addColorStop(0,'#9fd3ff');eg.addColorStop(.45,'#2f74c4');eg.addColorStop(1,'#0c2552');x.fillStyle=eg;x.beginPath();x.arc(ex,ey,er,0,7);x.fill();x.fillStyle='rgba(255,255,255,.55)';x.beginPath();x.ellipse(ex-er*.2,ey-er*.15,er*.45,er*.12,-.4,0,7);x.fill();}
       const ag=x.createRadialGradient(ex,ey,er*.9,ex,ey,er*1.6);ag.addColorStop(0,'rgba(120,190,255,.5)');ag.addColorStop(1,'rgba(120,190,255,0)');x.fillStyle=ag;x.beginPath();x.arc(ex,ey,er*1.6,0,7);x.fill();x.globalAlpha=1;}}
   function introFx(W,H,ti){x.fillStyle='#02040a';x.fillRect(0,0,W,H);const sa=Math.min(1,ti/1.2);for(const s2 of st){x.globalAlpha=sa*(.15+.55*s2[2]);x.fillStyle='#fff';x.fillRect(s2[0]*W,s2[1]*H,s2[2]>.9?2:1,s2[2]>.9?2:1);}x.globalAlpha=1;
     ringFx(W,H,ti);if(ti>2.95)el.classList.add('ttl');
     x.font='500 12px IBM Plex Sans,system-ui';x.textAlign='right';x.fillStyle='rgba(255,255,255,'+Math.min(.4,ti*.4)+')';x.fillText('toque para pular',W-16,H-16);}
-  setTimeout(function big(){try{const b=earthTex(1024);if(b){window.EBIG=b;return;}}catch(e){}setTimeout(big,300);},(ID+1.5)*1000);
   requestAnimationFrame(fr);
   $('#btnStart').onclick=()=>{setSite('alc');audioInit();musicStart();el.classList.add('out');setTimeout(()=>{on=false;el.hidden=true;},950);};
   $('#btnCampI').onclick=()=>{$('#btnStart').onclick();renderCamp();$('#camp').hidden=false;};
