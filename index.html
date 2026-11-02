@@ -209,17 +209,29 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   #ctlC button{padding:6px 10px;font-size:12px}#btnStage{min-width:96px;padding:6px 10px}#btnStage small{font-size:10px}
   #topR>button{background:rgba(7,11,22,.35)}#warpCtl{background:rgba(7,11,22,.35)}
 }
-#intro{position:fixed;inset:0;z-index:200;background:#02040a;display:flex;align-items:center;justify-content:center;transition:opacity .9s}#intro.out{opacity:0;pointer-events:none}
-#introC{position:absolute;inset:0;width:100%;height:100%}.inBox{position:relative;text-align:center;padding:24px;max-width:560px;animation:rise 1.6s ease-out both}
-#intro h1{font-size:clamp(54px,14vw,112px);letter-spacing:.14em;line-height:1;color:#fff;text-shadow:0 0 40px rgba(255,179,71,.45)}#intro .eyebrow{color:var(--orbit);letter-spacing:.3em}
-#intro .sub{color:#c9d1e6;font-size:clamp(14px,3.6vw,17px);margin:14px auto 26px;max-width:440px}#btnStart{padding:14px 44px;font-size:19px;border-radius:999px;box-shadow:0 0 30px rgba(255,179,71,.35)}#intro .hint{color:var(--muted);font-size:12px;margin-top:14px}
+#intro{position:fixed;inset:0;z-index:200;background:#03060f;display:flex;align-items:center;justify-content:flex-start;transition:opacity .9s}#intro.out{opacity:0;pointer-events:none}
+#introC{position:absolute;inset:0;width:100%;height:100%}
+.inBox{position:relative;text-align:left;padding:0 0 0 clamp(24px,8vw,120px);max-width:620px;animation:rise 1.4s cubic-bezier(.2,.7,.2,1) both}
+#intro h1{position:relative;display:inline-block;font-size:clamp(58px,12vw,128px);font-weight:700;letter-spacing:.06em;line-height:.9;color:#eef2fa;margin-left:-.04em}
+.oRing{position:absolute;left:-.22em;top:.05em;width:1.15em;height:.95em;border:2px solid rgba(95,184,255,.55);border-radius:50%;transform:rotate(-24deg);pointer-events:none}
+.oRing i{position:absolute;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:#ffb347;box-shadow:0 0 12px #ffb347;offset-path:ellipse(50% 50% at 50% 50%);animation:sat 9s linear infinite}
+@keyframes sat{to{offset-distance:100%}}
+#intro .sub{color:#b9c3da;font-size:clamp(15px,2.2vw,18px);line-height:1.5;margin:22px 0 34px;max-width:30ch}
+.inMenu{display:flex;flex-direction:column;gap:4px;max-width:380px}
+.inItem{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:transparent;border:0;border-left:2px solid rgba(255,255,255,.12);border-radius:0;padding:12px 18px;color:#eef2fa;transition:border-color .2s,background .2s,padding .2s}
+.inItem b{font-family:var(--display);font-size:clamp(20px,2.6vw,24px);font-weight:700;letter-spacing:.02em}.inItem small{color:#8a96b4;font-size:13.5px}
+.inItem:hover,.inItem:focus-visible{border-left-color:#ffb347;background:linear-gradient(90deg,rgba(255,179,71,.12),transparent 80%);padding-left:24px;outline:none}
+.inItem.go{border-left-color:#ffb347}.inItem.go b{color:#ffb347}
+#intro .hint{color:#8a96b4;font-size:12.5px;margin-top:30px;display:flex;gap:14px}#intro .hint span{opacity:.6}
+@media (max-height:520px) and (min-width:701px){#intro h1{font-size:64px}#intro .sub{margin:10px 0 14px;font-size:14px}.inItem{padding:6px 16px}.inItem b{font-size:18px}.inItem small{font-size:12px}#intro .hint{margin-top:10px}}
+@media (max-width:700px){#intro{align-items:flex-start}.inBox{padding:calc(70px + env(safe-area-inset-top,0px)) 24px 0}.inMenu{max-width:none}}
+@media (prefers-reduced-motion:reduce){.oRing i{animation:none;offset-distance:12%}.inBox{animation:none}}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 #blk{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff9ad5;animation:blink 1s infinite}@keyframes blink{50%{opacity:.35}}#rTemp.hot{color:var(--bad)}#rTemp.warm{color:var(--accent)}
 #models,#camp,#campWin,#brief,#race,#raceSide{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,94vw);max-height:86vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
 .mdGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mdGrid button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;text-align:left}.mdGrid button b{font-size:14px;color:var(--ink)}.mdGrid button small{font-size:12px;color:var(--muted)}
 .brRow{display:flex;gap:10px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}.brRow canvas{flex:0 0 auto;width:48px;height:48px}.brRow b{display:block;font-size:14px}.brRow small{display:block;font-size:12px;color:var(--muted);line-height:1.35}#brList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .cpSub{margin:0;color:var(--muted);font-size:13px}#cpList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}#cpList li{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
-#btnRaceI{margin-top:12px;padding:10px 26px;border-radius:999px;background:rgba(7,11,22,.5);border-color:#ff6b6b;color:#ff8f8f;font-weight:700;letter-spacing:.06em}
 #race{width:min(640px,96vw)}#rHead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}#rHead .rDate{color:var(--accent);font-family:var(--display);font-weight:700}#rHead .rPts{color:#9fd8ff;font-size:13px}
 #rTabs{display:flex;gap:6px}#rTabs button{flex:1;padding:8px}#rTabs button.on{border-color:var(--accent);color:var(--accent)}
 .rSide{display:flex;flex-direction:column;gap:4px;text-align:left;padding:14px}.rSide b{font-size:17px}.rSide small{color:var(--muted);font-size:13px;line-height:1.4}.rSide:hover{border-color:var(--accent)}
@@ -228,12 +240,17 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 .rTree{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.rBr{display:flex;flex-direction:column;gap:6px}.rNode{display:flex;flex-direction:column;gap:3px;text-align:left;padding:8px;border-radius:10px;font-size:12px}.rNode b{font-size:13px}.rNode small{color:var(--muted);font-size:11px;line-height:1.35}.rNode em{color:#9fd8ff;font-style:normal}.rNode span{font-size:11px;font-weight:700;margin-top:2px}
 .rNode.has{border-color:rgba(94,226,160,.5);background:rgba(94,226,160,.08)}.rNode.has span{color:var(--good)}.rNode.can{border-color:var(--accent)}.rNode.can span{color:var(--accent)}.rNode.need span{color:#ff8f8f}.rNode.lock{opacity:.5}
 .rNews{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:13px}.rNews li{padding:8px 10px;border-left:3px solid var(--accent);background:var(--panel2);border-radius:6px}
-.rWin{margin:0;color:#ffd166;font-weight:700}.rLose{margin:0;color:#ff8f8f;font-size:13px}#rReset{align-self:center;font-size:12px;padding:6px 12px;opacity:.75}
+.rWin{margin:0;color:#ffd166;font-weight:700}.rLose{margin:0;color:#ff8f8f;font-size:13px}#rReset,#rFilm{font-size:12px;padding:6px 12px;opacity:.75}.rFoot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#film{position:fixed;inset:0;z-index:300;background:#000;transition:opacity .7s}#film[hidden]{display:none}#film.out{opacity:0}#film canvas{position:absolute;inset:0;width:100%;height:100%}
+#film .fDate{position:absolute;left:clamp(20px,6vw,80px);top:calc(9vh + 18px);font-family:var(--display);font-size:clamp(20px,3.4vw,34px);color:#ffb347;letter-spacing:.04em;opacity:0}#film .fDate.on{animation:fIn .9s .2s both}
+#film .fCap{position:absolute;left:50%;bottom:calc(9vh + 18px);transform:translateX(-50%);width:min(760px,88vw);margin:0;text-align:center;color:#eef2fa;font-size:clamp(15px,2.2vw,21px);line-height:1.5;text-shadow:0 2px 12px #000;opacity:0}#film .fCap.on{animation:fIn 1s .5s both}
+@keyframes fIn{from{opacity:0;transform:translate(var(--tx,0),8px)}to{opacity:1;transform:translate(var(--tx,0),0)}}#film .fCap{--tx:-50%}
+#film .fSkip{position:absolute;right:16px;top:calc(9vh - 44px + env(safe-area-inset-top,0px));top:16px;z-index:2;background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.25);font-size:13px;padding:7px 14px}
 #cpList li .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:rgba(255,255,255,.06);flex:0 0 auto}#cpList li.done .n{background:rgba(94,226,160,.2);color:var(--good)}#cpList li.lock{opacity:.45}#cpList li.cur{border-color:var(--accent)}
 #cpList li div{flex:1;min-width:0}#cpList li b{display:block;font-size:14px}#cpList li small{display:block;color:var(--muted);font-size:12px}#cpList li button{flex:0 0 auto;padding:7px 12px}
 #campBar{position:absolute;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top,0px));z-index:3;display:flex;gap:8px;align-items:center;padding:6px 8px 6px 12px;font-size:13px;max-width:min(560px,94vw)}#campBar b{color:var(--accent)}#campBar button{padding:5px 10px;font-size:12px}
 #campWin{text-align:center;align-items:center;width:min(420px,92vw)}.cwStats{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;width:100%;margin:4px 0}.cwStats[hidden]{display:none}.cwStats div{background:rgba(255,255,255,.05);border-radius:8px;padding:6px 8px;text-align:left}.cwStats b{display:block;font-size:16px;color:#e9edf7}.cwStats span{font-size:11px;opacity:.7}#campWin h2{color:var(--good);font-family:var(--display);margin:0}#campWin p{margin:0;font-size:14px}.cwBtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-#btnCampI{margin-top:12px;padding:10px 30px;border-radius:999px;background:rgba(7,11,22,.5);border-color:var(--accent);color:var(--accent);font-weight:700;letter-spacing:.06em}
+
 #saves{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:84vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
 #saves .svrow{display:flex;gap:8px}#svName{flex:1;min-width:0;font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}#svName:focus-visible{outline:2px solid var(--orbit)}
 #svSave{font-size:14px;padding:8px 12px}#svMsg{margin:0;font-size:12px;color:var(--muted)}
@@ -311,7 +328,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <div class="phead"><span id="rHead"></span><button id="rClose" aria-label="Fechar">✕</button></div>
     <div id="rTabs"><button data-t="ms">Conquistas</button><button data-t="tec">Tecnologia</button><button data-t="news">Jornal</button></div>
     <div id="rBody"></div>
-    <button id="rReset">Recomeçar corrida</button>
+    <div class="rFoot"><button id="rFilm">▶ Ver o filme de abertura</button><button id="rReset">Recomeçar corrida</button></div>
   </div>
   <div id="campBar" class="glass" hidden><span id="cbTxt"></span><button id="cbParts">Peças</button><button id="cbOpen">Missões</button></div>
   <div id="brief" class="glass dlg" hidden role="dialog" aria-label="Peças da nave">
@@ -325,7 +342,15 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
-<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox"><p class="eyebrow">monte · lance · aprenda</p><h1>ÓRBITA</h1><p class="sub">Construa seu foguete, atravesse a atmosfera, entre em órbita e vá até a Lua — com física de verdade.</p><button class="primary" id="btnStart">COMEÇAR</button><br><button id="btnCampI">★ CAMPANHA</button> <button id="btnRaceI">🏁 CORRIDA ESPACIAL</button><p class="hint">Fone de ouvido recomendado · versão 68</p></div></div>
+<div id="intro"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox">
+  <h1 class="logoO"><span class="oRing" aria-hidden="true"><i></i></span>ÓRBITA</h1>
+  <p class="sub">Monte o foguete, atravesse a atmosfera e chegue à Lua com a física de verdade.</p>
+  <nav class="inMenu" aria-label="Menu principal">
+    <button id="btnStart" class="inItem go"><b>Começar</b><small>Monte sua nave e voe à vontade</small></button>
+    <button id="btnCampI" class="inItem"><b>Campanha</b><small>Do primeiro salto, em 1961, até Marte</small></button>
+    <button id="btnRaceI" class="inItem"><b>Corrida Espacial</b><small>EUA contra URSS, a partir de 1957</small></button>
+  </nav>
+  <p class="hint">Melhor com fone de ouvido <span>versão 69</span></p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1318,6 +1343,62 @@ function showPhoto(){let el=$('#photo');if(!el){el=document.createElement('div')
   const c=el.querySelector('canvas'),x=c.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,300,300);
   const far=sphereTex(280,(u,v,w)=>{const n=fbm(u*2.4+7,v*2.4+1,w*2.4+3,5);let k=150+50*n;const m=Math.hypot(u-.35,v-.35)<.13?-55:0,ts=Math.hypot(u+.2,v+.25)<.06?-45:0;let cr=0;for(let i=0;i<60;i++){const r=rng(i*31+5),cx=r()*2-1,cy=r()*2-1,rr=.03+.09*r()*r(),d=Math.hypot(u-cx,v-cy);if(d<rr)cr-=18*(1-d/rr);else if(d<rr*1.25)cr+=22;}k+=m+ts+cr;k=Math.max(40,Math.min(235,k));return[k,k,k*.97];},[.1,1.05]);
   x.drawImage(far,10,10);x.fillStyle='rgba(255,255,255,.08)';for(let i=0;i<300;i+=3)x.fillRect(0,i,300,1);el.hidden=false;}
+// ================= FILME DE ABERTURA DA CORRIDA ESPACIAL (~35 s, dá para pular) =================
+const FILM=[
+  {d:7.5,date:'1945',t:'A Segunda Guerra acabou, mas começou outra disputa: Estados Unidos e União Soviética querem ser a maior potência do mundo.',k:'cold'},
+  {d:7.5,date:'1946',t:'Os dois levam os foguetes alemães V-2 e seus engenheiros. De um lado, Wernher von Braun. Do outro, Serguei Korolev.',k:'v2'},
+  {d:7,date:'1955',t:'Os dois anunciam o mesmo plano: colocar um satélite em volta da Terra.',k:'sat'},
+  {d:7,date:'1956',t:'Depois do satélite, um homem no espaço. Depois do homem, a Lua.',k:'moon'},
+  {d:6,date:'Janeiro de 1957',t:'Quem chega primeiro?',k:'title'}];
+let FILMS=null;
+function filmPlay(done){let el=$('#film');if(!el){el=document.createElement('div');el.id='film';el.innerHTML='<canvas></canvas><div class="fDate"></div><p class="fCap"></p><button class="fSkip">Pular filme</button>';document.body.appendChild(el);}
+  const c=el.querySelector('canvas'),x=c.getContext('2d'),cap=el.querySelector('.fCap'),dt=el.querySelector('.fDate'),still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  el.hidden=false;el.classList.remove('out');const st=Array.from({length:220},()=>[Math.random(),Math.random(),Math.random()]),t0=performance.now();let cur=-1,end=false,beepT=0;
+  const total=FILM.reduce((a,f)=>a+f.d,0);try{musicStop&&musicStop(true);}catch(e){}
+  const finish=()=>{if(end)return;end=true;try{speechSynthesis.cancel();}catch(e){}el.classList.add('out');setTimeout(()=>{el.hidden=true;done&&done();},700);};
+  el.querySelector('.fSkip').onclick=finish;
+  const earth=(cx,cy,r,rot)=>{const T=textures(),im=window.EBIG||T.earth;x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.clip();x.translate(cx,cy);x.rotate(rot);x.drawImage(im,-r,-r,2*r,2*r);x.restore();
+    const ag=x.createRadialGradient(cx,cy,r*.97,cx,cy,r*1.06);ag.addColorStop(0,'rgba(110,180,255,0)');ag.addColorStop(.4,'rgba(130,200,255,.55)');ag.addColorStop(1,'rgba(60,120,255,0)');x.fillStyle=ag;x.beginPath();x.arc(cx,cy,r*1.06,0,7);x.fill();};
+  function fr(now){if(end)return;const W=innerWidth,H=innerHeight,d=devicePixelRatio||1;if(c.width!==Math.round(W*d)){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);
+    const T=(now-t0)/1000;if(T>=total){finish();return;}let a=0,i=0;while(i<FILM.length-1&&T>a+FILM[i].d){a+=FILM[i].d;i++;}const f=FILM[i],lt=T-a,k=lt/f.d;
+    if(i!==cur){cur=i;dt.textContent=f.date;cap.textContent=f.t;cap.classList.remove('on');dt.classList.remove('on');void cap.offsetWidth;cap.classList.add('on');dt.classList.add('on');say(f.t,true);}
+    x.fillStyle='#02040a';x.fillRect(0,0,W,H);const m=Math.min(W,H),zoom=still?1:1+k*.06;
+    for(const s of st){x.globalAlpha=.2+.6*s[2];x.fillStyle='#fff';x.fillRect(((s[0]-.5)*zoom+.5)*W,((s[1]-.5)*zoom+.5)*H,s[2]>.9?2:1,s[2]>.9?2:1);}x.globalAlpha=1;
+    if(f.k==='cold'){// a Terra à noite vista de cima do horizonte: duas luzes se encarando, uma de cada lado
+      const r=Math.max(W,H)*.9,cx=W/2,cy=H*.62+r;earth(cx,cy,r,1.2+lt*.004);x.fillStyle='rgba(2,4,10,.72)';x.beginPath();x.arc(cx,cy,r,0,7);x.fill();
+      const pu=.7+.3*Math.sin(lt*2.4),hy=H*.62+m*.06;
+      for(const[px,col,lb]of[[W*.26,'90,160,255','Estados Unidos'],[W*.74,'255,80,70','União Soviética']]){const gg=x.createRadialGradient(px,hy,0,px,hy,m*.32*pu);gg.addColorStop(0,'rgba('+col+',.85)');gg.addColorStop(.25,'rgba('+col+',.25)');gg.addColorStop(1,'rgba('+col+',0)');x.fillStyle=gg;x.fillRect(px-m*.4,hy-m*.4,m*.8,m*.8);
+        for(let q=0;q<26;q++){const r2=rng(q*7+(col[0]==='9'?1:2)),dx=(r2()-.5)*m*.26,dy=(r2()-.2)*m*.07;x.fillStyle='rgba(255,230,180,'+(.4+.5*r2())+')';x.fillRect(px+dx,hy+dy,1.6,1.6);}
+        x.font='600 '+Math.round(m*.032)+'px IBM Plex Sans,system-ui';x.textAlign='center';x.fillStyle='rgba('+col+',1)';x.globalAlpha=Math.min(1,lt/1.5);x.fillText(lb,px,hy-m*.14);x.globalAlpha=1;}
+      const q=Math.min(1,k*1.3);x.strokeStyle='rgba(255,255,255,.3)';x.setLineDash([4,7]);x.beginPath();x.moveTo(W*.26,hy-m*.08);x.quadraticCurveTo(W/2,hy-m*.5,W*.26+(W*.48)*q,hy-m*.08-Math.sin(q*Math.PI)*m*.2);x.stroke();x.setLineDash([]);}
+    else if(f.k==='v2'){// V-2 subindo na madrugada do deserto
+      const gy=H*.91-Math.round(H*.09),sky=x.createLinearGradient(0,0,0,gy);sky.addColorStop(0,'#03060f');sky.addColorStop(1,'#1d2a44');x.fillStyle=sky;x.fillRect(0,0,W,gy);x.fillStyle='#0d0f14';x.fillRect(0,gy,W,H-gy);
+      const u=m/40,lift=Math.max(0,lt-1.5),ry=gy-lift*lift*u*1.1,rx=W*.5+lift*lift*u*.12;x.save();x.translate(rx,ry);x.rotate(lift*lift*.006);
+      const fl=x.createLinearGradient(0,0,0,u*(4+lift*1.5));fl.addColorStop(0,'rgba(255,240,200,1)');fl.addColorStop(.4,'rgba(255,150,60,.8)');fl.addColorStop(1,'rgba(255,90,30,0)');if(lt>1)( x.fillStyle=fl,x.beginPath(),x.moveTo(-u*.45,0),x.quadraticCurveTo(0,u*(5+lift*1.5+Math.random()),u*.45,0),x.fill());
+      x.fillStyle='#e7e2d3';x.beginPath();x.moveTo(-u*.55,0);x.lineTo(-u*.6,-u*5);x.quadraticCurveTo(-u*.55,-u*7.2,0,-u*8);x.quadraticCurveTo(u*.55,-u*7.2,u*.6,-u*5);x.lineTo(u*.55,0);x.closePath();x.fill();
+      x.fillStyle='#1b1d22';for(let j=0;j<4;j++)x.fillRect(j%2?0:-u*.6,-u*(1.2+j*1.5),u*.6,u*.75);x.fillStyle='#2a2d33';x.beginPath();x.moveTo(-u*.55,0);x.lineTo(-u*1.3,u*.4);x.lineTo(-u*.6,-u*1.6);x.fill();x.beginPath();x.moveTo(u*.55,0);x.lineTo(u*1.3,u*.4);x.lineTo(u*.6,-u*1.6);x.fill();x.restore();
+      if(lt>1){for(let j=0;j<6;j++){x.fillStyle='rgba(200,200,210,'+(.12*(1-j/6))+')';x.beginPath();x.ellipse(W*.5+(j-2.5)*u*1.6,gy,u*(2+j*.6+lift),u*(1+lift*.3),0,0,7);x.fill();}}
+      x.globalAlpha=Math.min(1,Math.max(0,(lt-2)/1.2));x.font='600 '+Math.round(m*.03)+'px IBM Plex Sans,system-ui';x.textAlign='left';x.fillStyle='rgba(170,205,255,.9)';x.fillText('Wernher von Braun',W*.08,H*.42);x.font=Math.round(m*.024)+'px IBM Plex Sans,system-ui';x.fillText('pelos Estados Unidos',W*.08,H*.42+m*.04);
+      x.textAlign='right';x.font='600 '+Math.round(m*.03)+'px IBM Plex Sans,system-ui';x.fillStyle='rgba(255,170,160,.9)';x.fillText('Serguei Korolev',W*.92,H*.42);x.font=Math.round(m*.024)+'px IBM Plex Sans,system-ui';x.fillText('pela União Soviética',W*.92,H*.42+m*.04);x.globalAlpha=1;}
+    else if(f.k==='sat'){// satélite dando voltas e fazendo bip
+      const r=m*.3,cx=W/2,cy=H*.52;earth(cx,cy,r,lt*.04);const or=r*1.45,an=-Math.PI/2+lt*1.1;x.strokeStyle='rgba(255,255,255,.18)';x.setLineDash([3,6]);x.beginPath();x.ellipse(cx,cy,or,or*.38,-.25,0,7);x.stroke();x.setLineDash([]);
+      const sx=cx+Math.cos(an)*or*Math.cos(-.25)-Math.sin(an)*or*.38*Math.sin(-.25),sy=cy+Math.cos(an)*or*Math.sin(-.25)+Math.sin(an)*or*.38*Math.cos(-.25),behind=Math.sin(an)<0&&Math.hypot(sx-cx,sy-cy)<r;
+      if(!behind){x.fillStyle='#d9dde4';x.beginPath();x.arc(sx,sy,m*.012,0,7);x.fill();x.strokeStyle='#d9dde4';x.lineWidth=1.2;for(const q of[-.6,-.2,.2,.6]){x.beginPath();x.moveTo(sx,sy);x.lineTo(sx+Math.cos(Math.PI+q)*m*.05,sy+Math.sin(Math.PI+q)*m*.05);x.stroke();}
+        const bp=(lt*1.4)%1;if(bp<.25){x.strokeStyle='rgba(255,210,120,'+(1-bp*4)+')';x.beginPath();x.arc(sx,sy,m*(.02+bp*.12),0,7);x.stroke();}}
+      if(Math.floor(lt*1.4)!==beepT){beepT=Math.floor(lt*1.4);try{if(snd.ac&&snd.on){const o=snd.ac.createOscillator(),gn=snd.ac.createGain();o.frequency.value=880;gn.gain.value=.0;o.connect(gn).connect(snd.master||snd.ac.destination);const tt=snd.ac.currentTime;gn.gain.setValueAtTime(.12,tt);gn.gain.exponentialRampToValueAtTime(.001,tt+.18);o.start(tt);o.stop(tt+.2);}}catch(e){}}}
+    else if(f.k==='moon'){// a Lua chegando
+      const r=m*(.22+.18*k),T2=textures();x.save();x.translate(W/2,H*.48);x.rotate(Math.PI/2);x.drawImage(T2.moon,-r,-r,2*r,2*r);x.restore();x.fillStyle='rgba(2,4,10,'+(.5-.5*k)+')';x.beginPath();x.arc(W/2,H*.48,r,0,7);x.fill();
+      earth(W*.1,H*1.05,m*.35,.3);}
+    else{// título
+      const e=Math.min(1,lt/1.2);x.globalAlpha=e;earth(W/2,H+Math.max(W,H)*.42,Math.max(W,H)*.6,-.4);x.globalAlpha=1;x.textAlign='center';x.fillStyle='rgba(238,242,250,'+e+')';x.font='700 '+Math.round(Math.min(W*.1,m*.14))+'px Chakra Petch,system-ui';x.fillText('Corrida Espacial',W/2,H*.42);
+      x.font='600 '+Math.round(m*.034)+'px IBM Plex Sans,system-ui';x.fillStyle='rgba(170,205,255,'+e+')';x.fillText('🇺🇸  ×  🇷🇺',W/2,H*.42+m*.08);}
+    // faixas de cinema e granulado
+    const bar=Math.round(H*.09);x.fillStyle='#000';x.fillRect(0,0,W,bar);x.fillRect(0,H-bar,W,bar);
+    if(!still){x.globalAlpha=.05;for(let j=0;j<60;j++){x.fillStyle=Math.random()<.5?'#fff':'#000';x.fillRect(Math.random()*W,Math.random()*H,1.5,1.5);}x.globalAlpha=1;}
+    // fade entre cenas
+    const fd=Math.min(lt/.6,(f.d-lt)/.6,1);if(fd<1){x.fillStyle='rgba(0,0,0,'+(1-fd)+')';x.fillRect(0,0,W,H);}
+    requestAnimationFrame(fr);}
+  requestAnimationFrame(fr);}
 // ================= CORRIDA ESPACIAL: escolha o país, pesquise e chegue primeiro à Lua =================
 // o calendário começa em jan/1957; cada lançamento e cada pesquisa gastam meses. O rival faz as conquistas nas datas reais.
 const RMES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],rDate=m=>RMES[((m%12)+12)%12]+'/'+(1957+Math.floor(m/12)),rm=(y,mo)=>(y-1957)*12+mo-1;
@@ -1404,7 +1485,7 @@ function renderRace(){const S0=RSIDE[RACE.side],R2=RSIDE[S0.rival],box=$('#rBody
     box.querySelectorAll('.rNode.can').forEach(b=>b.onclick=()=>raceResearch(b.dataset.t));}
   else box.innerHTML='<ul class="rNews">'+RACE.news.map(n=>'<li>'+n.t+'</li>').join('')+'</ul>';}
 $('#rTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{RTAB=b.dataset.t;renderRace();});
-$('#rClose').onclick=()=>{$('#race').hidden=true;};$('#rReset').onclick=()=>{if(!confirmReset())return;RACE=null;try{localStorage.removeItem('orbita.race');}catch(e){}$('#race').hidden=true;$('#raceSide').hidden=false;};
+$('#rClose').onclick=()=>{$('#race').hidden=true;};$('#rFilm').onclick=()=>{$('#race').hidden=true;filmPlay(()=>raceOpen());};$('#rReset').onclick=()=>{if(!confirmReset())return;RACE=null;try{localStorage.removeItem('orbita.race');}catch(e){}$('#race').hidden=true;$('#raceSide').hidden=false;};
 function confirmReset(){const b=$('#rReset');if(b.dataset.k!=='1'){b.dataset.k='1';b.textContent='Toque de novo para apagar';setTimeout(()=>{b.dataset.k='';b.textContent='Recomeçar corrida';},3000);return false;}b.dataset.k='';b.textContent='Recomeçar corrida';return true;}
 $('#raceSide').querySelectorAll('[data-side]').forEach(b=>b.onclick=()=>{raceNew(b.dataset.side);$('#raceSide').hidden=true;RTAB='tec';raceOpen();});$('#rsClose').onclick=()=>{$('#raceSide').hidden=true;};
 
@@ -1687,7 +1768,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=68;
+const GAME_VER=69;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -3014,9 +3095,9 @@ function sphereTex(size,col,lit){const c=document.createElement('canvas');c.widt
     d[k]=Math.min(255,cc[0]*sh);d[k+1]=Math.min(255,cc[1]*sh);d[k+2]=Math.min(255,cc[2]*sh);d[k+3]=255*Math.min(1,(1-Math.sqrt(r2))*h*1.5);}x.putImageData(img,0,0);return c;}
 let TEX=null;const EIMG=new Image();EIMG.onload=()=>{if(TEX)TEX.earth=earthTex();};EIMG.src=ED.T;
 // globo de verdade: o plano do jogo é o equador e o leste gira no sentido horário, então a Terra é vista de baixo do polo sul (Antártida no meio, o equador na borda, Alcântara em cima)
-function earthTex(){if(!EIMG.complete||!EIMG.naturalWidth)return null;const c=document.createElement('canvas');c.width=EIMG.naturalWidth;c.height=EIMG.naturalHeight;const x=c.getContext('2d');x.drawImage(EIMG,0,0);const W=c.width,Hh=c.height,D=x.getImageData(0,0,W,Hh).data,l0=ELON0*Math.PI/180,bx=Math.cos(l0),by=Math.sin(l0),ex=-by,ey=bx,
+function earthTex(sz){if(!EIMG.complete||!EIMG.naturalWidth)return null;const c=document.createElement('canvas');c.width=EIMG.naturalWidth;c.height=EIMG.naturalHeight;const x=c.getContext('2d');x.drawImage(EIMG,0,0);const W=c.width,Hh=c.height,D=x.getImageData(0,0,W,Hh).data,l0=ELON0*Math.PI/180,bx=Math.cos(l0),by=Math.sin(l0),ex=-by,ey=bx,
   sm=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);},mix=(p,q,k)=>p.map((v,i)=>v+(q[i]-v)*k),px=(i,j)=>{const k=(Math.max(0,Math.min(Hh-1,j))*W+((i%W)+W)%W)*4;return[D[k],D[k+1],D[k+2]];};
-  return sphereTex(512,(u,v,w)=>{const X=u*ex+v*bx,Y=u*ey+v*by,lat=Math.asin(Math.min(1,w))*180/Math.PI,lon=Math.atan2(Y,X)*180/Math.PI,fi=(lon+180)/360*W-.5,fj=lat/90*Hh-.5,i0=Math.floor(fi),j0=Math.floor(fj),a=fi-i0,b=fj-j0,
+  return sphereTex(sz||512,(u,v,w)=>{const X=u*ex+v*bx,Y=u*ey+v*by,lat=Math.asin(Math.min(1,w))*180/Math.PI,lon=Math.atan2(Y,X)*180/Math.PI,fi=(lon+180)/360*W-.5,fj=lat/90*Hh-.5,i0=Math.floor(fi),j0=Math.floor(fj),a=fi-i0,b=fj-j0,
       p=mix(mix(px(i0,j0),px(i0+1,j0),a),mix(px(i0,j0+1),px(i0+1,j0+1),a),b);let c2=p.map(q=>Math.min(255,q*1.12));const cl=sm(.55,.78,fbm(u*3.2+20,v*5.5,w*3.2+11,5));c2=mix(c2,[246,248,252],cl*.7);return mix(c2,[120,180,255],Math.pow(1-w,2.4)*.7);},[.16,1]);}
 function textures(){if(TEX)return TEX;const sm=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t);},mix=(p,q,k)=>p.map((v,i)=>v+(q[i]-v)*k);
   const earth=sphereTex(384,(x,y,z)=>{const n=fbm(x*1.7+5,y*1.7+1,z*1.7+3,6),lat=Math.abs(y),dry=fbm(x*3+9,y*3,z*3,3);let c;
@@ -3043,17 +3124,31 @@ function planetDisc(B,x,y,rr,ang){if(B.earth){const at=g.createRadialGradient(x,
 $('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick=()=>$('#panel').classList.add('open');$('#btnSheetClose').onclick=()=>$('#panel').classList.remove('open');
 (function intro(){const el=$('#intro'),c=$('#introC'),x=c.getContext('2d'),st=Array.from({length:260},()=>[Math.random(),Math.random(),Math.random()]);let t0=performance.now(),on=true;
   const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  function fr(ts){if(!on)return;const W=innerWidth,H=innerHeight,d=devicePixelRatio||1;if(c.width!==W*d){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);const t=still?3:(ts-t0)/1000;
-    x.fillStyle='#02040a';x.fillRect(0,0,W,H);for(const s2 of st){x.globalAlpha=.25+.75*s2[2]*(.7+.3*Math.sin(t*2+s2[0]*40));x.fillStyle='#fff';x.fillRect(((s2[0]*W-t*6*s2[2])%W+W)%W,s2[1]*H,s2[2]>.9?2:1,s2[2]>.9?2:1);}x.globalAlpha=1;
-    const Rr=Math.max(W,H)*.8,ey=H*.8,T=textures(),ag=x.createRadialGradient(W/2,ey+Rr,Rr*.98,W/2,ey+Rr,Rr*1.06);ag.addColorStop(0,'rgba(110,175,255,.45)');ag.addColorStop(1,'rgba(90,160,255,0)');x.fillStyle=ag;x.beginPath();x.arc(W/2,ey+Rr,Rr*1.06,0,7);x.fill();
-    x.save();x.beginPath();x.arc(W/2,ey+Rr,Rr,0,7);x.clip();x.translate(W/2,ey+Rr);x.rotate(-.2+t*.008);x.drawImage(T.earth,-Rr,-Rr,2*Rr,2*Rr);x.restore();
-    const k=(t%11)/11,rx=W*(W>700?.78:.82)+Math.sin(k*2.2)*W*.08,ry=ey-k*(ey+120),ang=Math.cos(k*2.2)*.35,u=Math.max(7,Math.min(W,H)/70);x.save();x.translate(rx,ry);x.rotate(ang);
-    const fl=x.createLinearGradient(0,u*2.4,0,u*2.4+u*7);fl.addColorStop(0,'rgba(255,245,215,1)');fl.addColorStop(.3,'rgba(255,170,70,.85)');fl.addColorStop(1,'rgba(255,90,30,0)');x.fillStyle=fl;x.beginPath();x.moveTo(-u*.32,u*2.4);x.quadraticCurveTo(0,u*(9+Math.random()),u*.32,u*2.4);x.fill();
-    let yy=-u*2.4;for(const tp of['capPingo','tankM','engVaga']){const P=PARTS[tp];drawPart(x,tp,0,yy+P.h*u/2,u,tp==='tankM'?1:null);yy+=P.h*u;}x.restore();if(!still)requestAnimationFrame(fr);}
+  // nascer do sol visto da órbita: a borda da Terra com a atmosfera acesa e uma cápsula passando devagar
+  function fr(ts){if(!on)return;const W=innerWidth,H=innerHeight,d=devicePixelRatio||1;if(c.width!==Math.round(W*d)||c.height!==Math.round(H*d)){c.width=W*d;c.height=H*d;}x.setTransform(d,0,0,d,0,0);const t=still?20:(ts-t0)/1000,port=H>W*1.1;
+    const Rr=port?H*.75:Math.max(W*.78,H*1.1),cx=port?W*.5:W*.86,cy=port?H+Rr*.5:H+Rr*.52,sa=-Math.PI/2+(port?-.2:.12),sx=cx+Math.cos(sa)*Rr,sy=cy+Math.sin(sa)*Rr;
+    x.fillStyle='#03060f';x.fillRect(0,0,W,H);
+    for(const s2 of st){const px=s2[0]*W,py=s2[1]*H,dd=Math.hypot(px-sx,py-sy);x.globalAlpha=(.2+.7*s2[2]*(.75+.25*Math.sin(t*1.7+s2[0]*40)))*Math.min(1,dd/(W*.35));x.fillStyle='#fff';x.fillRect(px,py,s2[2]>.9?2:1,s2[2]>.9?2:1);}x.globalAlpha=1;
+    // Terra (lado do dia perto do Sol, noite do outro lado)
+    const T=textures(),EI=window.EBIG||T.earth;x.save();x.beginPath();x.arc(cx,cy,Rr,0,7);x.clip();x.translate(cx,cy);x.rotate(-.55+t*.006);x.drawImage(EI,-Rr,-Rr,2*Rr,2*Rr);x.restore();
+    {const ng=x.createRadialGradient(sx,sy,Rr*.05,sx,sy,Rr*1.25);ng.addColorStop(0,'rgba(3,6,15,0)');ng.addColorStop(.35,'rgba(3,6,15,.35)');ng.addColorStop(1,'rgba(3,6,15,.9)');x.save();x.beginPath();x.arc(cx,cy,Rr,0,7);x.clip();x.fillStyle=ng;x.fillRect(0,0,W,H);x.restore();}
+    // atmosfera: faixa fina azul na borda, laranja onde o Sol nasce
+    {const ag=x.createRadialGradient(cx,cy,Rr*.985,cx,cy,Rr*1.03);ag.addColorStop(0,'rgba(95,184,255,0)');ag.addColorStop(.42,'rgba(140,210,255,.75)');ag.addColorStop(.6,'rgba(95,184,255,.35)');ag.addColorStop(1,'rgba(40,90,200,0)');x.fillStyle=ag;x.beginPath();x.arc(cx,cy,Rr*1.03,0,7);x.arc(cx,cy,Rr*.985,0,7,true);x.fill();
+      x.save();x.globalCompositeOperation='lighter';const wg=x.createRadialGradient(sx,sy,0,sx,sy,Rr*.55);wg.addColorStop(0,'rgba(255,190,110,.65)');wg.addColorStop(.25,'rgba(255,150,70,.22)');wg.addColorStop(1,'rgba(255,120,40,0)');x.fillStyle=wg;x.beginPath();x.arc(cx,cy,Rr*1.03,0,7);x.arc(cx,cy,Rr*.985,0,7,true);x.fill();x.restore();}
+    // o Sol aparecendo na borda: brilho, raio horizontal e um pulso lento
+    {const pu=still?1:.92+.08*Math.sin(t*.7);x.save();x.globalCompositeOperation='lighter';const sg=x.createRadialGradient(sx,sy,0,sx,sy,Math.min(W,H)*.42*pu);sg.addColorStop(0,'rgba(255,250,235,1)');sg.addColorStop(.04,'rgba(255,236,190,.95)');sg.addColorStop(.18,'rgba(255,180,90,.35)');sg.addColorStop(1,'rgba(255,140,60,0)');x.fillStyle=sg;x.fillRect(0,0,W,H);
+      const tang=sa+Math.PI/2;x.translate(sx,sy);x.rotate(tang);const lg=x.createLinearGradient(-W*.6,0,W*.6,0);lg.addColorStop(0,'rgba(255,200,140,0)');lg.addColorStop(.5,'rgba(255,235,200,.55)');lg.addColorStop(1,'rgba(255,200,140,0)');x.fillStyle=lg;x.fillRect(-W*.6,-1.2,W*1.2,2.4);x.restore();}
+    // cápsula em órbita, contra o céu, com o rastro da órbita
+    {const orr=Rr*1.075,a0=sa-(port?.5:.2)+((t*.012)%1.2),px=cx+Math.cos(a0)*orr,py=cy+Math.sin(a0)*orr;x.strokeStyle='rgba(95,184,255,.18)';x.setLineDash([2,6]);x.lineWidth=1;x.beginPath();x.arc(cx,cy,orr,a0-.9,a0+.05);x.stroke();x.setLineDash([]);
+      const u=Math.max(4,Math.min(W,H)/110);x.save();x.translate(px,py);x.rotate(a0+Math.PI);let yy=-u*1.2;for(const tp of['capPingo','tankM']){const P=PARTS[tp];drawPart(x,tp,0,yy+P.h*u/2,u,null);yy+=P.h*u;}x.restore();}
+    // escurece atrás do texto (esquerda) para ler bem
+    if(!port){const lg2=x.createLinearGradient(0,0,W*.62,0);lg2.addColorStop(0,'rgba(3,6,15,.82)');lg2.addColorStop(.6,'rgba(3,6,15,.45)');lg2.addColorStop(1,'rgba(3,6,15,0)');x.fillStyle=lg2;x.fillRect(0,0,W*.62,H);}
+    if(!still)requestAnimationFrame(fr);}
+  (function big(){try{const b=earthTex(1024);if(b){window.EBIG=b;return;}}catch(e){}setTimeout(big,300);})();
   requestAnimationFrame(fr);
   $('#btnStart').onclick=()=>{setSite('alc');audioInit();musicStart();el.classList.add('out');setTimeout(()=>{on=false;el.hidden=true;},950);};
   $('#btnCampI').onclick=()=>{$('#btnStart').onclick();renderCamp();$('#camp').hidden=false;};
-  $('#btnRaceI').onclick=()=>{$('#btnStart').onclick();raceOpen();};
+  $('#btnRaceI').onclick=()=>{audioInit();$('#btnStart').onclick();if(RACE){raceOpen();return;}filmPlay(()=>{try{musicStart();}catch(e){}raceOpen();});};
   // volta para a tela inicial (sai da missão e do hangar)
   window.goHome=()=>{if(flight.on)$('#mHangar').onclick();['#campWin','#deadBox','#camp','#models','#brief','#race','#raceSide'].forEach(q=>{const e=$(q);if(e)e.hidden=true;});musicStop&&musicStop(true);el.hidden=false;el.classList.remove('out');if(!on){on=true;t0=performance.now();requestAnimationFrame(fr);}};})();
 cheatsUI();buildCatalog();{const c=lsGet('orbita.cur');if(Array.isArray(c)&&c.length)loadParts(c);else parts=presetTwo();}fitView();refresh();
