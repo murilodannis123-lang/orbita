@@ -70,7 +70,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 #selBar{position:absolute;display:flex;gap:2px;padding:4px 6px;align-items:center;z-index:4;white-space:nowrap}
 #selBar b{font-size:12px;color:var(--accent);padding:0 6px}#sDel{color:var(--bad)}
 #fuelEd{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(70px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;padding:8px 12px;z-index:4;width:min(460px,92vw);border-color:var(--accent);font-size:13px}#fuelEd input{flex:1;min-width:100px;accent-color:var(--accent)}#feVal{color:var(--muted)}
-#ghost{position:fixed;left:0;top:0;width:64px;height:64px;pointer-events:none;z-index:50;display:none}
+#ghost{position:fixed;left:0;top:0;width:64px;height:64px;pointer-events:none;z-index:50;display:none}#ghost.bad{opacity:.55;filter:drop-shadow(0 0 6px #ff6b6b) sepia(1) saturate(4) hue-rotate(-40deg)}body.dragging #tutBox{opacity:.12;transition:opacity .15s}body.dragging #tutHole{opacity:.25}body.dragging #selBar{display:none!important}
 #flight{position:fixed;inset:0;display:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 html,body,#hangar,#stack,#catalog,.pgrid{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}input,textarea{-webkit-user-select:text;user-select:text}.pgrid .part{touch-action:pan-x pan-y}
 button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
@@ -412,7 +412,7 @@ body.inRace #btnCamp,body.inRace #btnModels,body.inRace #btnSaves,body.inRace #b
     <button id="btnCampI" class="inItem"><b>Campanha</b><small>Do primeiro salto, em 1961, até Marte</small></button>
     <button id="btnRaceI" class="inItem"><b>Corrida Espacial</b><small>EUA contra URSS, a partir de 1957</small></button>
   </nav>
-  <p class="hint">Melhor com fone de ouvido <span>versão 76</span></p></div></div>
+  <p class="hint">Melhor com fone de ouvido <span>versão 77</span></p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1003,22 +1003,24 @@ function fitView(){const f=freeRect();let l=-2.5,r=2.5,t=-7,b=0;for(const p of p
   const u=Math.max(10,Math.min(70,(f.R-f.L-30)/(r-l+1.5),(f.B-f.T-30)/(b-t+1.5)));view={u,ox:(f.L+f.R)/2-(l+r)/2*u,oy:(f.T+f.B)/2-(t+b)/2*u};lastWH=[sc.clientWidth,sc.clientHeight];}
 function zoomAt(px,py,k){const nu=Math.max(8,Math.min(160,view.u*k)),kk=nu/view.u;view.ox=px-(px-view.ox)*kk;view.oy=py-(py-view.oy)*kk;view.u=nu;drawEditor();posSel();}
 function snapPos(type,px,py,others,w,h){const d=PARTS[type];let best=null,bd=Math.max(.6,(mobile()?64:40)/view.u);
-  const cand=(x,y,pen=0)=>{const p={type,w,h,x,y};if(others.some(o=>overlaps(p,o)))return;const dd=Math.hypot(x-px,y-py)+pen;if(dd<bd){bd=dd;best={x,y};}};
+  // distância do dedo até o retângulo onde a peça ficaria (0 se o dedo está dentro dele); o centro só desempata
+  const cand=(x,y,pen=0)=>{const p={type,w,h,x,y};if(others.some(o=>overlaps(p,o)))return;const ex=Math.max(0,Math.abs(px-x)-w/2),ey=Math.max(0,Math.abs(py-y)-h/2),dd=Math.hypot(ex,ey)+Math.hypot(x-px,y-py)*.05+pen;if(dd<bd){bd=dd;best={x,y};}};
   for(const o of others){const B=box(o),od=PT(o);cand(o.x,B.t-h/2);cand(o.x,B.b+h/2);
     const xs=Math.round(px*40)/40;if(w<=(B.r-B.l)*.6&&ovl(xs-w/2,xs+w/2,B.l,B.r)>.15){cand(xs,B.b+h/2,.25);cand(xs,B.t-h/2,.25);}
     if(['sepLat','leg','solar','wheel','rcs','paraL','hover','finS'].includes(d.t)||od.t==='sepLat')for(const y of[o.y,B.t+h/2,B.b-h/2,Math.round(py*4)/4]){if(ovl(y-h/2,y+h/2,B.t,B.b)<.2)continue;cand(B.l-w/2,y);cand(B.r+w/2,y);}}
   return best;}
-const overCanvas=e=>document.elementFromPoint(e.clientX,e.clientY)===sc;
-function startDrag(e,info){e.preventDefault();const P=PARTS[info.type];drag={moved:false,...info,sx:e.clientX,sy:e.clientY,pos:null,lift:e.pointerType==='touch'?60:0,w:info.part?W(info.part):P.w,h:info.part?H(info.part):P.h};$('#selBar').hidden=true;
+const overCanvas=e=>{const top=document.elementFromPoint(e.clientX,e.clientY);if(!top)return false;if(top===sc)return true;if(top.closest('#catalog,#panel,#hTop,#hMore,#btnGo,#zoomCtl'))return false;return document.elementsFromPoint(e.clientX,e.clientY).includes(sc);};
+function startDrag(e,info){e.preventDefault();document.body.classList.add('dragging');const P=PARTS[info.type];drag={moved:false,...info,sx:e.clientX,sy:e.clientY,pos:null,lift:e.pointerType==='touch'?60:0,w:info.part?W(info.part):P.w,h:info.part?H(info.part):P.h};$('#selBar').hidden=true;
   if(info.part){save();const mir=parts.find(q=>q.uid===info.part.mir);drag.mirPart=mir;drag.orig={x:info.part.x,y:info.part.y};parts=parts.filter(q=>q!==info.part&&q!==mir);}
   const gc=$('#ghost').getContext('2d');gc.clearRect(0,0,128,128);drawPart(gc,drag.type,64,64,100/Math.max(drag.h,drag.w*1.4,1),null,drag.w,drag.h);
   addEventListener('pointermove',moveDrag);addEventListener('pointerup',endDrag);addEventListener('pointercancel',endDrag);moveDrag(e);}
 function moveDrag(e){if(!drag)return;if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>6)drag.moved=true;const gh=$('#ghost'),r=sc.getBoundingClientRect();
-  if(overCanvas(e)){gh.style.display='none';const[ux,uy]=toU(e.clientX-r.left,e.clientY-r.top-drag.lift),s=snapPos(drag.type,ux,uy,parts,drag.w,drag.h);
-    const free={type:drag.type,w:drag.w,h:drag.h,x:Math.round(ux*4)/4,y:Math.round(uy*4)/4};drag.pos=s?{...s,snap:true}:(parts.some(o=>overlaps(free,o))?null:free);}
-  else{drag.pos=null;gh.style.display='block';gh.style.transform='translate('+(e.clientX-32)+'px,'+(e.clientY-32-drag.lift)+'px)';}
+  if(overCanvas(e)){const[ux,uy]=toU(e.clientX-r.left,e.clientY-r.top-drag.lift),s=snapPos(drag.type,ux,uy,parts,drag.w,drag.h);
+    const free={type:drag.type,w:drag.w,h:drag.h,x:Math.round(ux*4)/4,y:Math.round(uy*4)/4};drag.pos=s?{...s,snap:true}:(parts.some(o=>overlaps(free,o))?null:free);
+    gh.classList.toggle('bad',!drag.pos);gh.style.display=drag.pos?'none':'block';if(!drag.pos)gh.style.transform='translate('+(e.clientX-32)+'px,'+(e.clientY-32-drag.lift)+'px)';}
+  else{drag.pos=null;gh.classList.remove('bad');gh.style.display='block';gh.style.transform='translate('+(e.clientX-32)+'px,'+(e.clientY-32-drag.lift)+'px)';}
   drawEditor();}
-function endDrag(e){if(!drag)return;removeEventListener('pointermove',moveDrag);removeEventListener('pointerup',endDrag);removeEventListener('pointercancel',endDrag);$('#ghost').style.display='none';
+function endDrag(e){if(!drag)return;document.body.classList.remove('dragging');$('#ghost').classList.remove('bad');removeEventListener('pointermove',moveDrag);removeEventListener('pointerup',endDrag);removeEventListener('pointercancel',endDrag);$('#ghost').style.display='none';
   const d=drag;drag=null;const up=e.type==='pointerup',inside=up&&overCanvas(e);
   if(d.fresh){if(inside&&d.pos){save();place(mk(d.type,d.pos.x,d.pos.y),null);}}
   else if(inside&&d.pos)place(Object.assign(d.part,{x:d.pos.x,y:d.pos.y}),d.mirPart);
@@ -1675,7 +1677,7 @@ const TUT=[
   {when:hqOn,sel:'#rHead .rDate',t:s=>'Este é o calendário. Pesquisar e lançar gastam meses, e os '+RSIDE[s.rival].adj+' não esperam: eles fazem cada conquista na data em que fizeram na história.',next:1},
   {when:()=>hqOn()&&RTAB==='ms',sel:'[data-l="snd"]',t:()=>'Primeira tarefa: um foguete de sondagem, só para passar dos 100 km. Toque em Montar e lançar.',done:()=>CAMP_CUR==='rm_snd'},
   {when:hang,sel:'#catalog',t:()=>'Aqui não tem foguete pronto: você monta o seu. Só aparecem as peças que já pesquisamos, e o tamanho do foguete também é limitado. De cima para baixo: Ogiva, Sonda (aba Comando), Tanque M, Aletas e o Motor Jabuti. A Ogiva parece enfeite, mas sem ela o ar freia tanto que o foguete não chega aos 100 km. Dois Tanques M não cabem: passa do limite de 5 t.',done:()=>{try{return validate(parts).errs.length===0;}catch(e){return false;}}},
-  {when:hang,sel:'#btnLaunch',t:()=>'Foguete montado. Toque em IR PARA A BASE. O tempo de preparo passa agora: fique de olho no jornal.',done:()=>flight.on},
+  {when:hang,sel:()=>getComputedStyle($('#btnGo')).display!=='none'?'#btnGo':'#btnLaunch',t:()=>'Foguete montado. Toque em IR PARA A BASE. O tempo de preparo passa agora: fique de olho no jornal.',done:()=>flight.on},
   {when:()=>flight.on&&V&&V.clamped&&!S.count,rect:engRect,t:()=>'Na base. Primeiro toque no motor, embaixo do foguete: ele fica armado (marcado).',done:()=>!!(V&&propAct(V).some(i=>V.parts[i].on))||S.liftT>=0},
   {when:()=>flight.on&&V&&V.clamped,sel:'#btnEng',t:()=>'Agora toque em LIGAR: começa a contagem e o acelerador vai no máximo sozinho.',done:()=>!!(S.count||S.liftT>=0)},
   {when:()=>flight.on,sel:'#read',t:()=>'Suba reto e acompanhe a altitude aqui em cima. Passou dos 100 km, a missão está cumprida.',done:()=>!!(RACE.got&&RACE.got.snd)},
@@ -1684,7 +1686,7 @@ const TUT=[
   {when:()=>hqOn()&&RTAB==='tec',sel:'.rTree',t:s=>'Para pôr um satélite em órbita ainda faltam '+(rHas('f2')?'':'Estágios e ')+'Órbita. Os '+RSIDE[s.rival].adj+' lançam o primeiro satélite em '+rDate(RMS[1][s.rival][0])+'. Escolha bem: cada mês conta. Boa sorte!',next:1,last:1}];
 function tutTick(){const el=$('#tut');if(!RACE||RACE.tut==null||RACE.tut<0||RACE.tut>=TUT.length){el.hidden=true;return;}const st=TUT[RACE.tut],S0=RSIDE[RACE.side];
   if(st.done&&st.done()){RACE.tut++;raceSave();return tutTick();}
-  const tg=st.rect?{getBoundingClientRect:st.rect,getClientRects:()=>[1]}:st.sel&&document.querySelector(st.sel),vis=st.when()&&tg&&tg.getClientRects().length&&$('#paper')?.hidden!==false&&$('#film')?.hidden!==false;
+  const tg=st.rect?{getBoundingClientRect:st.rect,getClientRects:()=>[1]}:st.sel&&document.querySelector(typeof st.sel==='function'?st.sel():st.sel),vis=st.when()&&tg&&tg.getClientRects().length&&$('#paper')?.hidden!==false&&$('#film')?.hidden!==false;
   if(!vis){el.hidden=true;return;}el.hidden=false;const r=tg.getBoundingClientRect(),hole=$('#tutHole'),bx=$('#tutBox'),pad=6;
   hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';
   const txt=st.t(S0);if(bx.dataset.k!==RACE.tut+''){bx.dataset.k=RACE.tut;$('#tutAv').textContent=S0.adv.ini;$('#tutAv').style.background=S0.adv.col;$('#tutN').textContent=S0.adv.n;$('#tutT').textContent=txt;$('#tutNext').hidden=!st.next;$('#tutNext').textContent=st.last?'Entendi':'Próximo';$('#tutStep').textContent=(RACE.tut+1)+' de '+TUT.length;bx.classList.remove('pop');void bx.offsetWidth;bx.classList.add('pop');}
@@ -1991,7 +1993,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=76;
+const GAME_VER=77;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
