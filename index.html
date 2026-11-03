@@ -32,10 +32,20 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 /* hangar estilo SFS: a bancada ocupa a tela e os painéis flutuam por cima */
 #hangar{position:fixed;inset:0;overflow:hidden}
 #stack{position:absolute;inset:0;width:100%;height:100%;touch-action:none;background:radial-gradient(ellipse at 50% 85%,#1a2442,#070b16 70%);cursor:grab}
-#hTop{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;gap:2px;padding:5px;align-items:center;max-width:calc(100vw - 540px);flex-wrap:wrap;justify-content:center;z-index:3}
-#hTop .logo{font-family:var(--display);color:var(--accent);font-size:17px;letter-spacing:.08em;padding:0 8px}@media (max-width:1500px){#hTop .logo{display:none}}
+#hTop{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;gap:2px;padding:4px;align-items:center;max-width:calc(100vw - 500px);flex-wrap:nowrap;justify-content:center;z-index:3;border-radius:12px}
+#hTop svg,#hMore svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#hTop button{display:inline-flex;align-items:center;gap:6px;height:36px;border-radius:9px}#hTop .hTool{padding:0 10px;color:#c9d2e6}#hTop .hTool:hover{color:var(--ink)}
+#hTop .hNav{padding:0 12px 0 10px;font-weight:600}#hTop .hHQ{display:none;color:#1a1200;background:var(--accent);border-color:var(--accent)}#hTop .hHQ:hover{background:#ffc46b}body.inRace #hTop .hHQ{display:inline-flex}body.inRace #btnHome{display:none}
+#hTop #btnSym.on{background:rgba(79,209,255,.14);border-color:rgba(79,209,255,.5);color:var(--orbit)}#hTop #btnMore[aria-expanded=true]{background:var(--panel2);color:var(--ink)}#btnMore{position:relative}#btnMore .cheatFlag{position:absolute;top:4px;right:5px;font-size:9px}
+#hTop .mOnly{display:none}body.inRace #cbOpen{display:none}body:not(.inRace) .raceOnly{display:none!important}.hSep{width:1px;height:22px;background:var(--line);margin:0 4px;flex:none}
+#hMore{position:absolute;z-index:31;display:flex;flex-direction:column;gap:2px;padding:6px;min-width:190px;border-radius:12px}#hMore[hidden]{display:none}#hMore button{display:flex;align-items:center;gap:8px;justify-content:flex-start;background:transparent;border-color:transparent;padding:9px 12px;font-size:14px;text-align:left}#hMore button:hover{background:var(--panel2)}#hMore #btnMus.on::after{content:'ligada';margin-left:auto;font-size:12px;color:var(--orbit)}
+#hMore .pxProj,#hMore .pxHome{display:none}body.inRace #hMore .pxHome{display:flex}
+
 #hTop button,#zoomCtl button,#selBar button{padding:6px 10px;font-size:13px;background:transparent;border-color:transparent;white-space:nowrap}
-#hTop button:hover,#zoomCtl button:hover,#selBar button:hover{background:var(--panel2)}
+#hTop button:hover,#zoomCtl button:hover,#selBar button:hover{background:var(--panel2)}#hTop .hHQ:hover{background:#ffc46b}
+@media (max-width:1180px){#hTop .hTool span{display:none}#hTop .hTool{padding:0 9px}}
+@media (max-width:480px){#hTop .shW,#hTop .shL{display:none}#hTop .hNav{padding:0 10px 0 8px}#hTop .hTool{padding:0 8px}#hTop .hSep{margin:0 2px}#hTop #btnSheet i{font-style:normal}}
+@media (max-width:1040px){#hTop .hProj{display:none}#hMore .pxProj{display:flex}body.inRace #hMore .pxProj{display:none}}
 #catalog{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));width:220px;display:flex;flex-direction:column;gap:8px;padding:10px;z-index:3}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px}.tabs button{padding:6px 4px;font-size:12px;background:transparent}.tabs button.on{background:rgba(255,179,71,.15);border-color:var(--accent);color:var(--accent)}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;overflow:auto;align-content:start;flex:1;min-height:0}
@@ -148,8 +158,8 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 #mapInfo b{font-family:var(--display);font-size:15px;color:var(--orbit)}#mapInfo .mi-n{color:var(--muted);font-size:12px;white-space:nowrap}#mapInfo .mi-l{font-size:12px;margin-top:2px;color:#d7deef}#mapInfo .mi-l b{font-size:12px;font-family:inherit;color:inherit}
 @media (max-width:860px){
   /* celular em pé: ferramentas em cima, peças numa bandeja embaixo, ficha numa gaveta */
-  #hTop{left:max(8px,env(safe-area-inset-left,0px));right:max(8px,env(safe-area-inset-right,0px));transform:none;max-width:none;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
-  #hTop .logo{display:none}
+  #hTop{left:max(8px,env(safe-area-inset-left,0px));right:max(8px,env(safe-area-inset-right,0px));transform:none;max-width:none;justify-content:flex-start}
+  #hTop .mOnly{display:inline-flex}#hTop #btnSheet{margin-left:auto;height:36px;padding:0 10px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px;min-width:0;overflow:hidden}
   .mOnly{display:inline-flex;align-items:center;gap:4px}#btnSheet b{color:var(--good)}#btnSheet .bad{color:var(--bad)}
   #catalog{top:auto;left:0;right:0;bottom:0;width:auto;height:calc(150px + env(safe-area-inset-bottom,0px));border-radius:14px 14px 0 0;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))}
   .tabs{display:flex;overflow-x:auto;scrollbar-width:none}.tabs button{font-size:11px;padding:5px 8px;flex:0 0 auto;white-space:nowrap}.pgrid{display:flex;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}.pinfo{display:none}
@@ -176,8 +186,9 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 @media (max-width:600px){#flight #mapUI{top:calc(150px + env(safe-area-inset-top,0px));bottom:auto;width:calc(100vw - 24px)}#flight #mapInfo{font-size:12px;padding:6px 10px}#flight #mapInfo b{font-size:14px}#flight.map #toast{top:auto;bottom:calc(360px + env(safe-area-inset-bottom,0px))}#flight #layerBox{display:none}#flight #toast{top:calc(150px + env(safe-area-inset-top,0px));bottom:auto;max-width:86vw;padding:6px 12px}#flight #toast h2{font-size:14px;margin-bottom:1px}#flight #toast p{font-size:12px;-webkit-line-clamp:2}#rLayer.flash{color:var(--orbit);animation:fl 1.2s 3}@keyframes fl{50%{color:var(--ink)}}#warpHint{top:calc(110px + env(safe-area-inset-top,0px))}}
 @media (orientation:landscape) and (max-height:500px){
   /* celular deitado: peças numa coluna à esquerda, ferramentas em cima, ficha numa gaveta à direita */
-  #hTop{left:calc(180px + env(safe-area-inset-left,0px));right:max(8px,env(safe-area-inset-right,0px));transform:none;max-width:none;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;top:calc(6px + env(safe-area-inset-top,0px))}
-  #hTop .logo{display:none}.mOnly{display:inline-flex;align-items:center;gap:4px}
+  #hTop{left:calc(180px + env(safe-area-inset-left,0px));right:max(8px,env(safe-area-inset-right,0px));transform:none;max-width:none;justify-content:flex-start;top:calc(6px + env(safe-area-inset-top,0px))}
+  #hTop .mOnly{display:inline-flex}#hTop #btnSheet{margin-left:auto;height:34px;padding:0 10px;border:1px solid var(--line);background:var(--panel2);font-size:12.5px}#hTop button{height:34px}
+  .mOnly{display:inline-flex;align-items:center;gap:4px}
   #catalog{top:6px;bottom:6px;left:max(6px,env(safe-area-inset-left,0px));right:auto;width:165px;height:auto;border-radius:12px;padding:6px}
   .tabs{grid-template-columns:1fr 1fr}.tabs button{padding:4px 2px;font-size:11px}.pgrid{display:grid;grid-template-columns:1fr 1fr;overflow-y:auto;overflow-x:hidden}.pinfo{display:none}
   .part{width:auto;touch-action:pan-y;padding:5px 2px}.part canvas{width:40px;height:40px}.part b{font-size:10.5px}
@@ -272,7 +283,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 .pSide{border-left:1px solid #1f1e1b;padding-left:12px;display:flex;flex-direction:column;gap:10px}.pSide h4{margin:0;font-size:15px;line-height:1.15}.pSide p{margin:3px 0 0;font-size:12.5px;line-height:1.35}.pSide .pAd{border:1.5px solid #1f1e1b;padding:6px 8px;text-align:center}.pSide .pAd h4{font-size:14px;letter-spacing:.02em}.pSide .pAd p{font-style:italic}.pSheet footer{margin-top:10px;border-top:1px solid #1f1e1b;padding-top:6px;text-align:center;font-size:12px;font-family:var(--body);color:#5b574d}
 .p-bad .pHead{color:#7a1410}.p-good .pHead{color:#1d3a10}
 @media (max-width:600px){.pBody{grid-template-columns:1fr}.pSide{border-left:0;border-top:1px solid #1f1e1b;padding:8px 0 0}.pSide article:nth-child(n+3){display:none}}
-body.inRace #btnCamp,body.inRace #btnModels,body.inRace #btnSaves,body.inRace #btnCheat{display:none}#rHead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}#rHead .rDate{color:var(--accent);font-family:var(--display);font-weight:700}#rHead .rPts{color:#9fd8ff;font-size:13px}
+body.inRace #btnCamp,body.inRace #btnModels,body.inRace #btnSaves,body.inRace #btnCheat,body.inRace #hTop .hSep.hProj{display:none!important}#rHead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}#rHead .rDate{color:var(--accent);font-family:var(--display);font-weight:700}#rHead .rPts{color:#9fd8ff;font-size:13px}
 #rTabs{display:flex;gap:6px}#rTabs button{flex:1;padding:8px}#rTabs button.on{border-color:var(--accent);color:var(--accent)}
 .rList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.rList li{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}.rList li div{flex:1;min-width:0}.rList li b{font-size:14px}.rList li small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.rList .rNm{display:inline;color:#cfd6e6;font-size:12px}.rList li.lock{opacity:.6}.rList li.done{border-color:rgba(94,226,160,.35)}.rList button{flex:0 0 auto;padding:7px 10px;font-size:12px}
 .rc{font-style:normal;font-size:11px;font-weight:700;margin-left:8px;padding:2px 7px;border-radius:999px;white-space:nowrap}.rc.me{background:rgba(255,200,70,.18);color:#ffd166}.rc.ok{background:rgba(94,226,160,.15);color:var(--good)}.rc.rv{background:rgba(255,107,107,.15);color:#ff8f8f}.rc.open{background:rgba(255,255,255,.06);color:var(--muted)}
@@ -308,18 +319,27 @@ body.inRace #btnCamp,body.inRace #btnModels,body.inRace #btnSaves,body.inRace #b
 <div id="hangar">
   <canvas id="stack" aria-label="Bancada de montagem"></canvas>
   <div id="hTop" class="glass">
-    <b class="logo">ÓRBITA</b>
-    <button id="btnUndo" title="Desfazer (Ctrl+Z)">↶ Desfazer</button>
-    <button id="btnSym">Simetria</button>
-    <button id="btnHome" title="Tela inicial">⌂ Início</button>
-    <button id="btnCamp">★ Campanha</button>
-    <button id="btnModels">Modelos ▾</button>
-    <button id="btnClear">Limpar</button>
-    <button id="btnSaves">Salvos</button>
-    <button id="btnMus" aria-pressed="true">♪ Música</button>
+    <button id="btnHome" class="hNav" title="Tela inicial"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7M6 10v10h4v-6h4v6h4V10"/></svg><span>Início</span></button>
+    <button id="btnHQ" class="hNav hHQ" title="Sede do programa espacial: conquistas e árvore de tecnologia"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg><span>Sede</span></button>
+    <i class="hSep"></i>
+    <button id="btnUndo" class="hTool" title="Desfazer (Ctrl+Z)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-5 5 5 5M4 11h11a5 5 0 010 10h-3"/></svg><span>Desfazer</span></button>
+    <button id="btnSym" class="hTool" title="Simetria: as peças dos lados saem em par"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M9 6L3 18h6zM15 6l6 12h-6z"/></svg><span>Simetria</span></button>
+    <button id="btnClear" class="hTool" title="Limpar a bancada"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 7V4h4v3M6 7l1 13h10l1-13"/></svg><span>Limpar</span></button>
+    <i class="hSep hProj"></i>
+    <button id="btnCamp" class="hProj">Campanha</button>
+    <button id="btnModels" class="hProj">Modelos</button>
+    <button id="btnSaves" class="hProj">Salvos</button>
+    <button id="btnMore" class="hTool" aria-haspopup="true" aria-expanded="false" title="Mais opções"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01"/></svg><span class="cheatFlag" hidden>●</span></button>
+    <button id="btnSheet" class="mOnly"><span class="shW">Ficha</span> <span id="sumTxt"></span></button>
+  </div>
+  <div id="hMore" class="glass" hidden role="menu">
+    <button data-p="btnHome" class="pxHome"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7M6 10v10h4v-6h4v6h4V10"/></svg>Tela inicial</button>
+    <button data-p="btnCamp" class="pxProj">Campanha</button>
+    <button data-p="btnModels" class="pxProj">Modelos prontos</button>
+    <button data-p="btnSaves" class="pxProj">Salvos</button>
+    <button id="btnMus" aria-pressed="true">Música</button>
+    <button id="btnFs">Tela cheia</button>
     <button id="btnCheat">Trapaças <span class="cheatFlag" hidden>●</span></button>
-    <button id="btnFs" title="Tela cheia / celular deitado">⛶ Tela cheia</button>
-    <button id="btnSheet" class="mOnly">Ficha <span id="sumTxt"></span></button>
   </div>
   <aside id="catalog" class="glass"><div class="tabs" id="tabs"></div><div class="pgrid" id="pgrid"></div><p class="pinfo" id="pinfo"></p></aside>
   <aside id="panel" class="glass">
@@ -392,7 +412,7 @@ body.inRace #btnCamp,body.inRace #btnModels,body.inRace #btnSaves,body.inRace #b
     <button id="btnCampI" class="inItem"><b>Campanha</b><small>Do primeiro salto, em 1961, até Marte</small></button>
     <button id="btnRaceI" class="inItem"><b>Corrida Espacial</b><small>EUA contra URSS, a partir de 1957</small></button>
   </nav>
-  <p class="hint">Melhor com fone de ouvido <span>versão 75</span></p></div></div>
+  <p class="hint">Melhor com fone de ouvido <span>versão 76</span></p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -417,15 +437,16 @@ body.inRace #btnCamp,body.inRace #btnModels,body.inRace #btnSaves,body.inRace #b
   <div id="ctlC"><button id="btnHover" hidden>Hover: desligado</button><button id="btnAct" hidden></button><button id="btnRover" hidden>🚗 Soltar rover</button><button id="btnRamp" hidden>Rampa: fechada</button><button id="btnRcs" hidden>RCS</button><button id="btnLegs" hidden>Pés: fechados</button><button id="btnChute" hidden>Paraquedas</button><button id="btnStage">ESTÁGIO<small id="stNext"></small></button></div>
   <div id="thrWrap" class="glass"><button id="btnEng" class="lever" role="switch" aria-checked="false" title="Liga/desliga todos os motores (E)" aria-label="Motores"><i></i><span id="engLbl">LIGAR</span></button><div class="gauges"><div class="gcol"><span class="eyebrow">Motor</span><div id="thrTrack"><div id="thrFill"></div></div><b id="thrPct">0%</b></div><div class="gcol"><span class="eyebrow">Comb.</span><div id="fuelTrack"><div id="fuelFill"></div></div><b id="fuelPct">100%</b></div></div><div class="mini"><button id="thrMax">MÁX</button><button id="thrCut">0</button></div></div>
   <div id="tip" class="glass" role="status"></div>
-  <div id="campWin" class="glass dlg" hidden role="dialog" aria-label="Missão cumprida"><p class="eyebrow" id="cwE">Campanha</p><h2 id="cwT">Missão cumprida ✓</h2><p id="cwB"></p><div id="cwS" class="cwStats" hidden></div><div class="cwBtns"><button class="primary" id="cwNext">Próxima missão</button><button class="glass" id="cwHangar">⌂ Voltar ao hangar</button><button id="cwStay">Continuar aqui</button><button id="cwHome">Tela inicial</button></div></div>
+  <div id="campWin" class="glass dlg" hidden role="dialog" aria-label="Missão cumprida"><p class="eyebrow" id="cwE">Campanha</p><h2 id="cwT">Missão cumprida ✓</h2><p id="cwB"></p><div id="cwS" class="cwStats" hidden></div><div class="cwBtns"><button class="primary" id="cwNext">Próxima missão</button><button class="glass" id="cwHangar">⌂ Voltar ao hangar</button><button class="glass raceOnly" id="cwHQ">Voltar à sede</button><button id="cwStay">Continuar aqui</button><button id="cwHome">Tela inicial</button></div></div>
   <div id="alarm" hidden><b>⚠ MASTER ALARM</b><span>FALHA NO MOTOR · INCÊNDIO · PERDA DE CONTROLE</span></div>
   <button id="btnAbort" class="primary" hidden>⚠ ABORTAR</button>
-  <div id="deadBox" hidden><p id="deadTip"></p><button id="btnRewind" class="primary">⟲ Voltar 30 s</button><button id="btnDRestart" class="glass">↻ Lançar de novo</button><button id="btnDHangar" class="glass">⌂ Voltar ao hangar</button><button id="btnDHome" class="glass">Sair para a tela inicial</button></div>
+  <div id="deadBox" hidden><p id="deadTip"></p><button id="btnRewind" class="primary">⟲ Voltar 30 s</button><button id="btnDRestart" class="glass">↻ Lançar de novo</button><button id="btnDHQ" class="glass raceOnly">Voltar à sede</button><button id="btnDHangar" class="glass">⌂ Voltar ao hangar</button><button id="btnDHome" class="glass">Sair para a tela inicial</button></div>
   <div id="pop" class="glass" hidden><b id="popT"></b><span id="popS"></span><button id="popB"></button><button id="popX" aria-label="Fechar">✕</button></div>
   <div id="toast" class="glass"><h2 id="tTitle"></h2><p id="tBody"></p></div>
   <aside id="drawer" aria-label="Menu">
     <div style="display:flex;justify-content:space-between;align-items:center"><h3>Menu</h3><button id="btnClose" aria-label="Fechar">✕</button></div>
     <div class="menu">
+      <button id="mHQ" class="raceOnly">Voltar à sede (conquistas e tecnologia)</button>
       <button id="mHangar">Voltar ao hangar</button>
       <button id="mHome">⌂ Sair para a tela inicial</button>
       <button id="mRew">⟲ Voltar 30 segundos</button>
@@ -1083,7 +1104,7 @@ function refresh(){if(feP&&!parts.includes(feP)){feP=null;$('#fuelEd').hidden=tr
   $('#stageList').innerHTML=ph.map((p,i)=>'<li>'+(p.eng.length?'<b>'+(i?'Depois: ':'Decolagem: ')+cnt(p.eng)+'</b> · '+Math.round(p.dv).toLocaleString('pt-BR')+' m/s<br>':'')+(p.drop?'Em seguida solta '+(p.drop.includes('sepLat')?'os propulsores laterais':'o estágio de baixo'):'Fim da sequência')+'</li>').join('');
   const items=[...v.errs.map(e=>['err','✗',e]),...v.warns.map(w=>['warn','!',w])];if(!v.errs.length)items.unshift(['ok','✓','Montagem válida: pronto para a base']);
   $('#checks').innerHTML=items.map(([k,i,t])=>'<div class="check '+k+'"><span class="ic">'+i+'</span><span>'+t+'</span></div>').join('');$('#btnLaunch').disabled=$('#btnGo').disabled=!!v.errs.length;
-  lsSet('orbita.cur',parts);$('#sumTxt').innerHTML=(c.m/1000).toFixed(1)+' t · '+(v.errs.length?'<span class="bad">'+v.errs.length+' problema'+(v.errs.length>1?'s':'')+'</span>':'<b>✓</b>');posSel();}
+  lsSet('orbita.cur',parts);$('#sumTxt').innerHTML=(c.m/1000).toFixed(1)+' t · '+(v.errs.length?'<span class="bad">⚠\uFE0E '+v.errs.length+'<i class="shL"> problema'+(v.errs.length>1?'s':'')+'</i></span>':'<b>✓</b>');posSel();}
 let feP=null;
 // pintura: cor e padrão da peça selecionada (e do par simétrico)
 function openPaint(){const p=selPart();if(!p)return;const el=$('#paintEd'),sk=skinOf(p.type,p.skin),pats=['tank','eng','fair','cone','sep','fus','adapt'].includes(PT(p).t);el.hidden=false;
@@ -1610,7 +1631,7 @@ function raceResearch(t){const k=RTK[t],c=rCost(t);if(rHas(t)||RACE.pts<c||!k.pr
   const libs=RMS.filter(ms=>ms.req.includes(t)&&ms.req.every(rHas)).map(ms=>ms.t.toLowerCase()),pl=k.parts.map(p=>PARTS[p].n).slice(0,4);
   raceNews('tech','NOVA TECNOLOGIA: '+k.n.toUpperCase(),k.d+(pl.length?' Peças novas no hangar: '+pl.join(', ')+'.':'')+(libs.length?' Já dá para tentar: '+libs.join(', ')+'.':''));
   raceSave();renderRace();paperFlush();}
-function raceLaunch(id){const ms=RMS.find(q=>q.id===id);RACE.cur=id;RACE.paid=null;raceSave();$('#race').hidden=true;setSite(RACE.side==='usa'?'cape':'bai');RACE_FLAG=RACE.side;document.body.classList.add('inRace');
+function raceLaunch(id){const ms=RMS.find(q=>q.id===id);if(RACE.cur!==id)RACE.paid=null;RACE.cur=id;raceSave();$('#race').hidden=true;setSite(RACE.side==='usa'?'cape':'bai');RACE_FLAG=RACE.side;document.body.classList.add('inRace');
   campStart(ms.m);$('#brief').hidden=true;campBar();
   const c=CAMP.find(q=>q.id===ms.m);tip(innerWidth/2,innerHeight*.35,ms.nm[RACE.side]+': '+c.txt);}
 // ao ir para a base: o tempo de preparo passa (uma vez por missão) e o jornal mostra o que aconteceu nesse meio-tempo
@@ -1629,7 +1650,7 @@ function raceCrash(){if(!RACE||!RACE.cur||!RACE_FLAG)return'';raceAdvance(2);RAC
   raceNews('fail','FALHA EM '+S0.base.toUpperCase(),'O teste da missão "'+ms.t.toLowerCase()+'" terminou mal. A investigação vai levar 2 meses.');raceSave();return ' · 🏁 A investigação do acidente custou 2 meses (agora é '+rDate(RACE.mo)+').';}
 // ------- sede do programa
 let RTAB='ms';
-function raceOpen(){if(!RACE){raceSelOpen();return;}if(!RACE.cur){CAMP_CUR=null;RACE_FLAG=null;setSite('alc');document.body.classList.remove('inRace');campBar();}renderRace();$('#race').hidden=false;paperFlush(()=>tutTick());}
+function raceOpen(){if(!RACE){raceSelOpen();return;}const cm=RACE.cur&&RMS.find(q=>q.id===RACE.cur);if(cm&&CAMP_CUR!==cm.m){RACE.cur=null;RACE.paid=null;}if(!RACE.cur){CAMP_CUR=null;RACE_FLAG=null;setSite('alc');document.body.classList.remove('inRace');campBar();}renderRace();$('#race').hidden=false;paperFlush(()=>tutTick());}
 function renderRace(){const S0=RSIDE[RACE.side],R2=RSIDE[S0.rival],box=$('#rBody');
   $('#rHead').innerHTML='<span class="rFlag">'+S0.f+'</span><b>Programa espacial '+(RACE.side==='usa'?'americano':'soviético')+'</b><span class="rDate">'+rDateL(RACE.mo)+'</span><span class="rPts" title="Pontos de pesquisa">🔬 '+RACE.pts+' pts</span>';
   $('#rTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===RTAB));
@@ -1675,7 +1696,15 @@ setInterval(()=>{try{tutTick();}catch(e){}},250);
 $('#tutNext').onclick=e=>{e.stopPropagation();if(RACE){RACE.tut++;raceSave();tutTick();}};
 $('#tutSkip').onclick=e=>{e.stopPropagation();if(RACE){RACE.tut=-1;raceSave();tutTick();}};
 $('#rTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{RTAB=b.dataset.t;renderRace();});
-$('#rClose').onclick=()=>{$('#race').hidden=true;};
+// ✕ da sede: com missão escolhida volta para o hangar dela; sem missão não há o que fazer no hangar, então volta ao menu
+$('#rClose').onclick=()=>{$('#race').hidden=true;if(!RACE||!RACE.cur)goHome();};
+const toHQ=()=>{$('#drawer').classList.remove('open');for(const q of['#deadBox','#campWin','#hMore','#camp','#models','#brief'])$(q).hidden=true;if(flight.on)$('#mHangar').onclick();raceOpen();};
+$('#btnHQ').onclick=$('#mHQ').onclick=$('#btnDHQ').onclick=$('#cwHQ').onclick=toHQ;
+// menu "mais" da barra do hangar
+{const m=$('#hMore'),b=$('#btnMore'),shut=()=>{m.hidden=true;b.setAttribute('aria-expanded','false');};
+  b.onclick=e=>{e.stopPropagation();if(!m.hidden)return shut();m.hidden=false;b.setAttribute('aria-expanded','true');const r=b.getBoundingClientRect(),w=m.offsetWidth;m.style.top=(r.bottom+6)+'px';m.style.left=Math.max(8,Math.min(innerWidth-w-8,r.right-w))+'px';};
+  m.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.p)$('#'+t.dataset.p).click();if(t.id!=='btnMus')shut();});
+  addEventListener('pointerdown',e=>{if(!m.hidden&&!m.contains(e.target)&&!b.contains(e.target))shut();},true);addEventListener('resize',shut);}
 $('#rNews').onclick=()=>{if(RACE&&RACE.news.length)paperShow(RACE.news.slice(0,4),()=>{});};
 $('#rTut').onclick=()=>{if(RACE){RACE.tut=0;RTAB='ms';raceSave();renderRace();tutTick();}};
 $('#rReset').onclick=()=>{const b=$('#rReset');if(b.dataset.k!=='1'){b.dataset.k='1';b.textContent='Toque de novo para apagar a corrida';setTimeout(()=>{b.dataset.k='';b.textContent='Recomeçar corrida';},3000);return;}b.dataset.k='';RACE=null;try{localStorage.removeItem('orbita.race');}catch(e){}$('#race').hidden=true;raceSelOpen();};
@@ -1962,7 +1991,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=75;
+const GAME_VER=76;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
