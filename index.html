@@ -8,7 +8,7 @@
 </head><body>
 <title>Órbita</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=Old+Standard+TT:wght@400;700&display=swap">
 <style>
 /* Layout: hangar = catálogo · bancada de montagem · ficha; voo = canvas cheio, HUD mínimo e menu lateral */
 :root{
@@ -230,13 +230,46 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 @media (prefers-reduced-motion:reduce){.oRing i{animation:none;offset-distance:12%}.inBox{animation:none}}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 #blk{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff9ad5;animation:blink 1s infinite}@keyframes blink{50%{opacity:.35}}#rTemp.hot{color:var(--bad)}#rTemp.warm{color:var(--accent)}
-#models,#camp,#campWin,#brief,#race,#raceSide{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,94vw);max-height:86vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
+#models,#camp,#campWin,#brief,#race{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,94vw);max-height:86vh;overflow:auto;padding:14px;z-index:40;display:flex;flex-direction:column;gap:10px;background:rgba(10,14,28,.97)}
 .mdGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mdGrid button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;text-align:left}.mdGrid button b{font-size:14px;color:var(--ink)}.mdGrid button small{font-size:12px;color:var(--muted)}
 .brRow{display:flex;gap:10px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}.brRow canvas{flex:0 0 auto;width:48px;height:48px}.brRow b{display:block;font-size:14px}.brRow small{display:block;font-size:12px;color:var(--muted);line-height:1.35}#brList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .cpSub{margin:0;color:var(--muted);font-size:13px}#cpList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}#cpList li{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
-#race{width:min(640px,96vw)}#rHead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}#rHead .rDate{color:var(--accent);font-family:var(--display);font-weight:700}#rHead .rPts{color:#9fd8ff;font-size:13px}
+#race{width:min(760px,96vw);max-height:92vh}#rHead{gap:12px}#rHead .rFlag{font-size:22px}#rHead b{font-family:var(--display);font-size:16px}#rHead .rDate{text-transform:capitalize}
+#rTicker{display:flex;align-items:center;gap:10px;overflow:hidden;background:#efe8d6;color:#2b2a27;border-radius:6px;padding:6px 10px;font-family:'Old Standard TT',Georgia,serif;font-size:13.5px}#rTicker b{flex:0 0 auto;font-weight:700}#rTicker div{overflow:hidden;flex:1;min-width:0}#rTicker p{margin:0;display:inline-flex;gap:34px;white-space:nowrap;animation:tick 60s linear infinite}@keyframes tick{to{transform:translateX(-50%)}}
+.rHint{margin:0 0 4px;font-size:13px;color:var(--muted)}.rBrN{font-family:var(--display);font-weight:700;font-size:13px;color:#cfd6e6;padding:2px 2px 4px;border-bottom:1px solid var(--line)}.rNode em{display:block;margin-top:2px}
+#raceSel{position:fixed;inset:0;z-index:260;display:grid;grid-template-columns:1fr 1fr;background:#05070d;bottom:calc(-1 * var(--gapB,0px))}#raceSel[hidden]{display:none}
+.rsTop{position:absolute;left:0;right:0;top:calc(14px + env(safe-area-inset-top,0px));display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none}.rsTop p{margin:0;font-family:var(--display);font-size:clamp(16px,2.4vw,22px);color:#fff;text-shadow:0 2px 12px #000}.rsTop button{position:absolute;left:16px;pointer-events:auto;background:rgba(0,0,0,.4)}
+.rsSide{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:6px;text-align:left;border:0;border-radius:0;padding:clamp(20px,5vw,60px);padding-bottom:calc(clamp(20px,5vw,60px) + env(safe-area-inset-bottom,0px));color:#fff;overflow:hidden;transition:flex .4s,filter .4s;cursor:pointer}
+.rsUSA{background:radial-gradient(120% 90% at 30% 20%,#2a4a8f,#0b1530 70%)}.rsURSS{background:radial-gradient(120% 90% at 70% 20%,#9a1c1c,#2a0606 70%)}
+.rsFlag{position:absolute;left:50%;top:38%;width:min(62%,360px);aspect-ratio:1.9;transform:translate(-50%,-50%) rotate(-3deg);box-shadow:0 20px 50px rgba(0,0,0,.5);animation:wave 4s ease-in-out infinite}
+.rsUSA .rsFlag{background:linear-gradient(90deg,#3c3b6e 0 40%,transparent 40%),repeating-linear-gradient(#b22234 0 7.69%,#f2f2f2 7.69% 15.38%);}
+.rsUSA .rsFlag::after{content:'';position:absolute;left:0;top:0;width:40%;height:53.8%;background:radial-gradient(circle,#fff 18%,transparent 22%) 0 0/16.6% 20%}
+.rsURSS .rsFlag{background:#cc0000}.rsURSS .rsFlag::after{content:'★';position:absolute;left:9%;top:4%;color:#ffd700;font-size:min(9vw,52px);line-height:1}
+@keyframes wave{50%{transform:translate(-50%,-52%) rotate(-1deg) skewY(-1.5deg)}}
+.rsSide h2{font-size:clamp(30px,4.6vw,52px);margin:0;letter-spacing:.01em}.rsBase{margin:0;color:rgba(255,255,255,.75);font-size:15px}.rsSide ul{margin:6px 0 10px;padding-left:18px;max-width:420px;font-size:14px;line-height:1.5;color:rgba(255,255,255,.9)}
+.rsGo{display:inline-block;padding:10px 22px;border-radius:999px;background:#fff;color:#111;font-weight:700;font-family:var(--display)}
+.rsSide:hover,.rsSide:focus-visible{filter:brightness(1.12);outline:none}#raceSel.picked .rsSide{filter:brightness(.35)}#raceSel.picked[data-pick=usa] .rsUSA,#raceSel.picked[data-pick=urss] .rsURSS{filter:none;flex:2}
+#raceSel.picked{transition:opacity .6s .1s;opacity:0}
+@media (max-width:700px){.rsTop p{font-size:14px;padding:0 14px 0 96px;text-align:right;line-height:1.25}}
+@media (max-height:520px){.rsFlag{top:30%;width:min(40%,200px)}.rsSide{padding:14px 22px;gap:3px}.rsSide h2{font-size:26px}.rsSide ul{font-size:12px;margin:2px 0 6px;line-height:1.4}.rsBase{font-size:12.5px}.rsTop{top:calc(8px + env(safe-area-inset-top,0px))}.rsTop p{font-size:15px}
+  #paper .pSheet{max-height:96vh;padding:10px 16px}#paper .pMast{font-size:28px}#paper .pHead{font-size:22px;margin-bottom:5px}#paper .pPic{height:30vh;width:100%;object-fit:cover}#paper .pSub{font-size:13px;margin-top:4px}#paper .pBody{margin-top:6px}#paper .pSide{gap:6px}#paper .pSide h4{font-size:13.5px}#paper .pSide p{font-size:11.5px}#paper .pSheet footer{margin-top:5px;padding-top:3px}}
+@media (max-width:700px){#raceSel{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.rsFlag{top:34%;width:46%}.rsSide ul{font-size:12.5px;margin:2px 0 6px}.rsSide h2{font-size:28px}.rsSide{padding:16px 18px}.rsBase{font-size:13px}}
+#tut{position:fixed;inset:0;z-index:250;pointer-events:none}#tut[hidden]{display:none}#tutHole{position:fixed;border-radius:10px;box-shadow:0 0 0 9999px rgba(2,4,10,.55),0 0 0 3px #ffb347,0 0 24px 6px rgba(255,179,71,.5);transition:all .35s cubic-bezier(.2,.7,.2,1)}
+#tutBox{position:fixed;pointer-events:auto;background:#0e1424;border:1px solid rgba(255,179,71,.5);border-radius:14px;padding:12px 14px;box-shadow:0 18px 40px rgba(0,0,0,.5);transition:left .35s,top .35s}#tutBox.pop{animation:rise .5s cubic-bezier(.2,.7,.2,1)}
+.tutHd{display:flex;align-items:center;gap:10px}#tutAv{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-family:var(--display);color:#fff;flex:0 0 auto}.tutHd b{font-size:14px}.tutHd small{margin-left:auto;color:var(--muted);font-size:12px}
+#tutT{margin:8px 0 10px;font-size:14.5px;line-height:1.5;color:#e7ecf6}.tutBt{display:flex;justify-content:flex-end;gap:8px}.tutBt button{padding:6px 12px;font-size:13px}#tutSkip{opacity:.7}
+#paper{position:fixed;inset:0;z-index:280;display:grid;place-items:center;background:rgba(2,4,10,.72);bottom:calc(-1 * var(--gapB,0px));cursor:pointer}#paper[hidden]{display:none}
+.pSheet{width:min(720px,94vw);max-height:90vh;overflow:hidden;background:#efe8d6;color:#1f1e1b;font-family:'Old Standard TT',Georgia,serif;padding:clamp(12px,2.6vw,26px);box-shadow:0 30px 80px rgba(0,0,0,.6);transform:rotate(-1.5deg)}
+.pSheet.in{animation:pSpin .8s cubic-bezier(.2,.8,.3,1.05) both}@keyframes pSpin{from{transform:rotate(-540deg) scale(.08);opacity:0}70%{opacity:1}to{transform:rotate(-1.5deg) scale(1)}}
+.pSheet header{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;border-bottom:3px double #1f1e1b;padding-bottom:6px;gap:8px}.pDate{font-size:12px}.pPrice{font-size:12px;text-align:right;font-weight:700}
+.pMast{margin:0;font-family:'Old Standard TT',Georgia,serif;font-weight:700;font-size:clamp(26px,5vw,44px);letter-spacing:.01em;text-align:center;line-height:1}
+.p-urss .pMast{color:#9c1a14}.pBody{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:10px}.pHead{margin:0 0 8px;font-family:'Old Standard TT',Georgia,serif;font-size:clamp(24px,4.4vw,40px);line-height:1.05;font-weight:700;text-wrap:balance}
+.pPic{width:100%;height:auto;display:block;filter:grayscale(1) contrast(1.1);border:1px solid #1f1e1b}.pSub{margin:8px 0 0;font-size:15px;line-height:1.45;column-count:1}
+.pSide{border-left:1px solid #1f1e1b;padding-left:12px;display:flex;flex-direction:column;gap:10px}.pSide h4{margin:0;font-size:15px;line-height:1.15}.pSide p{margin:3px 0 0;font-size:12.5px;line-height:1.35}.pSide .pAd{border:1.5px solid #1f1e1b;padding:6px 8px;text-align:center}.pSide .pAd h4{font-size:14px;letter-spacing:.02em}.pSide .pAd p{font-style:italic}.pSheet footer{margin-top:10px;border-top:1px solid #1f1e1b;padding-top:6px;text-align:center;font-size:12px;font-family:var(--body);color:#5b574d}
+.p-bad .pHead{color:#7a1410}.p-good .pHead{color:#1d3a10}
+@media (max-width:600px){.pBody{grid-template-columns:1fr}.pSide{border-left:0;border-top:1px solid #1f1e1b;padding:8px 0 0}.pSide article:nth-child(n+3){display:none}}
+body.inRace #btnCamp,body.inRace #btnModels,body.inRace #btnSaves,body.inRace #btnCheat{display:none}#rHead{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}#rHead .rDate{color:var(--accent);font-family:var(--display);font-weight:700}#rHead .rPts{color:#9fd8ff;font-size:13px}
 #rTabs{display:flex;gap:6px}#rTabs button{flex:1;padding:8px}#rTabs button.on{border-color:var(--accent);color:var(--accent)}
-.rSide{display:flex;flex-direction:column;gap:4px;text-align:left;padding:14px}.rSide b{font-size:17px}.rSide small{color:var(--muted);font-size:13px;line-height:1.4}.rSide:hover{border-color:var(--accent)}
 .rList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.rList li{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}.rList li div{flex:1;min-width:0}.rList li b{font-size:14px}.rList li small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.rList .rNm{display:inline;color:#cfd6e6;font-size:12px}.rList li.lock{opacity:.6}.rList li.done{border-color:rgba(94,226,160,.35)}.rList button{flex:0 0 auto;padding:7px 10px;font-size:12px}
 .rc{font-style:normal;font-size:11px;font-weight:700;margin-left:8px;padding:2px 7px;border-radius:999px;white-space:nowrap}.rc.me{background:rgba(255,200,70,.18);color:#ffd166}.rc.ok{background:rgba(94,226,160,.15);color:var(--good)}.rc.rv{background:rgba(255,107,107,.15);color:#ff8f8f}.rc.open{background:rgba(255,255,255,.06);color:var(--muted)}
 .rTree{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.rBr{display:flex;flex-direction:column;gap:6px}.rNode{display:flex;flex-direction:column;gap:3px;text-align:left;padding:8px;border-radius:10px;font-size:12px}.rNode b{font-size:13px}.rNode small{color:var(--muted);font-size:11px;line-height:1.35}.rNode em{color:#9fd8ff;font-style:normal}.rNode span{font-size:11px;font-weight:700;margin-top:2px}
@@ -320,17 +353,12 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <ol id="cpList"></ol>
     <button id="cpFree">Sair da campanha (modo livre)</button>
   </div>
-  <div id="raceSide" class="glass dlg" hidden role="dialog" aria-label="Escolha o país">
-    <div class="phead"><b>Corrida Espacial · escolha o país</b><button id="rsClose" aria-label="Fechar">✕</button></div>
-    <p class="cpSub">Janeiro de 1957. Quem pousa gente na Lua primeiro? Você pesquisa, lança e o rival faz o que fez na história.</p>
-    <button class="rSide" data-side="usa"><b>🇺🇸 Estados Unidos</b><small>Computadores e eletrônica: pesquisas de Navegação e Ciência custam 1 ponto a menos. Começa atrás nos foguetes (o Vanguard explodiu na 1ª tentativa). Rival: URSS.</small></button>
-    <button class="rSide" data-side="urss"><b>🇷🇺 União Soviética</b><small>Foguetes fortes desde o começo (o R-7): já começa com Estágios e as pesquisas de Foguetes custam 1 ponto a menos. Rival: EUA, que chegaram à Lua em jul/1969.</small></button>
-  </div>
-  <div id="race" class="glass dlg" hidden role="dialog" aria-label="Corrida Espacial">
+  <div id="race" class="glass dlg" hidden role="dialog" aria-label="Sede do programa espacial">
     <div class="phead"><span id="rHead"></span><button id="rClose" aria-label="Fechar">✕</button></div>
-    <div id="rTabs"><button data-t="ms">Conquistas</button><button data-t="tec">Tecnologia</button><button data-t="news">Jornal</button></div>
+    <div id="rTicker"></div>
+    <div id="rTabs"><button data-t="ms">Conquistas</button><button data-t="tec">Árvore de tecnologia</button></div>
     <div id="rBody"></div>
-    <div class="rFoot"><button id="rFilm">▶ Ver o filme de abertura</button><button id="rReset">Recomeçar corrida</button></div>
+    <div class="rFoot"><button id="rNews">📰 Últimos jornais</button><button id="rTut">? Tutorial</button><button id="rReset">Recomeçar corrida</button></div>
   </div>
   <div id="campBar" class="glass" hidden><span id="cbTxt"></span><button id="cbParts">Peças</button><button id="cbOpen">Missões</button></div>
   <div id="brief" class="glass dlg" hidden role="dialog" aria-label="Peças da nave">
@@ -344,6 +372,14 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
   </div>
 </div>
 <canvas id="ghost" width="128" height="128"></canvas>
+<div id="raceSel" hidden>
+  <div class="rsTop"><button id="rsBack">← Voltar</button><p>Janeiro de 1957. Quem você vai comandar?</p></div>
+  <button class="rsSide rsUSA" data-side="usa"><div class="rsFlag"></div><h2>Estados Unidos</h2><p class="rsBase">Cabo Canaveral, Flórida</p>
+    <ul><li>Computadores e eletrônica: <b>Navegação e Ciência</b> custam 1 ponto a menos</li><li>Começa com mais pontos de pesquisa</li><li>Cápsulas voltam caindo no mar</li></ul><span class="rsGo">Comandar os EUA</span></button>
+  <button class="rsSide rsURSS" data-side="urss"><div class="rsFlag"></div><h2>União Soviética</h2><p class="rsBase">Baikonur, Cazaquistão</p>
+    <ul><li>Foguetes fortes desde o começo: já tem <b>Estágios</b> e Foguetes custam 1 ponto a menos</li><li>Rival histórico chegou à Lua em julho de 1969</li><li>Cápsulas voltam pousando em terra</li></ul><span class="rsGo">Comandar a URSS</span></button>
+</div>
+<div id="tut" hidden><div id="tutHole"></div><div id="tutBox"><div class="tutHd"><span id="tutAv"></span><b id="tutN"></b><small id="tutStep"></small></div><p id="tutT"></p><div class="tutBt"><button id="tutSkip">Pular tutorial</button><button id="tutNext" class="primary">Próximo</button></div></div></div>
 <div id="intro" class="pre"><canvas id="introC" aria-hidden="true"></canvas><div class="inBox">
   <h1 class="logoO"><span class="oRing" aria-hidden="true"><i></i></span>ÓRBITA</h1>
   <p class="sub">Monte o foguete, atravesse a atmosfera e chegue à Lua com a física de verdade.</p>
@@ -352,7 +388,7 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
     <button id="btnCampI" class="inItem"><b>Campanha</b><small>Do primeiro salto, em 1961, até Marte</small></button>
     <button id="btnRaceI" class="inItem"><b>Corrida Espacial</b><small>EUA contra URSS, a partir de 1957</small></button>
   </nav>
-  <p class="hint">Melhor com fone de ouvido <span>versão 73</span></p></div></div>
+  <p class="hint">Melhor com fone de ouvido <span>versão 74</span></p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -551,8 +587,8 @@ function axialCdA(ps){let s=0;for(const p of ps){const w=W(p),B=box(p);let cov=0
 // campanha: só as peças da nave da missão (mesma quantidade) + peças de segurança/aerodinâmica, e combustível até o da nave original
 const CAMP_FREE=new Set(['aleta','aletaL','cone','para','paraL','sep','sepLat','fair','fairBody']);
 function campLimits(){if(typeof CAMP_CUR==='undefined'||!CAMP_CUR)return null;if(campLimits.id===CAMP_CUR)return campLimits.v;const c=CAMP.find(q=>q.id===CAMP_CUR);if(!c)return null;const ps=c.preset(),cnt={};for(const q of ps)cnt[q.type]=(cnt[q.type]||0)+1;campLimits.id=CAMP_CUR;return campLimits.v={cnt,fuel:ps.reduce((a,q)=>a+fuelOf(q),0)};}
-const campOk=id=>{const L=campLimits();return!L||CAMP_FREE.has(id)||!!L.cnt[id];};
-function campCheck(ps,errs,bad){const L=campLimits();if(!L)return;const cnt={};for(const q of ps)cnt[q.type]=(cnt[q.type]||0)+1;
+const campOk=id=>{if(typeof RACE_FLAG!=='undefined'&&RACE_FLAG&&RACE)return raceParts().has(id);const L=campLimits();return!L||CAMP_FREE.has(id)||!!L.cnt[id];};
+function campCheck(ps,errs,bad){if(typeof RACE_FLAG!=='undefined'&&RACE_FLAG&&RACE){const ok=raceParts();for(const q of ps)if(!ok.has(q.type)){bad.add(q);errs.push(PARTS[q.type].n+': ainda não pesquisada');}const f=ps.reduce((a,q)=>a+fuelOf(q),0),cap=raceFuelCap();if(f>cap*1.002)errs.push('Foguete grande demais para a tecnologia de agora: '+(f/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t de combustível (limite '+(cap/1000)+' t). Pesquise Foguetes para crescer.');return;}const L=campLimits();if(!L)return;const cnt={};for(const q of ps)cnt[q.type]=(cnt[q.type]||0)+1;
   for(const t in cnt){if(CAMP_FREE.has(t))continue;const mine=ps.filter(q=>q.type===t);if(!L.cnt[t]){mine.forEach(q=>bad.add(q));errs.push(PARTS[t].n+': peça fora da nave desta missão');}else if(cnt[t]>L.cnt[t]){mine.forEach(q=>bad.add(q));errs.push('Nesta missão: no máximo '+L.cnt[t]+'× '+PARTS[t].n);}}
   const f=ps.reduce((a,q)=>a+fuelOf(q),0);if(f>L.fuel*1.002)errs.push('Combustível acima do limite da missão: '+(f/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t de '+(L.fuel/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' t (tanques maiores contam)');}
 function validate(ps){const errs=[],warns=[],bad=new Set();
@@ -922,7 +958,7 @@ const mobile=()=>matchMedia('(max-width:860px)').matches,landM=()=>matchMedia('(
 const selPart=()=>parts.find(q=>q.uid===sel);
 function info(id){const p=PARTS[id];let s='<b>'+p.n+'</b> · '+(p.m/1000).toLocaleString('pt-BR')+' t';if(p.thrust)s+=' · '+p.thrust/1000+' kN · Isp '+p.ispV+' s';if(p.fuel)s+=' · '+(p.fuel/1000).toLocaleString('pt-BR')+' t de combustível';return s+'<br>'+p.d;}
 function buildCatalog(){const tb=$('#tabs'),vis=CATS.map(([n,l],i)=>[n,i,l.filter(campOk)]).filter(c=>c[2].length);if(!vis.some(c=>c[1]===tab))tab=vis[0][1];tb.innerHTML=vis.map(([n,i])=>'<button data-i="'+i+'" class="'+(i===tab?'on':'')+'">'+n+'</button>').join('');tb.querySelectorAll('button').forEach(b=>b.onclick=()=>{tab=+b.dataset.i;buildCatalog();});{const on=tb.querySelector('.on');if(on&&tb.scrollWidth>tb.clientWidth)tb.scrollLeft=Math.max(0,on.offsetLeft-tb.clientWidth/2+on.offsetWidth/2);}
-  const gd=$('#pgrid');gd.innerHTML='';$('#pinfo').innerHTML=campLimits()?'Missão da campanha: só as peças da nave da missão (no máximo a mesma quantidade), mais aletas, ogivas, carenagens, separadores e paraquedas. O combustível não pode passar do da nave original.':'Arraste uma peça para a bancada. Toque numa peça montada para editar; arraste de volta para cá para apagar.';
+  const gd=$('#pgrid');gd.innerHTML='';$('#pinfo').innerHTML=(typeof RACE_FLAG!=='undefined'&&RACE_FLAG&&RACE)?'Corrida Espacial: só as peças já pesquisadas. Combustível máximo: '+(raceFuelCap()>1e8?'sem limite':(raceFuelCap()/1000)+' t')+'. Pesquise mais na sede para liberar peças.':campLimits()?'Missão da campanha: só as peças da nave da missão (no máximo a mesma quantidade), mais aletas, ogivas, carenagens, separadores e paraquedas. O combustível não pode passar do da nave original.':'Arraste uma peça para a bancada. Toque numa peça montada para editar; arraste de volta para cá para apagar.';
   for(const id of CATS[tab][1].filter(campOk)){const p=PARTS[id],b=document.createElement('button');b.className='part';b.title=p.d;b.innerHTML='<canvas width="112" height="112"></canvas><b>'+p.n+'</b>';
     {const sc2=PARTS[id].t==='solar'?1.4:1;drawPart(b.querySelector('canvas').getContext('2d'),id,56,56,84/Math.max(p.h,p.w*1.3,1)/sc2);}
     b.onmouseenter=b.onfocus=()=>{$('#pinfo').innerHTML=info(id);};
@@ -1217,6 +1253,8 @@ const map={s:1e-4,cx:0,cy:0,ox:0,oy:0};let pred=null;
 // ================= CAMPANHA =================
 let CAMP_CUR=null,RACE_FLAG=null;
 const toTarget=b=>!!b&&(S.dom===b||!!(pred&&pred.segs.some(q=>q.b===b))||(b===MOON_B?S.dom.earth&&!!S.el&&(S.el.ap+R>MOON.a*.85||!S.el.bound):S.dom.sun?!!S.el&&S.el.ap+SUN_R>=b.planet.a*.97:S.dom.earth&&escInfo(b.planet).have>=escInfo(b.planet).need*.97)),sp_=()=>Math.hypot(S.rvx,S.rvy),probeOnly=()=>!!(V.cap&&PT(V.cap).probe),moonOrbit=pe=>S.dom===MOON_B&&!V.ground&&!!S.el&&S.el.bound&&S.el.pe>pe&&S.el.ap+MOON.r<MOON.soi*.9,onMoon=()=>S.dom===MOON_B&&V.ground&&sp_()<1;
+const RORB='Suba reto até 1 km e vá deitando aos poucos (70° a 15 km, 45° aos 33 km, quase deitado aos 75 km). Com o Ap acima de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.';
+const crewed=()=>!!(V&&V.cap&&!PT(V.cap).probe),noProp=()=>!!V&&!V.parts.some(q=>['tank','eng'].includes(PT(q).t));
 const CAMP=[
  {id:'c1',t:'Primeiro salto',ship:'Mercury-Redstone',preset:()=>presetMR(),txt:'Como Alan Shepard em 1961: um arco até o espaço e volta, sem entrar em órbita.',steps:[
   {id:'a',t:'Decolar',h:'Toque no motor A-7 para armar, acelerador no máximo e LIGAR.',done:()=>S.altE>5000},
@@ -1264,33 +1302,68 @@ const CAMP=[
   {id:'c',t:'Acelerar rumo a Marte',h:'No ponto verde (perto da Terra), acelere para frente o que o mapa pedir, até a rota escapar da Terra rumo à mira.',done:()=>toTarget(PLANET_B.find(b=>b.n==='Marte'))},
   {id:'d',t:'Soltar a sonda no caminho',h:'Saindo da Terra, aperte ESTÁGIO: a carenagem abre e a sonda segue sozinha. O resto do foguete fica para trás.',done:()=>probeOnly()&&V.parts.length<=2},
   {id:'e',t:'A sonda chega em Marte',h:'Acelere o tempo e acompanhe a sonda até ela entrar na gravidade de Marte.',done:()=>S.dom.n==='Marte'&&probeOnly()}]},
- // missões só da Corrida Espacial (não aparecem na campanha)
- {id:'r_far',race:true,mech:'photo',t:'Foto do lado oculto',ship:'Sonda',preset:()=>presetProbe(),payAt:'moon',txt:'Como a Luna 3 (1959): mande uma sonda passar por trás da Lua e fotografe o lado que nunca aparece da Terra.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+ // missões da Corrida Espacial: a nave é sempre a que VOCÊ monta, com as peças já pesquisadas (nada de foguete pronto)
+ {id:'rm_snd',race:true,t:'Foguete de sondagem',ship:'sua nave',preset:()=>raceDesign(),txt:'Como os primeiros foguetes depois da guerra: mande instrumentos para cima e passe da linha do espaço (100 km). Não precisa voltar.',steps:[
+  {id:'a',t:'Passar dos 100 km',h:'De cima para baixo: Ogiva, Sonda, Tanque M, Aletas e Motor Jabuti. Na base, arme o motor, LIGAR e suba reto.',done:()=>S.altE>SPACE}]},
+ {id:'rm_sat',race:true,t:'Satélite em órbita',ship:'sua nave',preset:()=>raceDesign(),txt:'Como o Sputnik 1 e o Explorer 1: ponha uma sonda dando voltas na Terra.',steps:[
+  {id:'a',t:'Entrar em órbita',h:RORB,done:()=>S.dom.earth&&S.el&&S.el.bound&&S.el.pe>120000},
+  {id:'b',t:'Soltar o satélite',h:'Em órbita, aperte ESTÁGIO até sobrar só a sonda (sem tanque nem motor).',done:()=>probeOnly()&&noProp()&&S.dom.earth&&S.el&&S.el.pe>110000}]},
+ {id:'rm_luna',race:true,payAt:'moon',t:'Sonda na Lua',ship:'sua nave',preset:()=>raceDesign(),txt:'Como a Luna 2 e a Ranger 7: mande uma sonda até a Lua.',steps:[
+  {id:'a',t:'Entrar em órbita',h:RORB,done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
   {id:'b',t:'Navegar até a Lua',h:'Abra o mapa, toque na Lua e escolha Navegar.',done:()=>target===MOON_B||S.dom===MOON_B},
   {id:'c',t:'Acelerar rumo à Lua',h:'No ponto verde, acelere para frente até a rota chegar na Lua.',done:()=>toTarget(MOON_B)},
-  {id:'d',t:'Soltar a sonda no caminho',h:'Na rota da Lua, ESTÁGIO abre a carenagem e solta a sonda.',done:()=>probeOnly()&&V.parts.length<=2},
-  {id:'e',t:'Fotografar o lado oculto',h:'Acelere o tempo até a sonda entrar na gravidade da Lua. Quando ela passar por trás (do lado oposto à Terra), toque em 📷.',done:()=>!!S.photoOk}]},
- {id:'r_eva',race:true,mech:'eva',t:'Caminhada espacial',ship:'Mercury-Atlas',preset:()=>presetMA(),txt:'Como Leonov (Voskhod 2, 1965) e Ed White (Gemini 4): saia da nave em órbita, preso por um cabo, e volte.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
-  {id:'b',t:'Sair da nave',h:'Em órbita, com o motor desligado, toque em 🧑‍🚀 SAIR DA NAVE.',done:()=>!!(S.sw&&S.sw.out)},
-  {id:'c',t:'10 minutos lá fora',h:'Fique do lado de fora, preso ao cabo. Pode acelerar o tempo.',done:()=>!!(S.sw&&S.sw.el>=600)},
-  {id:'d',t:'Voltar para dentro',h:'Se o traje inflar, baixe a pressão; depois toque em 🚪 VOLTAR PARA DENTRO.',done:()=>!!(S.sw&&S.sw.in)},
-  {id:'e',t:'Voltar e pousar',h:'Bico contra o movimento, solte o Atlas, acenda o pacote retro, solte ele quando apagar e arme o paraquedas.',done:()=>S.landedEarth}]},
- {id:'r_rdv',race:true,mech:'rdv',t:'Encontro em órbita',ship:'Gemini',preset:()=>presetGemini(),txt:'Como a Gemini 6A e a Gemini 7 (1965): alcance outra nave em órbita e fique parado ao lado dela.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
-  {id:'b',t:'Chegar perto do alvo',h:'O alvo aparece à sua frente. Para alcançar, fique numa órbita um pouco mais baixa (anda mais rápido); perto dele, suba para a mesma altura. Chegue a menos de 1 km.',done:()=>!!S.tgtNear},
-  {id:'c',t:'Ficar ao lado',h:'Ligue o RCS (toque num propulsor RCS) e use as setas: fique a menos de 30 m e a menos de 1 m/s por 10 segundos.',done:()=>!!S.rdvOk}]},
- {id:'r_dock',race:true,mech:'dock',t:'Primeiro acoplamento',ship:'Gemini',preset:()=>presetGemini(),txt:'Como a Gemini 8 (1966): alcance o alvo e encoste o bico da sua nave na porta dele até as travas fecharem.',steps:[
-  {id:'a',t:'Entrar em órbita',h:'Suba reto até 1 km, incline uns graus para a direita e vá deitando aos poucos: uns 70° a 15 km, 45° perto dos 33 km e quase deitado (0°) lá pelos 75 km. Quando o Ap passar de 110 km, desligue, espere chegar no Ap e acelere deitado até o Pe passar de 100 km.',done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
-  {id:'b',t:'Chegar perto do alvo',h:'Órbita mais baixa para alcançar, depois suba. Chegue a menos de 1 km.',done:()=>!!S.tgtNear},
-  {id:'c',t:'Acoplar',h:'Bico apontado para o alvo, RCS ligado: encoste os bicos a menos de 0,5 m/s. O alvo vira a porta para você.',done:()=>!!S.docked}]}
+  {id:'d',t:'Soltar a sonda',h:'Na rota da Lua, ESTÁGIO até sobrar só a sonda.',done:()=>probeOnly()&&noProp()},
+  {id:'e',t:'Chegar na Lua',h:'Acelere o tempo até a sonda entrar na gravidade da Lua.',done:()=>S.dom===MOON_B&&probeOnly()}]},
+ {id:'rm_far',race:true,mech:'photo',payAt:'moon',t:'Foto do lado oculto',ship:'sua nave',preset:()=>raceDesign(),txt:'Como a Luna 3 (1959): passe por trás da Lua e fotografe o lado que nunca aparece da Terra.',steps:[
+  {id:'a',t:'Entrar em órbita',h:RORB,done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Navegar até a Lua',h:'Abra o mapa, toque na Lua e escolha Navegar.',done:()=>target===MOON_B||S.dom===MOON_B},
+  {id:'c',t:'Acelerar rumo à Lua',h:'No ponto verde, acelere para frente até a rota chegar na Lua.',done:()=>toTarget(MOON_B)},
+  {id:'d',t:'Soltar a sonda',h:'Na rota da Lua, ESTÁGIO até sobrar só a sonda.',done:()=>probeOnly()&&noProp()},
+  {id:'e',t:'Fotografar o lado oculto',h:'Quando a sonda passar por trás da Lua (do lado oposto à Terra), toque em 📷.',done:()=>!!S.photoOk}]},
+ {id:'rm_sub',race:true,t:'Humano no espaço',ship:'sua nave',preset:()=>raceDesign(),txt:'Como Gagarin e Shepard: leve um tripulante além dos 100 km e traga de volta vivo.',steps:[
+  {id:'a',t:'Passar dos 100 km com tripulante',h:'Cápsula tripulada em cima, com paraquedas. Suba reto.',done:()=>S.altE>SPACE&&crewed()},
+  {id:'b',t:'Voltar e pousar',h:'Solte o foguete (ESTÁGIO), arme o paraquedas e desça com a base da cápsula para baixo.',done:()=>S.landedEarth&&crewed()}]},
+ {id:'rm_orb',race:true,t:'Humano em órbita',ship:'sua nave',preset:()=>raceDesign(),txt:'Como a Vostok 1 e a Friendship 7: dê uma volta na Terra com um tripulante e volte.',steps:[
+  {id:'a',t:'Entrar em órbita com tripulante',h:RORB,done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE&&crewed()},
+  {id:'b',t:'Voltar e pousar',h:'Freie de costas (bico contra o movimento) até o Pe ficar entre 20 e 40 km. Solte o resto, fique com a cápsula e o escudo, e arme o paraquedas.',done:()=>S.landedEarth&&crewed()}]},
+ {id:'rm_eva',race:true,mech:'eva',t:'Caminhada espacial',ship:'sua nave',preset:()=>raceDesign(),txt:'Como Leonov (Voskhod 2) e Ed White (Gemini 4): saia da nave em órbita, preso por um cabo, e volte.',steps:[
+  {id:'a',t:'Entrar em órbita com tripulante',h:RORB,done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE&&crewed()},
+  {id:'b',t:'Sair da nave',h:'Com o motor desligado, toque em 🧑‍🚀 SAIR DA NAVE.',done:()=>!!(S.sw&&S.sw.out)},
+  {id:'c',t:'10 minutos lá fora',h:'Fique do lado de fora. Pode acelerar o tempo.',done:()=>!!(S.sw&&S.sw.el>=600)},
+  {id:'d',t:'Voltar para dentro',h:'Se o traje inflar, baixe a pressão; depois 🚪 VOLTAR PARA DENTRO.',done:()=>!!(S.sw&&S.sw.in)},
+  {id:'e',t:'Voltar e pousar',h:'Freie de costas, fique com a cápsula e o escudo e arme o paraquedas.',done:()=>S.landedEarth}]},
+ {id:'rm_rdv',race:true,mech:'rdv',t:'Encontro em órbita',ship:'sua nave',preset:()=>raceDesign(),txt:'Como a Gemini 6A e a 7: alcance outra nave em órbita e fique parado ao lado dela. Leve propulsores RCS.',steps:[
+  {id:'a',t:'Entrar em órbita',h:RORB,done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Chegar perto do alvo',h:'O alvo aparece à sua frente: órbita um pouco mais baixa anda mais rápido. Chegue a menos de 1 km.',done:()=>!!S.tgtNear},
+  {id:'c',t:'Ficar ao lado',h:'RCS ligado (toque num propulsor RCS) e setas: menos de 30 m e de 1 m/s por 10 s.',done:()=>!!S.rdvOk}]},
+ {id:'rm_dock',race:true,mech:'dock',t:'Acoplamento',ship:'sua nave',preset:()=>raceDesign(),txt:'Como a Gemini 8: encoste o bico da sua nave no do alvo até as travas fecharem. Leve propulsores RCS.',steps:[
+  {id:'a',t:'Entrar em órbita',h:RORB,done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Chegar perto do alvo',h:'Órbita mais baixa para alcançar, depois suba. Menos de 1 km.',done:()=>!!S.tgtNear},
+  {id:'c',t:'Acoplar',h:'Bico apontado para o alvo, RCS ligado: encoste a menos de 0,5 m/s.',done:()=>!!S.docked}]},
+ {id:'rm_lorb',race:true,t:'Órbita da Lua',ship:'sua nave',preset:()=>raceDesign(),txt:'Como a Luna 10: chegue na Lua e freie para ficar presa em órbita dela.',steps:[
+  {id:'a',t:'Entrar na gravidade da Lua',h:'Órbita, Navegar até a Lua, acelere no ponto verde e espere chegar.',done:()=>S.dom===MOON_B},
+  {id:'b',t:'Ficar em órbita da Lua',h:'No Pe, bico contra o movimento: freie até o mapa mostrar Em órbita da Lua.',done:()=>moonOrbit(5000)}]},
+ {id:'rm_land',race:true,mech:'land',t:'Pouso tripulado na Lua',ship:'sua nave',preset:()=>raceDesign(),txt:'O prêmio da corrida: pouse de pé na Lua com tripulante, finque a bandeira e volte para a Terra.',steps:[
+  {id:'a',t:'Entrar na gravidade da Lua',h:'Órbita, Navegar até a Lua, ponto verde.',done:()=>S.dom===MOON_B&&crewed()},
+  {id:'b',t:'Pousar de pé',h:'Pés abertos (G). Freie até quase parar e toque o chão a menos de 3 m/s, em chão plano.',done:()=>onMoon()&&crewed()},
+  {id:'c',t:'Fincar a bandeira',h:'Parado no chão, a tripulação finca a bandeira sozinha.',done:()=>!!S.flagRace},
+  {id:'d',t:'Voltar para a Terra',h:'Decole, saia da Lua rumo à Terra, solte o resto e desça de paraquedas.',done:()=>S.landedEarth&&!!S.flagRace}]},
+ {id:'rm_rover',race:true,mech:'land',t:'Carro na Lua',ship:'sua nave',preset:()=>raceDesign(),txt:'Como o Lunokhod 1 e a Apollo 15: leve uma baia com rover, pouse e rode 300 m.',steps:[
+  {id:'a',t:'Pousar na Lua',h:'Pés abertos e devagar.',done:()=>onMoon()},
+  {id:'b',t:'Soltar o rover',h:'Parado, toque em 🚗 SOLTAR ROVER.',done:()=>!!S.roverOut},
+  {id:'c',t:'Rodar 300 m',h:'◀ ▶ dirigem.',done:()=>(S.rovDist||0)>300}]},
+ {id:'rm_mars',race:true,payAt:'mars',t:'Sonda em Marte',ship:'sua nave',preset:()=>raceDesign(),txt:'Como a Mariner 4 e a Mars 2: mande uma sonda até Marte. São meses de viagem: use o tempo acelerado.',steps:[
+  {id:'a',t:'Entrar em órbita',h:RORB,done:()=>S.dom.earth&&S.el&&S.el.pe>SPACE},
+  {id:'b',t:'Navegar até Marte',h:'No mapa, afaste, toque em Marte e Navegar.',done:()=>target&&target.n==='Marte'},
+  {id:'c',t:'Acelerar rumo a Marte',h:'No ponto verde, acelere até aparecer Rota certa ✓.',done:()=>toTarget(PLANET_B.find(b=>b.n==='Marte'))},
+  {id:'d',t:'Soltar a sonda',h:'ESTÁGIO até sobrar só a sonda.',done:()=>probeOnly()&&noProp()},
+  {id:'e',t:'Chegar em Marte',h:'Acelere o tempo até entrar na gravidade de Marte.',done:()=>S.dom.n==='Marte'&&probeOnly()}]}
 ];
 const campLoad=()=>{try{return JSON.parse(localStorage.getItem('orbita.camp')||'{}').done||[];}catch(e){return[];}},campSave=d=>{try{localStorage.setItem('orbita.camp',JSON.stringify({done:d}));}catch(e){}};
 function campUnlocked(i){const d=campLoad();return i===0||d.includes(CAMP[i-1].id)||d.includes(CAMP[i].id);}
 function renderCamp(){const d=campLoad();$('#cpList').innerHTML='';CAMP.forEach((c,i)=>{if(c.race)return;const li=document.createElement('li'),ok=campUnlocked(i),dn=d.includes(c.id);li.className=(dn?'done ':'')+(ok?'':'lock ')+(CAMP_CUR===c.id?'cur':'');
-  li.innerHTML='<span class="n">'+(dn?'✓':i+1)+'</span><div><b>'+c.t+'</b><small>'+c.txt+' · nave: '+c.ship+'</small></div>';const b=document.createElement('button');b.textContent=ok?(dn?'Jogar de novo':'Jogar'):'🔒';b.disabled=!ok;if(ok&&!dn)b.className='primary';b.onclick=()=>{if(RACE)RACE.cur=null;RACE_FLAG=null;setSite('alc');campStart(c.id);};li.appendChild(b);$('#cpList').appendChild(li);});}
-function campStart(id){const c=CAMP.find(q=>q.id===id);CAMP_CUR=id;save();parts=c.preset();sel=null;$('#camp').hidden=true;$('#models').hidden=true;campBar();fitView();refresh();showBrief(parts,'Missão '+(CAMP.indexOf(c)+1)+': '+c.t);$('#brSub').textContent=c.txt+' Antes de ir, as peças da sua nave:';}
+  li.innerHTML='<span class="n">'+(dn?'✓':i+1)+'</span><div><b>'+c.t+'</b><small>'+c.txt+' · nave: '+c.ship+'</small></div>';const b=document.createElement('button');b.textContent=ok?(dn?'Jogar de novo':'Jogar'):'🔒';b.disabled=!ok;if(ok&&!dn)b.className='primary';b.onclick=()=>{if(RACE)RACE.cur=null;RACE_FLAG=null;document.body.classList.remove('inRace');setSite('alc');campStart(c.id);};li.appendChild(b);$('#cpList').appendChild(li);});}
+function campStart(id){const c=CAMP.find(q=>q.id===id);CAMP_CUR=id;save();parts=c.preset();sel=null;$('#camp').hidden=true;$('#models').hidden=true;campBar();fitView();refresh();if(c.race)return;showBrief(parts,'Missão '+(CAMP.indexOf(c)+1)+': '+c.t);$('#brSub').textContent=c.txt+' Antes de ir, as peças da sua nave:';}
 // apresentação: cada peça da nave (de cima para baixo) e para que serve
 const BRIEF={roverBay:'Guarda o rover dobrado. Depois de pousar e parar, vira rampa e solta o carrinho.',legG:'Pés de pouso grandes, já abertos: a nave fica em pé no chão da Lua.',les:'Emergência: se o foguete falhar, toque nela (ou ABORTAR) e ela arranca a cápsula para longe. Se nada der errado, ela se solta sozinha depois do estágio.',capMerc:'Onde fica o astronauta. Já tem paraquedas e escudo térmico embutidos.',retro:'Três foguetinhos para frear e sair da órbita. Apagado, toque para soltar.',
   rdSep:'Separa a cápsula do foguete (botão ESTÁGIO).',rdFus:'Compartimento de instrumentos entre o tanque e a cápsula.',rdTank:'Combustível do Redstone (álcool e oxigênio líquido).',rdEng:'O motor do Redstone. As aletas embutidas deixam o foguete estável.',
@@ -1300,7 +1373,7 @@ function showBrief(ps,title){const seen=new Set(),L=$('#brList');L.innerHTML='';
   ps.slice().sort((a,b)=>box(a).t-box(b).t).forEach(q=>{if(seen.has(q.type))return;seen.add(q.type);const P=PARTS[q.type],li=document.createElement('li');li.className='brRow';li.innerHTML='<canvas width="96" height="96"></canvas><div><b>'+P.n+'</b><small>'+(BRIEF[q.type]||P.d)+'</small></div>';
     const c=li.querySelector('canvas').getContext('2d');drawPart(c,q.type,48,48,72/Math.max(P.h,P.w*1.3,1),P.fuel?1:null,null,null,{type:q.type,x:1});L.appendChild(li);});$('#brief').hidden=false;}
 $('#brOk').onclick=$('#brClose').onclick=()=>{$('#brief').hidden=true;};$('#cbParts').onclick=()=>showBrief(parts,'Peças da nave');
-function campBar(){const c=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);try{buildCatalog();cheatsUI();}catch(e){}$('#campBar').hidden=!c;if(c)$('#cbTxt').innerHTML=(RACE_FLAG&&RACE&&RACE.cur?'<b>'+RSIDE[RACE_FLAG].f+' '+(RMS.find(q=>q.id===RACE.cur)||{nm:{}}).nm[RACE_FLAG]+':</b> ':'<b>Missão '+(CAMP.indexOf(c)+1)+':</b> ')+c.t+(c.start==='moon'?' · começa na Lua':'');}
+function campBar(){const c=CAMP_CUR&&CAMP.find(q=>q.id===CAMP_CUR);try{buildCatalog();cheatsUI();}catch(e){}$('#campBar').hidden=!c;if(c)$('#cbTxt').innerHTML=(RACE_FLAG&&RACE&&RACE.cur?'<b>'+RSIDE[RACE_FLAG].f+' '+rDate(RACE.mo)+' · '+(RMS.find(q=>q.id===RACE.cur)||{nm:{}}).nm[RACE_FLAG]+':</b> ':'<b>Missão '+(CAMP.indexOf(c)+1)+':</b> ')+c.t+(c.start==='moon'?' · começa na Lua':'');}
 function campWin(c){$('#toast').classList.remove('on');$('#cwE').textContent='Campanha';$('#cwS').hidden=!S.rescue;if(S.rescue)fillStats();const inRace=!!(RACE&&RACE.cur);if(!inRace){const d=campLoad();if(!d.includes(c.id))d.push(c.id);campSave(d);}const i=CAMP.indexOf(c),nx=c.race?null:CAMP.slice(i+1).find(q=>!q.race);sfx('chime');$('#cwT').textContent='Missão cumprida ✓';$('#cwB').textContent=c.t+(nx?' · Próxima: '+nx.t:' · Você terminou a campanha!');$('#cwNext').hidden=!nx;$('#campWin').hidden=false;
   $('#cwNext').textContent='Próxima missão';$('#cwNext').onclick=()=>{$('#campWin').hidden=true;$('#mHangar').onclick();campStart(nx.id);};campWin.race=inRace&&raceDone(c);}
 $('#cwStay').onclick=()=>{$('#campWin').hidden=true;};$('#cwHome').onclick=()=>goHome();$('#btnDHome').onclick=()=>{$('#deadBox').hidden=true;goHome();};$('#btnHome').onclick=()=>goHome();$('#mHome').onclick=()=>{$('#drawer').classList.remove('open');goHome();};$('#cwHangar').onclick=()=>{$('#campWin').hidden=true;$('#mHangar').onclick();};
@@ -1314,7 +1387,7 @@ function rescueTick(){if(S.dead)return;if(S.liftT>=0){const sp=Math.hypot(S.rvx,
   $('#toast').classList.remove('on');sfx('chime');$('#cwE').textContent='Missão encerrada';$('#cwT').textContent='Tripulação resgatada ✓';
   $('#cwB').textContent=R0.sea?'A Marinha tirou a tripulação do mar e o navio recolhe a cápsula.':'A equipe de resgate chegou à cápsula e a tripulação está bem.';fillStats();$('#cwS').hidden=false;$('#cwNext').hidden=true;$('#campWin').hidden=false;}
 $('#btnCamp').onclick=()=>{renderCamp();$('#camp').hidden=!$('#camp').hidden;$('#models').hidden=true;};$('#cpClose').onclick=()=>{$('#camp').hidden=true;};$('#cbOpen').onclick=()=>{if(RACE_FLAG&&RACE){raceOpen();return;}renderCamp();$('#camp').hidden=false;};
-$('#cpFree').onclick=()=>{CAMP_CUR=null;if(RACE)RACE.cur=null;RACE_FLAG=null;setSite('alc');campBar();$('#camp').hidden=true;};
+$('#cpFree').onclick=()=>{CAMP_CUR=null;if(RACE)RACE.cur=null;RACE_FLAG=null;document.body.classList.remove('inRace');setSite('alc');campBar();$('#camp').hidden=true;};
 // ================= MECÂNICAS DA CORRIDA: encontro, acoplamento, caminhada espacial e foto do lado oculto =================
 const tgtV=()=>debris.find(d=>d.isTgt&&!d.dead);
 // nave-alvo (Agena) lançada antes: aparece ~40 km à frente e ~15 km acima quando você entra em órbita
@@ -1331,11 +1404,14 @@ function mechTick(real){if(S.dead||!V)return;const cm=CAMP_CUR&&CAMP.find(c=>c.i
       if(k==='dock'){const[nx,ny]=noseW(V),[tx,ty]=noseW(T),dn=Math.hypot(nx-tx,ny-ty),ang=Math.abs(Math.atan2(Math.sin(Math.atan2(T.y-V.y,T.x-V.x)-V.hdg),Math.cos(Math.atan2(T.y-V.y,T.x-V.x)-V.hdg)));
         if(dn<1.6&&rv<.6&&ang<.35){const sn=Math.sin(V.hdg),cs=Math.cos(V.hdg),dx=T.x-V.x,dy=T.y-V.y;S.docked={bx:dx*sn-dy*cs,by:dx*cs+dy*sn,dh:T.hdg-V.hdg};T.dockedTo=true;sfx('clamp');S.shake=1.5;toast('Acoplado! 🔗','As travas fecharam: as duas naves agora são uma só (como a Gemini 8 com o Agena em 1966).');}
         else if(dn<3&&rv>=.6&&!S.dockWarn){S.dockWarn=1;tip(innerWidth/2,innerHeight*.4,'Rápido demais para acoplar: encoste a menos de 0,5 m/s');setTimeout(()=>S.dockWarn=0,3000);}}}}
+  // pouso tripulado da corrida: parado na Lua, a tripulação finca a bandeira do seu país
+  if(k==='land'&&onMoon()&&crewed()&&!S.flagRace){S.landT=(S.landT||0)+real;if(S.landT>2){const bp=MOON_B.pos(S.t),a=Math.atan2(V.y-bp[1],V.x-bp[0]);S.flagRace=true;S.flag={ang:a+5/MOON.r,k:0,t0:S.t};sfx('thunk');toast('Bandeira fincada! '+(RACE_FLAG?RSIDE[RACE_FLAG].f:''),'Agora decole e volte para a Terra.');}}
+  if(S.flag&&S.flag.t0!=null&&S.flag.k<1)S.flag.k=Math.min(1,(S.t-S.flag.t0)/2.5);
   // caminhada espacial
   const W=S.sw;if(W&&W.out&&!W.in){W.el+=Math.max(0,S.t-(W.lt??S.t));W.lt=S.t;if(W.el>360&&!W.low){const p0=W.pres||0;W.pres=Math.min(1,(W.el-360)/120);if(p0<1&&W.pres>=1)toast('O traje inflou! 🎈','No vácuo o traje estufou e o astronauta não cabe mais na escotilha (aconteceu com Leonov em 1965). Baixe a pressão do traje para conseguir entrar.');}}
   actUI(k,inOrb);}
 function actUI(k,inOrb){const b=$('#btnAct');if(!b)return;let t='',fn=null;const W=S.sw;
-  if(k==='eva'&&!S.dead){if(!W&&inOrb&&!V.firing.length){t='🧑‍🚀 Sair da nave (caminhada)';fn=()=>{S.sw={out:true,el:0,pres:0};sfx('hyd');toast('Fora da nave!','Preso pelo cabo de 5 m. Fique 10 minutos lá fora (pode acelerar o tempo) e depois volte para dentro.');};}
+  if(k==='eva'&&!S.dead){if(!W&&inOrb&&!V.firing.length&&crewed()){t='🧑‍🚀 Sair da nave (caminhada)';fn=()=>{S.sw={out:true,el:0,pres:0};sfx('hyd');toast('Fora da nave!','Preso pelo cabo de 5 m. Fique 10 minutos lá fora (pode acelerar o tempo) e depois volte para dentro.');};}
     else if(W&&W.out&&!W.in){if(W.el<600)t='🧑‍🚀 Lá fora: '+Math.floor(W.el/60)+' min de 10';else if(W.pres>=1&&!W.low){t='🎈 Baixar a pressão do traje';fn=()=>{W.low=true;W.pres=.3;sfx('hyd');tip(innerWidth/2,innerHeight*.4,'Pressão baixada: agora ele passa pela escotilha');};}else{t='🚪 Voltar para dentro';fn=()=>{W.in=true;sfx('clamp');toast('De volta à cabine ✓','Escotilha fechada. Agora volte para a Terra.');};}}}
   if(k==='photo'&&probeOnly()&&S.dom===MOON_B&&!S.photoOk){const mp=MOON_B.pos(S.t),ax=V.x-mp[0],ay=V.y-mp[1],cosA=(ax*-mp[0]+ay*-mp[1])/(Math.hypot(ax,ay)*Math.hypot(mp[0],mp[1]));
     if(cosA<-.1){t='📷 Fotografar o lado oculto';fn=()=>{S.photoOk=true;sfx('chime');showPhoto();};}else t='📷 Passe por trás da Lua para fotografar';}
@@ -1351,14 +1427,25 @@ function showPhoto(){let el=$('#photo');if(!el){el=document.createElement('div')
   const far=sphereTex(280,(u,v,w)=>{const n=fbm(u*2.4+7,v*2.4+1,w*2.4+3,5);let k=150+50*n;const m=Math.hypot(u-.35,v-.35)<.13?-55:0,ts=Math.hypot(u+.2,v+.25)<.06?-45:0;let cr=0;for(let i=0;i<60;i++){const r=rng(i*31+5),cx=r()*2-1,cy=r()*2-1,rr=.03+.09*r()*r(),d=Math.hypot(u-cx,v-cy);if(d<rr)cr-=18*(1-d/rr);else if(d<rr*1.25)cr+=22;}k+=m+ts+cr;k=Math.max(40,Math.min(235,k));return[k,k,k*.97];},[.1,1.05]);
   x.drawImage(far,10,10);x.fillStyle='rgba(255,255,255,.08)';for(let i=0;i<300;i+=3)x.fillRect(0,i,300,1);el.hidden=false;}
 // ================= FILME DE ABERTURA DA CORRIDA ESPACIAL (~35 s, dá para pular) =================
-const FILM=[
-  {d:7.5,date:'1945',t:'A Segunda Guerra acabou, mas começou outra disputa: Estados Unidos e União Soviética querem ser a maior potência do mundo.',k:'cold'},
-  {d:7.5,date:'1946',t:'Os dois levam os foguetes alemães V-2 e seus engenheiros. De um lado, Wernher von Braun. Do outro, Serguei Korolev.',k:'v2'},
-  {d:7,date:'1955',t:'Os dois anunciam o mesmo plano: colocar um satélite em volta da Terra.',k:'sat'},
-  {d:7,date:'1956',t:'Depois do satélite, um homem no espaço. Depois do homem, a Lua.',k:'moon'},
-  {d:6,date:'Janeiro de 1957',t:'Quem chega primeiro?',k:'title'}];
-let FILMS=null;
-function filmPlay(done){let el=$('#film');if(!el){el=document.createElement('div');el.id='film';el.innerHTML='<canvas></canvas><div class="fDate"></div><p class="fCap"></p><button class="fSkip">Pular filme</button>';document.body.appendChild(el);}
+// filme depois de escolher o país: a origem da corrida e o seu lado dela
+function filmFor(side){const us=side==='usa',S0=RSIDE[side],R2=RSIDE[S0.rival];return[
+  {d:6.5,date:'1945',t:'A Segunda Guerra acabou, mas começou outra disputa: Estados Unidos e União Soviética querem ser a maior potência do mundo.',k:'cold'},
+  {d:6.5,date:'1946',t:'Os dois levam os foguetes alemães V-2 e seus engenheiros. De um lado, Wernher von Braun. Do outro, Serguei Korolev.',k:'v2'},
+  {d:6,date:'1957',t:'Você vai comandar o programa espacial '+(us?'dos Estados Unidos':'da União Soviética')+'.',k:'flag',side},
+  {d:6.5,date:S0.base,t:us?'Os foguetes saem de Cabo Canaveral, na Flórida, de frente para o mar. As cápsulas voltam caindo no oceano.':'Os foguetes saem de Baikonur, no meio da estepe do Cazaquistão. As cápsulas voltam pousando em terra firme.',k:'base',side},
+  {d:6.5,date:'O rival',t:us?'Os soviéticos têm o R-7, o foguete mais forte do mundo. Eles vão tentar sair na frente em tudo.':'Os americanos têm dinheiro, computadores e von Braun. Eles acham que estão muito à frente.',k:'rival',side:S0.rival},
+  {d:6,date:'O prêmio',t:'Pousar '+(us?'um americano':'um cosmonauta soviético')+' na Lua e trazer de volta. Antes dos '+R2.adj+'.',k:'moon'},
+  {d:5,date:'Janeiro de 1957',t:'Começa a corrida.',k:'title',side}];}
+function filmFlag(x,cx,cy,w,h,side,t){const N=28;for(let i=0;i<N;i++){const u=i/N,u2=(i+1)/N,wv=a=>Math.sin(a*6-t*3)*h*.06*a;const xa=cx-w/2+w*u,xb=cx-w/2+w*u2;
+    if(side==='usa'){for(let k=0;k<13;k++){x.fillStyle=k%2?'#f2f2f2':'#b22234';x.fillRect(xa,cy-h/2+h*k/13+wv(u),xb-xa+1,h/13+1);}if(u<.4){x.fillStyle='#3c3b6e';x.fillRect(xa,cy-h/2+wv(u),xb-xa+1,h*7/13);}}
+    else{x.fillStyle='#cc0000';x.fillRect(xa,cy-h/2+wv(u),xb-xa+1,h);}}
+  if(side==='usa'){x.fillStyle='#fff';for(let r=0;r<5;r++)for(let c=0;c<6;c++){const u=(c+.5)/6*.4,px=cx-w/2+w*u,py=cy-h/2+(r+.5)/5*h*7/13+Math.sin(u*6-t*3)*h*.06*u;x.beginPath();x.arc(px,py,h*.018,0,7);x.fill();}}
+  else{const u=.12,px=cx-w/2+w*u,py=cy-h/2+h*.2+Math.sin(u*6-t*3)*h*.06*u,rr=h*.09;x.fillStyle='#ffd700';x.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,q=k%2?rr*.42:rr;x.lineTo(px+Math.cos(a)*q,py+Math.sin(a)*q);}x.closePath();x.fill();}
+  const sh=x.createLinearGradient(cx-w/2,0,cx+w/2,0);for(let k=0;k<=6;k++)sh.addColorStop(k/6,'rgba(0,0,0,'+(.18+.18*Math.sin(k*1.7-t*3))+')');x.fillStyle=sh;x.fillRect(cx-w/2,cy-h/2-h*.07,w,h*1.14);}
+function filmRocket(x,X,Y,u,side){// silhueta: R-7 (4 laterais) para a URSS, Juno/Redstone para os EUA
+  x.fillStyle='#e9e6dc';if(side==='urss'){x.fillRect(X-u*.5,Y-u*9,u,u*9);x.beginPath();x.moveTo(X-u*.5,Y-u*9);x.lineTo(X,Y-u*10.5);x.lineTo(X+u*.5,Y-u*9);x.fill();for(const sd of[-1,1]){x.beginPath();x.moveTo(X+sd*u*.5,Y-u*5.5);x.lineTo(X+sd*u*1.4,Y);x.lineTo(X+sd*u*.5,Y);x.fill();}}
+  else{x.fillRect(X-u*.4,Y-u*8,u*.8,u*8);x.beginPath();x.moveTo(X-u*.4,Y-u*8);x.lineTo(X,Y-u*10);x.lineTo(X+u*.4,Y-u*8);x.fill();x.fillStyle='#2a2d33';x.fillRect(X-u*.4,Y-u*5.6,u*.8,u*.3);x.beginPath();x.moveTo(X-u*.4,Y);x.lineTo(X-u*1,Y+u*.2);x.lineTo(X-u*.4,Y-u*1.2);x.fill();x.beginPath();x.moveTo(X+u*.4,Y);x.lineTo(X+u*1,Y+u*.2);x.lineTo(X+u*.4,Y-u*1.2);x.fill();}}
+function filmPlay(FILM,done){let el=$('#film');if(!el){el=document.createElement('div');el.id='film';el.innerHTML='<canvas></canvas><div class="fDate"></div><p class="fCap"></p><button class="fSkip">Pular filme</button>';document.body.appendChild(el);}
   const c=el.querySelector('canvas'),x=c.getContext('2d'),cap=el.querySelector('.fCap'),dt=el.querySelector('.fDate'),still=matchMedia('(prefers-reduced-motion:reduce)').matches;
   el.hidden=false;el.classList.remove('out');try{textures().moon;}catch(e){} // a Lua é feita antes de começar (no meio do filme dava um tranco)
   const st=Array.from({length:220},()=>[Math.random(),Math.random(),Math.random()]),t0=performance.now();let cur=-1,end=false,beepT=0;
@@ -1397,9 +1484,18 @@ function filmPlay(done){let el=$('#film');if(!el){el=document.createElement('div
     else if(f.k==='moon'){// a Lua chegando
       const r=m*(.22+.18*k),T2=textures();x.save();x.translate(W/2,H*.48);x.rotate(Math.PI/2);x.drawImage(T2.moon,-r,-r,2*r,2*r);x.restore();x.fillStyle='rgba(2,4,10,'+(.5-.5*k)+')';x.beginPath();x.arc(W/2,H*.48,r,0,7);x.fill();
       earth(W*.1,H*1.05,m*.35,.3);}
+    else if(f.k==='flag'){const w=Math.min(W*.7,m*1.1),h=w*.55;filmFlag(x,W/2,H*.46,w,h,f.side,lt);x.fillStyle='#6b6f78';x.fillRect(W/2-w/2-8,H*.46-h/2-10,6,H*.5);}
+    else if(f.k==='base'){const gy=H*.91-Math.round(H*.09),sky=x.createLinearGradient(0,0,0,gy),us=f.side==='usa';sky.addColorStop(0,'#0b1430');sky.addColorStop(.7,us?'#e08a5a':'#c9925c');sky.addColorStop(1,us?'#ffcf8a':'#ead2a0');x.fillStyle=sky;x.fillRect(0,0,W,gy);
+      const sx=W*.72,sy=gy-m*.02,sg=x.createRadialGradient(sx,sy,0,sx,sy,m*.5);sg.addColorStop(0,'rgba(255,240,200,.95)');sg.addColorStop(.1,'rgba(255,200,120,.5)');sg.addColorStop(1,'rgba(255,160,80,0)');x.fillStyle=sg;x.fillRect(0,0,W,gy);
+      if(us){x.fillStyle='#1d3a5c';x.fillRect(W*.55,gy-m*.03,W*.45,m*.03);x.fillStyle='rgba(255,220,170,.35)';for(let k=0;k<8;k++)x.fillRect(W*.6+k*W*.05,gy-m*.015,W*.03,1.5);x.fillStyle='#14110e';x.fillRect(0,gy,W,H-gy);x.fillStyle='#22301e';x.fillRect(0,gy-m*.02,W*.55,m*.02);}
+      else{x.fillStyle='#3a2f1e';x.fillRect(0,gy-m*.012,W,m*.012);x.fillStyle='#1a150e';x.fillRect(0,gy,W,H-gy);for(let k=0;k<60;k++){const r=rng(k*5+1);x.fillStyle='rgba(40,32,20,.8)';x.fillRect(r()*W,gy-m*.012-r()*m*.01,1.5,m*.01);}}
+      const u=m/42,px=W*.4;x.fillStyle='#15171c';x.fillRect(px+u*1.6,gy-u*12,u*.9,u*12);for(let k=1;k<12;k+=2){x.fillRect(px+u*.6,gy-u*k,u*1.2,u*.18);}filmRocket(x,px,gy,u,f.side);
+      x.globalAlpha=Math.min(1,Math.max(0,(lt-1)/1.2));x.font='700 '+Math.round(m*.045)+'px Chakra Petch,system-ui';x.textAlign='right';x.fillStyle='#fff';x.fillText(f.date,W*.92,H*.24);x.globalAlpha=1;}
+    else if(f.k==='rival'){x.fillStyle='rgba(0,0,0,.3)';x.fillRect(0,0,W,H);const w=Math.min(W*.42,m*.6),h=w*.55;x.globalAlpha=.55;filmFlag(x,W*.3,H*.42,w,h,f.side,lt);x.globalAlpha=1;
+      const u=m/38,lift=Math.max(0,lt-1),gy=H*.91-Math.round(H*.09);x.save();x.translate(0,-lift*lift*u*.9);filmRocket(x,W*.72,gy,u,f.side);if(lt>.8){const fl=x.createLinearGradient(0,gy,0,gy+u*6);fl.addColorStop(0,'rgba(255,240,200,1)');fl.addColorStop(1,'rgba(255,120,40,0)');x.fillStyle=fl;x.beginPath();x.moveTo(W*.72-u*.6,gy);x.quadraticCurveTo(W*.72,gy+u*(6+Math.random()),W*.72+u*.6,gy);x.fill();}x.restore();}
     else{// título
-      const e=Math.min(1,lt/1.2);x.globalAlpha=e;earth(W/2,H+Math.max(W,H)*.42,Math.max(W,H)*.6,-.4);x.globalAlpha=1;x.textAlign='center';x.fillStyle='rgba(238,242,250,'+e+')';x.font='700 '+Math.round(Math.min(W*.1,m*.14))+'px Chakra Petch,system-ui';x.fillText('Corrida Espacial',W/2,H*.42);
-      x.font='600 '+Math.round(m*.034)+'px IBM Plex Sans,system-ui';x.fillStyle='rgba(170,205,255,'+e+')';x.fillText('🇺🇸  ×  🇷🇺',W/2,H*.42+m*.08);}
+      const e=Math.min(1,lt/1.2);x.globalAlpha=e;earth(W/2,H+Math.max(W,H)*.42,Math.max(W,H)*.6,-.4);x.globalAlpha=1;x.textAlign='center';x.fillStyle='rgba(238,242,250,'+e+')';x.font='700 '+Math.round(Math.min(W*.1,m*.14))+'px Chakra Petch,system-ui';x.fillText('Corrida Espacial',W/2,H*.42);if(f.side){const ww=m*.16;filmFlag(x,W/2,H*.42+m*.11,ww,ww*.55,f.side,lt);}
+      }
     // faixas de cinema e granulado
     const bar=Math.round(H*.09);x.fillStyle='#000';x.fillRect(0,0,W,bar);x.fillRect(0,H-bar,W,bar);
     if(!still){x.globalAlpha=.05;for(let j=0;j<60;j++){x.fillStyle=Math.random()<.5?'#fff':'#000';x.fillRect(Math.random()*W,Math.random()*H,1.5,1.5);}x.globalAlpha=1;}
@@ -1407,95 +1503,181 @@ function filmPlay(done){let el=$('#film');if(!el){el=document.createElement('div
     const fd=Math.min(lt/.6,(f.d-lt)/.6,1);if(fd<1){x.fillStyle='rgba(0,0,0,'+(1-fd)+')';x.fillRect(0,0,W,H);}
     requestAnimationFrame(fr);}
   requestAnimationFrame(fr);}
-// ================= CORRIDA ESPACIAL: escolha o país, pesquise e chegue primeiro à Lua =================
-// o calendário começa em jan/1957; cada lançamento e cada pesquisa gastam meses. O rival faz as conquistas nas datas reais.
-const RMES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],rDate=m=>RMES[((m%12)+12)%12]+'/'+(1957+Math.floor(m/12)),rm=(y,mo)=>(y-1957)*12+mo-1;
-const RSIDE={usa:{n:'EUA',f:'🇺🇸',base:'Cabo Canaveral',adj:'americanos',rival:'urss'},urss:{n:'URSS',f:'🇷🇺',base:'Baikonur',adj:'soviéticos',rival:'usa'}};
-// árvore: [id, ramo, nome, custo em pontos (= meses de pesquisa), pré-requisitos, o que libera]
+// ================= CORRIDA ESPACIAL =================
+// você escolhe EUA ou URSS em jan/1957, pesquisa tecnologias (cada uma libera peças e conquistas), monta seus próprios foguetes e tenta chegar primeiro.
+// o rival faz cada conquista na data em que fez na história. Tudo o que acontece sai no jornal, na tela.
+const RMES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],RMESL=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'],
+  rDate=m=>RMES[((m%12)+12)%12]+'/'+(1957+Math.floor(m/12)),rDateL=m=>RMESL[((m%12)+12)%12]+' de '+(1957+Math.floor(m/12)),rm=(y,mo)=>(y-1957)*12+mo-1;
+const RSIDE={usa:{n:'EUA',nl:'Estados Unidos',f:'🇺🇸',base:'Cabo Canaveral',adj:'americanos',adjS:'americano',rival:'urss',paper:'Correio da Nação',city:'Washington',
+    adv:{n:'Dr. Frank Miller',c:'diretor técnico do programa',ini:'FM',col:'#3c6fd6'}},
+  urss:{n:'URSS',nl:'União Soviética',f:'🇷🇺',base:'Baikonur',adj:'soviéticos',adjS:'soviético',rival:'usa',paper:'Voz do Povo',city:'Moscou',
+    adv:{n:'Engenheira Irina Volkova',c:'chefe de projeto do programa',ini:'IV',col:'#c8322c'}}};
+// árvore: id, ramo, nome, custo (pontos), pré-requisitos, texto, peças que libera, limite de combustível do foguete (t)
 const RTECH=[
-  ['f1','Foguetes','Foguete de 1 estágio',0,[],'O começo: foguetes derivados de mísseis (Redstone, R-7).'],
-  ['f2','Foguetes','Estágios',2,['f1'],'Soltar o tanque vazio no caminho: sem isso não dá para chegar em órbita.'],
-  ['f3','Foguetes','Motores de vácuo',3,['f2'],'Motores feitos para o espaço, que rendem mais longe do ar: idas à Lua.'],
-  ['f4','Foguetes','Foguete gigante',5,['f3'],'Saturn V ou N1: o único jeito de levar gente até a Lua e trazer de volta.'],
-  ['n1','Naves','Satélite e sonda',1,['f1'],'Carga sem tripulação dentro da carenagem.'],
-  ['n2','Naves','Cápsula tripulada',3,['n1'],'Um astronauta a bordo (Mercury, Vostok).'],
-  ['n3','Naves','Nave lunar',4,['n2'],'Cápsula com módulo de serviço e motor próprio para ir e voltar da Lua.'],
-  ['n4','Naves','Módulo lunar',4,['n3'],'Pés de pouso, motor de descida e rampa: pousar de pé na Lua.'],
-  ['v1','Navegação','Órbita',2,['f2'],'Saber subir até o Ap e acelerar de lado: Ap e Pe no painel.'],
-  ['v2','Navegação','Rumo à Lua',3,['v1'],'Mapa, ponto verde e ponto de encontro com a Lua.'],
-  ['v3','Navegação','Pouso com motor',3,['v2'],'Radar de pouso e descida freando com o motor.'],
-  ['v4','Navegação','Encontro em órbita',3,['v1'],'Alcançar outra nave: órbita mais baixa anda mais rápido.'],
-  ['v5','Navegação','Acoplamento',3,['v4'],'Encaixar duas naves em órbita: a Apollo precisava disso para ir e voltar da Lua.'],
-  ['s1','Sobrevivência','Paraquedas',1,[],'Voltar inteiro: o paraquedas abre na descida.'],
-  ['s2','Sobrevivência','Escudo térmico',2,['s1'],'Aguentar a reentrada vindo da órbita (1.250 °C sem escudo, 2.600 °C com ele).'],
-  ['s3','Sobrevivência','Suporte de vida longo',3,['s2'],'Ar, água e energia para dias de viagem até a Lua.'],
-  ['s4','Sobrevivência','Traje espacial',2,['s2','n2'],'Sair da nave no vácuo, preso por um cabo.'],
-  ['c1','Ciência','Rádio de longa distância',2,['n1'],'Falar com uma sonda a 380 mil km (antenas grandes em terra).'],
-  ['c3','Ciência','Câmera de sonda',2,['c1'],'Fotografar e mandar a imagem por rádio (a Luna 3 revelava o filme a bordo).'],
-  ['c2','Ciência','Rover lunar',3,['c1','n4'],'Carrinho elétrico para andar e coletar rochas na Lua.']];
-const RTK=Object.fromEntries(RTECH.map(t=>[t[0],{id:t[0],br:t[1],n:t[2],cost:t[3],pre:t[4],d:t[5]}]));
-// conquistas: missão da campanha, meses de preparo, pré-requisitos e quando o rival fez (de verdade)
+  ['f1','Foguetes','Foguete de 1 estágio',0,[],'Derivado dos mísseis: um tanque e um motor. Foguete pequeno (até 5 t de combustível).',['probe','tankP','tankM','engJabuti','aleta','cone','coneR','fus','beam'],5],
+  ['f2','Foguetes','Estágios',2,['f1'],'Soltar o tanque vazio no caminho. Libera separadores e o motor de cima. Até 16 t de combustível.',['sep','sepLat','tankG','engVaga','engMini','adapt','aletaL','coneInc','beamV'],16],
+  ['f3','Foguetes','Foguetes médios',3,['f2'],'Motores maiores e propulsores laterais. Até 60 t de combustível.',['engBeija','engFalcao','tankXG','engBase','srbP'],60],
+  ['f4','Foguetes','Foguete gigante',5,['f3'],'Saturn V ou N1: sem limite de tamanho. Só assim dá para levar gente à Lua e voltar.',['engTita','engCondor','srb','liqb'],1e9],
+  ['n1','Naves','Satélite e sonda',1,['f1'],'Carenagem para proteger a carga e painéis solares.',['fair','fairBody','solar']],
+  ['n2','Naves','Cápsula tripulada',3,['n1','s1'],'Cápsula para um tripulante.',['capPingo']],
+  ['n3','Naves','Nave de 2 lugares',3,['n2'],'Cápsula maior, com giroscópio forte.',['capDupla']],
+  ['n4','Naves','Módulo lunar',4,['n3','v3'],'Pés de pouso: pousar de pé na Lua.',['leg','legG']],
+  ['v1','Navegação','Órbita',2,['f2'],'Subir até o Ap e acelerar de lado: Ap e Pe no painel.',[]],
+  ['v2','Navegação','Rumo à Lua',3,['v1'],'Ponto verde e ponto de encontro com a Lua no mapa.',[]],
+  ['v3','Navegação','Pouso com motor',3,['v2'],'Radar de pouso e descida freando com o motor.',['solarG']],
+  ['v4','Navegação','Encontro em órbita',3,['v1'],'Alcançar outra nave. Libera os propulsores RCS.',['rcs']],
+  ['v5','Navegação','Acoplamento',3,['v4'],'Encaixar duas naves em órbita.',[]],
+  ['s1','Sobrevivência','Paraquedas',1,[],'Voltar inteiro: o paraquedas abre na descida.',['para','paraL']],
+  ['s2','Sobrevivência','Escudo térmico',2,['s1'],'Aguentar a reentrada vindo da órbita.',['shield']],
+  ['s3','Sobrevivência','Suporte de vida longo',3,['s2','n2'],'Ar, água e energia para dias de viagem até a Lua.',[]],
+  ['s4','Sobrevivência','Traje espacial',2,['s2','n2'],'Sair da nave no vácuo, preso por um cabo.',[]],
+  ['c1','Ciência','Rádio de longa distância',2,['n1'],'Falar com uma sonda a 380 mil km.',[]],
+  ['c3','Ciência','Câmera de sonda',2,['c1'],'Fotografar e mandar a imagem por rádio.',[]],
+  ['c2','Ciência','Rover lunar',3,['c1','n4'],'Carrinho elétrico para rodar na Lua.',['roverBay','roverCar','wheel','wheelG']]];
+const RTK=Object.fromEntries(RTECH.map(t=>[t[0],{id:t[0],br:t[1],n:t[2],cost:t[3],pre:t[4],d:t[5],parts:t[6]||[],fuel:t[7]}]));
+// conquistas: missão, meses de preparo, pré-requisitos, nome da missão de cada país e quando o rival fez (de verdade)
 const RMS=[
-  {id:'sat',t:'Primeiro satélite',m:'c3',mo:4,req:['n1','v1'],nm:{usa:'Explorer 1',urss:'Sputnik 1'},urss:[rm(1957,10),'Sputnik 1'],usa:[rm(1958,1),'Explorer 1']},
-  {id:'luna',t:'Primeira sonda na Lua',m:'c4',mo:10,req:['v2','c1'],nm:{usa:'Ranger 7',urss:'Luna 2'},urss:[rm(1959,9),'Luna 2'],usa:[rm(1964,7),'Ranger 7 (as 6 anteriores falharam)']},
-  {id:'far',t:'Primeira foto do lado oculto',m:'r_far',mo:10,req:['v2','c3'],nm:{usa:'Lunar Orbiter',urss:'Luna 3'},urss:[rm(1959,10),'Luna 3'],usa:[rm(1966,8),'Lunar Orbiter 1']},
-  {id:'sub',t:'Primeiro humano no espaço',m:'c1',mo:10,req:['n2','s1'],nm:{usa:'Freedom 7 (Mercury)',urss:'Vostok'},urss:[rm(1961,4),'Vostok 1 (Gagarin)'],usa:[rm(1961,5),'Freedom 7 (Shepard)']},
-  {id:'orb',t:'Primeiro humano em órbita',m:'c2',mo:12,req:['n2','v1','s2'],nm:{usa:'Friendship 7 (Mercury-Atlas)',urss:'Vostok 1'},urss:[rm(1961,4),'Vostok 1 (Gagarin)'],usa:[rm(1962,2),'Friendship 7 (Glenn)']},
-  {id:'eva',t:'Primeira caminhada espacial',m:'r_eva',mo:10,req:['s4','v1'],nm:{usa:'Gemini 4',urss:'Voskhod 2'},urss:[rm(1965,3),'Voskhod 2 (Leonov)'],usa:[rm(1965,6),'Gemini 4 (Ed White)']},
-  {id:'rdv',t:'Primeiro encontro em órbita',m:'r_rdv',mo:12,req:['v4','n2'],nm:{usa:'Gemini 6A e 7',urss:'Soyuz'},urss:[rm(1967,10),'Kosmos 186 e 188 (automáticas)'],usa:[rm(1965,12),'Gemini 6A e 7']},
-  {id:'dock',t:'Primeiro acoplamento',m:'r_dock',mo:12,req:['v5'],after:'rdv',nm:{usa:'Gemini 8',urss:'Soyuz'},urss:[rm(1967,10),'Kosmos 186 e 188 (automáticas)'],usa:[rm(1966,3),'Gemini 8 (Armstrong)']},
-  {id:'lorb',t:'Primeira órbita da Lua',m:'c5',mo:14,req:['v2','f3'],nm:{usa:'Lunar Orbiter 1',urss:'Luna 10'},urss:[rm(1966,4),'Luna 10'],usa:[rm(1966,8),'Lunar Orbiter 1']},
-  {id:'land',t:'Primeiro pouso tripulado na Lua',m:'c7',mo:24,req:['f4','n4','v3','v5','s3'],nm:{usa:'Apollo 11',urss:'LK (Lua soviética)'},urss:[rm(1969,10),'LK (plano soviético, se o N1 tivesse funcionado)'],usa:[rm(1969,7),'Apollo 11'],goal:true},
-  {id:'home',t:'Voltar da Lua para casa',m:'c8',mo:2,req:[],after:'land',nm:{usa:'Apollo 11 (volta)',urss:'LK e Soyuz LOK'},urss:[rm(1969,10),'LK (plano soviético)'],usa:[rm(1969,7),'Apollo 11']},
-  {id:'rover',t:'Primeiro carro na Lua',m:'c6',mo:10,req:['c2'],after:'land',nm:{usa:'Apollo 15 (LRV)',urss:'Lunokhod 1'},urss:[rm(1970,11),'Lunokhod 1 (robô)'],usa:[rm(1971,7),'Apollo 15']},
-  {id:'mars',t:'Primeira sonda em Marte',m:'c9',mo:18,req:['f3','v2','c1'],nm:{usa:'Mariner 4',urss:'Mars 2'},urss:[rm(1971,11),'Mars 2'],usa:[rm(1965,7),'Mariner 4']}];
-let RACE=null;try{RACE=JSON.parse(localStorage.getItem('orbita.race')||'null');}catch(e){}
+  {id:'snd',t:'Foguete de sondagem',m:'rm_snd',mo:2,req:[],train:true,nm:{usa:'Bumper',urss:'R-1'}},
+  {id:'sat',t:'Primeiro satélite',m:'rm_sat',mo:4,req:['n1','v1'],nm:{usa:'Explorer 1',urss:'Sputnik 1'},urss:[rm(1957,10),'Sputnik 1'],usa:[rm(1958,1),'Explorer 1']},
+  {id:'luna',t:'Primeira sonda na Lua',m:'rm_luna',mo:6,req:['v2','c1'],nm:{usa:'Ranger 7',urss:'Luna 2'},urss:[rm(1959,9),'Luna 2'],usa:[rm(1964,7),'Ranger 7']},
+  {id:'far',t:'Primeira foto do lado oculto',m:'rm_far',mo:6,req:['v2','c3'],nm:{usa:'Lunar Orbiter',urss:'Luna 3'},urss:[rm(1959,10),'Luna 3'],usa:[rm(1966,8),'Lunar Orbiter 1']},
+  {id:'sub',t:'Primeiro humano no espaço',m:'rm_sub',mo:6,req:['n2'],nm:{usa:'Freedom 7',urss:'Vostok'},urss:[rm(1961,4),'Vostok 1 (Gagarin)'],usa:[rm(1961,5),'Freedom 7 (Shepard)']},
+  {id:'orb',t:'Primeiro humano em órbita',m:'rm_orb',mo:8,req:['n2','v1','s2'],nm:{usa:'Friendship 7',urss:'Vostok 1'},urss:[rm(1961,4),'Vostok 1 (Gagarin)'],usa:[rm(1962,2),'Friendship 7 (Glenn)']},
+  {id:'eva',t:'Primeira caminhada espacial',m:'rm_eva',mo:8,req:['s4','v1'],nm:{usa:'Gemini 4',urss:'Voskhod 2'},urss:[rm(1965,3),'Voskhod 2 (Leonov)'],usa:[rm(1965,6),'Gemini 4 (Ed White)']},
+  {id:'rdv',t:'Primeiro encontro em órbita',m:'rm_rdv',mo:8,req:['v4','n2'],nm:{usa:'Gemini 6A e 7',urss:'Soyuz'},urss:[rm(1967,10),'Kosmos 186 e 188'],usa:[rm(1965,12),'Gemini 6A e 7']},
+  {id:'dock',t:'Primeiro acoplamento',m:'rm_dock',mo:8,req:['v5'],after:'rdv',nm:{usa:'Gemini 8',urss:'Soyuz'},urss:[rm(1967,10),'Kosmos 186 e 188'],usa:[rm(1966,3),'Gemini 8 (Armstrong)']},
+  {id:'lorb',t:'Primeira órbita da Lua',m:'rm_lorb',mo:8,req:['v2','f3'],nm:{usa:'Lunar Orbiter 1',urss:'Luna 10'},urss:[rm(1966,4),'Luna 10'],usa:[rm(1966,8),'Lunar Orbiter 1']},
+  {id:'land',t:'Primeiro pouso tripulado na Lua',m:'rm_land',mo:12,req:['f4','n4','v5','s3'],nm:{usa:'Apollo 11',urss:'LK'},urss:[rm(1969,10),'LK (plano soviético, se o N1 tivesse funcionado)'],usa:[rm(1969,7),'Apollo 11'],goal:true},
+  {id:'rover',t:'Primeiro carro na Lua',m:'rm_rover',mo:8,req:['c2'],after:'land',nm:{usa:'Apollo 15',urss:'Lunokhod 1'},urss:[rm(1970,11),'Lunokhod 1'],usa:[rm(1971,7),'Apollo 15']},
+  {id:'mars',t:'Primeira sonda em Marte',m:'rm_mars',mo:12,req:['f3','v2','c1'],nm:{usa:'Mariner 4',urss:'Mars 2'},urss:[rm(1971,11),'Mars 2'],usa:[rm(1965,7),'Mariner 4']}];
+let RACE=null;try{RACE=JSON.parse(localStorage.getItem('orbita.race')||'null');if(RACE&&RACE.v!==2)RACE=null;}catch(e){}
 const raceSave=()=>{try{localStorage.setItem('orbita.race',JSON.stringify(RACE));}catch(e){}};
-const rHas=t=>RACE&&RACE.tech.includes(t),rCost=t=>{const k=RTK[t];return Math.max(0,k.cost-(RACE.side==='urss'&&k.br==='Foguetes'||RACE.side==='usa'&&(k.br==='Navegação'||k.br==='Ciência')?1:0));};
-const rMonths=c=>c<=2?Math.max(1,c):Math.ceil(c*1.5),rRival=ms=>ms[RSIDE[RACE.side].rival],rMine=id=>RACE.got[id];
-function raceNew(side){RACE={side,mo:0,pts:side==='urss'?4:6,tech:side==='urss'?['f1','f2']:['f1'],got:{},news:[],cur:null,v:1};
-  raceNews('🗞 '+(side==='urss'?'Moscou':'Washington')+', jan/1957: começa a corrida. O '+(side==='urss'?'Kremlin':'presidente')+' quer ser o primeiro no espaço.',1);raceSave();}
-function raceNews(t,silent){RACE.news.unshift({m:RACE.mo,t});if(RACE.news.length>40)RACE.news.pop();if(!silent)toast('Manchete · '+rDate(RACE.mo),t.replace(/^🗞 /,''));}
-// o tempo passa: o rival faz o que fez na história
+const rHas=t=>!!RACE&&RACE.tech.includes(t),rRival=ms=>ms[RSIDE[RACE.side].rival]||[1e9,''],rRivalDone=id=>!!(RACE&&RACE.rv&&RACE.rv[id]);
+const rCost=t=>{const k=RTK[t];return Math.max(0,k.cost-((RACE.side==='urss'&&k.br==='Foguetes')||(RACE.side==='usa'&&(k.br==='Navegação'||k.br==='Ciência'))?1:0));};
+const rMonths=c=>c<=1?1:c<=2?2:Math.ceil(c*1.5);
+// peças liberadas e limite de combustível
+function raceParts(){const s=new Set();if(RACE)for(const t of RACE.tech)for(const p of RTK[t].parts)s.add(p);return s;}
+const raceFuelCap=()=>Math.max(...RACE.tech.map(t=>RTK[t].fuel||0))*1000;
+function raceDesign(){try{const d=RACE&&RACE.design?JSON.parse(RACE.design):[];const ok=raceParts();return d.filter(q=>ok.has(q.type));}catch(e){return[];}}
+// ------- jornal: cada novidade vira notícia; elas aparecem na tela como a primeira página do jornal do seu país
+const NEWSW={win:9,lose:8,rival:6,first:7,me:5,fail:4,tech:2,start:3};
+function raceNews(kind,head,sub,extra){const n={k:kind,m:RACE.mo,h:head,s:sub||'',x:extra||null};RACE.news.unshift(n);if(RACE.news.length>60)RACE.news.pop();(RACE.fresh=RACE.fresh||[]).push(n);return n;}
 function raceAdvance(n){const r0=RACE.mo;RACE.mo+=n;const R2=RSIDE[RSIDE[RACE.side].rival];
-  for(const ms of RMS){const[rd,rn]=rRival(ms);if(rd>r0&&rd<=RACE.mo&&!RACE.got[ms.id]&&!RACE.rv?.[ms.id]){RACE.rv=RACE.rv||{};RACE.rv[ms.id]=rd;
-      const nt='🗞 '+rDate(rd)+' · '+R2.f+' '+R2.n+' CHEGA PRIMEIRO: '+ms.t.toLowerCase()+' com a '+rn+'.'+(ms.goal?' Os '+R2.adj+' venceram a corrida para a Lua…':'');RACE.news.unshift({m:rd,t:nt});(RACE.fresh=RACE.fresh||[]).push(nt);}}
-  RACE.news.sort((a,b)=>b.m-a.m);}
-const rRivalDone=id=>!!(RACE.rv&&RACE.rv[id]);
-function raceLaunch(id){const ms=RMS.find(q=>q.id===id);RACE.cur=id;raceAdvance(ms.mo);raceSave();$('#race').hidden=true;setSite(RACE.side==='usa'?'cape':'bai');campStart(ms.m);RACE_FLAG=RACE.side;$('#brT').textContent=ms.nm[RACE.side]+' · '+ms.t;
-  $('#brSub').textContent='Corrida Espacial · '+rDate(RACE.mo)+' · lançamento em '+SITES[SITE].n+(rRivalDone(id)?' · o rival já fez, mas a conquista ainda vale pontos.':' · se der certo agora, é seu o PRIMEIRO!')+' Antes de ir, as peças:';campBar();}
+  for(const ms of RMS){const rv=rRival(ms),rd=rv[0];if(rd>r0&&rd<=RACE.mo&&!RACE.got[ms.id]&&!rRivalDone(ms.id)){RACE.rv=RACE.rv||{};RACE.rv[ms.id]=rd;
+      const n2=raceNews(ms.goal?'lose':'rival',(ms.goal?R2.adj.toUpperCase()+' PISAM NA LUA':R2.n+' SAI NA FRENTE: '+ms.t.toUpperCase()),'A '+rv[1]+' fez em '+rDateL(rd)+' o que o nosso programa ainda não conseguiu.'+(ms.goal?' A corrida para a Lua acabou para nós… mas o trabalho continua.':' A pressão sobre o programa aumenta.'),{side:S0side()});n2.m=rd;}}}
+const S0side=()=>RSIDE[RACE.side].rival;
+function paperFlush(done){const q=(RACE&&RACE.fresh)||[];if(!q.length){done&&done();return;}RACE.fresh=[];raceSave();paperShow(q,done);}
+function paperShow(items,done){const it=items.slice().sort((a,b)=>NEWSW[b.k]-NEWSW[a.k]),lead=it[0],rest=it.slice(1,4),S0=RSIDE[RACE.side];let el=$('#paper');
+  if(!el){el=document.createElement('div');el.id='paper';el.innerHTML='<div class="pSheet"><header><span class="pDate"></span><h3 class="pMast"></h3><span class="pPrice"></span></header><div class="pBody"><div class="pMain"><h2 class="pHead"></h2><canvas class="pPic" width="560" height="300"></canvas><p class="pSub"></p></div><aside class="pSide"></aside></div><footer>Toque para continuar</footer></div>';document.body.appendChild(el);}
+  el.className='p-'+RACE.side+(lead.k==='lose'?' p-bad':lead.k==='win'||lead.k==='first'?' p-good':'');
+  el.querySelector('.pMast').textContent=S0.paper;el.querySelector('.pDate').textContent=S0.city+', '+rDateL(lead.m);el.querySelector('.pPrice').textContent=lead.k==='win'||lead.k==='lose'||lead.k==='first'||lead.k==='rival'?'EDIÇÃO EXTRA':'Edição do dia';
+  el.querySelector('.pHead').textContent=lead.h;el.querySelector('.pSub').textContent=lead.s;
+  el.querySelector('.pSide').innerHTML=rest.concat(paperFill(S0)).slice(0,3).map(n=>'<article'+(n.ad?' class="pAd"':'')+'><h4>'+n.h+'</h4><p>'+n.s+'</p></article>').join('');
+  paperPic(el.querySelector('.pPic'),lead);el.hidden=false;const sh=el.querySelector('.pSheet');sh.classList.remove('in');void sh.offsetWidth;sh.classList.add('in');try{sfx(lead.k==='lose'||lead.k==='fail'?'thunk':'chime');}catch(e){}
+  let ok=false;const go=()=>{if(ok)return;ok=true;el.hidden=true;done&&done();};setTimeout(()=>{el.onclick=go;},700);}
+// colunas laterais quando só há uma notícia: espionagem sobre o rival, próximo passo do programa e um anúncio de época
+function paperFill(S0){const R2=RSIDE[S0.rival],out=[],open=RMS.filter(ms=>!RACE.got[ms.id]&&!rRivalDone(ms.id)&&!ms.train);
+  const nx=open.map(ms=>[ms,rRival(ms)[0]]).filter(a=>a[1]<1e8).sort((a,b)=>a[1]-b[1])[0];
+  if(nx){const d=nx[1]-RACE.mo;out.push({h:'Espiões: '+R2.n+' prepara '+nx[0].t.toLowerCase(),s:d<=6?'Fontes dizem que o lançamento é questão de meses. Corra!':d<=18?'O rival deve tentar em '+(Math.round(d/6)*6||6)+' meses, segundo a inteligência.':'Ainda faltam anos, mas eles não param de testar.'});}
+  const mine=RMS.find(ms=>!RACE.got[ms.id]&&!rRivalDone(ms.id)&&!(ms.after&&!RACE.got[ms.after]));
+  if(mine){const miss=mine.req.filter(t=>!rHas(t)).map(t=>RTK[t].n);out.push({h:'Próximo objetivo: '+mine.t.toLowerCase(),s:miss.length?'Falta pesquisar: '+miss.join(', ')+'.':'Já temos a tecnologia. Agora é montar o foguete e lançar.'});}
+  const ads=RACE.side==='usa'?[['Televisores Zenith','Assista aos lançamentos ao vivo, em casa.'],['Cereal Astronauta','O café da manhã dos heróis do espaço.'],['Relógios Omega','Precisão que vai além da atmosfera.']]:[['Rádio Spidola','Ouça as vitórias do povo em qualquer lugar.'],['Chocolate Alyonka','Doce como uma vitória no espaço.'],['Câmeras Zenit','Fotografe como um cosmonauta.']],a=ads[RACE.mo%ads.length];
+  out.push({h:a[0],s:a[1],ad:true});return out.slice(0,3);}
+// ilustração no estilo de foto de jornal (pontilhada)
+function paperPic(c,n){const x=c.getContext('2d'),W=c.width,H=c.height;x.fillStyle='#d9d3c3';x.fillRect(0,0,W,H);x.fillStyle='#2b2a27';const k=n.k,sd=n.x&&n.x.side||RACE.side;
+  const sky=x.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#4a4843');sky.addColorStop(1,'#bdb7a8');x.fillStyle=sky;x.fillRect(0,0,W,H);
+  if(k==='tech'){x.fillStyle='#2b2a27';x.fillRect(0,H*.7,W,H*.3);for(let i=0;i<5;i++){x.fillRect(60+i*100,H*.45,60,H*.25);x.beginPath();x.arc(90+i*100,H*.42,18,0,7);x.fill();}x.fillStyle='#e9e4d6';x.font='700 26px Old Standard TT,serif';x.textAlign='center';x.fillText('LABORATÓRIO',W/2,H*.2);}
+  else if(k==='fail'){x.fillStyle='#2b2a27';x.fillRect(0,H*.78,W,H*.22);for(let i=0;i<40;i++){const r=rng(i*13+7),a=r()*Math.PI,d=40+r()*150;x.fillStyle='rgba(30,28,25,'+(.3+.5*r())+')';x.beginPath();x.arc(W/2+Math.cos(a)*d*.9,H*.62-Math.sin(a)*d*.8,10+r()*34,0,7);x.fill();}x.fillStyle='#f4efe2';x.beginPath();x.arc(W/2,H*.66,46,0,7);x.fill();}
+  else if(k==='lose'||n.h.includes('LUA')&&k!=='rival'){x.fillStyle='#e4dfd2';x.beginPath();x.arc(W*.7,H*.35,70,0,7);x.fill();x.fillStyle='#bfb9aa';for(const[a,b,r]of[[.66,.3,12],[.74,.4,9],[.7,.28,6]]){x.beginPath();x.arc(W*a,H*b,r,0,7);x.fill();}x.fillStyle='#2b2a27';x.fillRect(0,H*.8,W,H*.2);x.fillRect(W*.25,H*.45,4,H*.35);rFlagPaper(x,W*.25+4,H*.45,70,44,k==='lose'?RSIDE[RACE.side].rival:RACE.side);}
+  else{// foguete subindo com fumaça
+    x.fillStyle='#2b2a27';x.fillRect(0,H*.82,W,H*.18);for(let i=0;i<14;i++){const r=rng(i*7+3);x.fillStyle='rgba(236,231,219,'+(.5+.4*r())+')';x.beginPath();x.arc(W/2+(r()-.5)*260,H*.8-r()*40,24+r()*30,0,7);x.fill();}
+    x.fillStyle='#f4efe2';x.fillRect(W/2-9,H*.18,18,H*.5);x.beginPath();x.moveTo(W/2-9,H*.18);x.lineTo(W/2,H*.08);x.lineTo(W/2+9,H*.18);x.fill();x.fillStyle='#2b2a27';x.fillRect(W/2-9,H*.3,18,6);x.fillRect(W/2-9,H*.45,18,6);
+    const fl=x.createLinearGradient(0,H*.68,0,H*.82);fl.addColorStop(0,'#fffbea');fl.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=fl;x.beginPath();x.moveTo(W/2-8,H*.68);x.quadraticCurveTo(W/2,H*.86,W/2+8,H*.68);x.fill();
+    rFlagPaper(x,22,22,64,40,sd);}
+  // pontilhado de jornal
+  x.globalCompositeOperation='multiply';x.fillStyle='rgba(120,110,90,.25)';x.fillRect(0,0,W,H);x.globalCompositeOperation='source-over';
+  for(let i=0;i<900;i++){x.fillStyle='rgba(40,38,34,'+Math.random()*.18+')';x.fillRect(Math.random()*W,Math.random()*H,1.5,1.5);}}
+function rFlagPaper(x,X,Y,w,h,sd){if(sd==='usa'){for(let k=0;k<7;k++){x.fillStyle=k%2?'#efeadc':'#3a3834';x.fillRect(X,Y+h*k/7,w,h/7+.5);}x.fillStyle='#22211e';x.fillRect(X,Y,w*.42,h*4/7);}
+  else{x.fillStyle='#3a3834';x.fillRect(X,Y,w,h);x.fillStyle='#efeadc';x.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,q=k%2?3:7;x.lineTo(X+w*.18+Math.cos(a)*q,Y+h*.28+Math.sin(a)*q);}x.closePath();x.fill();}}
+// ------- começo, pesquisa, lançamento e resultado
+function raceNew(side){const S0=RSIDE[side],R2=RSIDE[S0.rival];RACE={v:2,side,mo:0,pts:side==='urss'?3:4,tech:side==='urss'?['f1','f2']:['f1'],got:{},rv:{},news:[],fresh:[],cur:null,paid:null,design:'[]',tut:0,crash:0};
+  raceNews('start','COMEÇA A CORRIDA PARA O ESPAÇO',S0.city+' anuncia um programa espacial para chegar antes dos '+R2.adj+'. Foguetes vão sair de '+S0.base+'.');raceSave();}
 function raceResearch(t){const k=RTK[t],c=rCost(t);if(rHas(t)||RACE.pts<c||!k.pre.every(rHas))return;RACE.pts-=c;RACE.tech.push(t);raceAdvance(rMonths(c));
-  raceNews('🔬 '+rDate(RACE.mo)+' · Pesquisa concluída: '+k.n+'.',1);raceSave();renderRace();if(RACE.fresh&&RACE.fresh.length){toast('Enquanto isso…',RACE.fresh.map(t=>t.replace(/^🗞 /,'')).join(' · '));RACE.fresh=[];raceSave();}}
-// missão cumprida dentro da corrida
-function raceDone(c){if(!RACE||!RACE.cur)return false;const ms=RMS.find(q=>q.id===RACE.cur);if(!ms||ms.m!==c.id)return false;RACE.cur=null;
-  const S0=RSIDE[RACE.side],first=!RACE.got[ms.id]&&!rRivalDone(ms.id),again=!!RACE.got[ms.id],pts=again?2:first?5:3;RACE.pts+=pts;if(!again)RACE.got[ms.id]={m:RACE.mo,first};
-  raceNews('🗞 '+rDate(RACE.mo)+' · '+(again?'Voo de teste: '+ms.t.toLowerCase()+' de novo.':first?S0.f+' '+S0.n+' NA FRENTE! '+ms.t+'.':S0.f+' '+S0.n+' também consegue: '+ms.t.toLowerCase()+'.'),1);
-  if(ms.goal&&first)RACE.won=RACE.mo;raceSave();
-  $('#cwE').textContent='Corrida Espacial · '+rDate(RACE.mo);$('#cwT').textContent=again?'Voo de teste ✓':first?(ms.goal?'🏆 VOCÊ CHEGOU PRIMEIRO À LUA!':'PRIMEIRO! '+S0.f):'Conseguiu ✓';
-  $('#cwB').textContent=(ms.goal&&first?'Os '+S0.adj+' venceram a corrida espacial. ':first?'Ninguém tinha feito isso antes. ':again?'':'O rival chegou antes, mas a conquista conta. ')+'+'+pts+' pontos de pesquisa.';
-  $('#cwNext').hidden=false;$('#cwNext').textContent='Voltar à corrida';$('#cwNext').onclick=()=>{$('#campWin').hidden=true;$('#mHangar').onclick();raceOpen();};return true;}
-// acidente na corrida: a investigação custa 2 meses (voltar 30 s não apaga isso)
-function raceCrash(){if(!RACE||!RACE.cur||!RACE_FLAG)return'';raceAdvance(2);const ms=RMS.find(q=>q.id===RACE.cur);RACE.news.unshift({m:RACE.mo,t:'💥 '+rDate(RACE.mo)+' · Falha na missão "'+ms.t+'": investigação do acidente.'});raceSave();return ' · 🏁 Corrida: a investigação do acidente custou 2 meses (agora é '+rDate(RACE.mo)+').';}
-function raceOpen(){if(!RACE){$('#raceSide').hidden=false;return;}if(!RACE.cur){CAMP_CUR=null;RACE_FLAG=null;setSite('alc');campBar();}renderRace();$('#race').hidden=false;if(RACE.fresh&&RACE.fresh.length){toast('Enquanto isso…',RACE.fresh.map(t=>t.replace(/^🗞 /,'')).join(' · '));RACE.fresh=[];raceSave();}}
+  const libs=RMS.filter(ms=>ms.req.includes(t)&&ms.req.every(rHas)).map(ms=>ms.t.toLowerCase()),pl=k.parts.map(p=>PARTS[p].n).slice(0,4);
+  raceNews('tech','NOVA TECNOLOGIA: '+k.n.toUpperCase(),k.d+(pl.length?' Peças novas no hangar: '+pl.join(', ')+'.':'')+(libs.length?' Já dá para tentar: '+libs.join(', ')+'.':''));
+  raceSave();renderRace();paperFlush();}
+function raceLaunch(id){const ms=RMS.find(q=>q.id===id);RACE.cur=id;RACE.paid=null;raceSave();$('#race').hidden=true;setSite(RACE.side==='usa'?'cape':'bai');RACE_FLAG=RACE.side;document.body.classList.add('inRace');
+  campStart(ms.m);$('#brief').hidden=true;campBar();
+  const c=CAMP.find(q=>q.id===ms.m);tip(innerWidth/2,innerHeight*.35,ms.nm[RACE.side]+': '+c.txt);}
+// ao ir para a base: o tempo de preparo passa (uma vez por missão) e o jornal mostra o que aconteceu nesse meio-tempo
+function raceGate(fn){if(!(RACE&&RACE.cur&&RACE_FLAG))return fn();try{RACE.design=JSON.stringify(parts);}catch(e){}
+  if(RACE.paid!==RACE.cur){const ms=RMS.find(q=>q.id===RACE.cur);RACE.paid=RACE.cur;raceAdvance(ms.mo);raceSave();campBar();}paperFlush(fn);}
+function raceDone(c){if(!RACE||!RACE.cur)return false;const ms=RMS.find(q=>q.id===RACE.cur);if(!ms||ms.m!==c.id)return false;RACE.cur=null;RACE.paid=null;
+  const S0=RSIDE[RACE.side],again=!!RACE.got[ms.id],first=!again&&!ms.train&&!rRivalDone(ms.id),pts=again?2:ms.train?3:first?5:3;RACE.pts+=pts;if(!again)RACE.got[ms.id]={m:RACE.mo,first};
+  if(!again){if(ms.goal&&first){RACE.won=RACE.mo;raceNews('win',S0.adj.toUpperCase()+' NA LUA!','A '+ms.nm[RACE.side]+' pousou e a bandeira '+(RACE.side==='usa'?'americana':'soviética')+' está fincada no chão da Lua. O mundo inteiro assistiu.');}
+    else if(first)raceNews('first',S0.n+' É O PRIMEIRO: '+ms.t.toUpperCase(),'A '+ms.nm[RACE.side]+' fez o que ninguém tinha feito. Os '+RSIDE[S0.rival].adj+' ficaram para trás.');
+    else raceNews('me',ms.train?'FOGUETE DE '+S0.base.toUpperCase()+' CHEGA AO ESPAÇO':S0.n+' TAMBÉM CONSEGUE: '+ms.t.toUpperCase(),ms.train?'O teste passou dos 100 km. Agora o programa pode mirar mais alto.':'O rival chegou antes, mas a '+ms.nm[RACE.side]+' mostra que o programa está vivo.');}
+  raceSave();
+  $('#cwE').textContent='Corrida Espacial · '+rDate(RACE.mo);$('#cwT').textContent=again?'Voo de teste ✓':ms.goal&&first?'🏆 VOCÊS CHEGARAM PRIMEIRO À LUA!':first?'PRIMEIRO! '+S0.f:'Conseguiu ✓';
+  $('#cwB').textContent='+'+pts+' pontos de pesquisa.';$('#cwNext').hidden=false;$('#cwNext').textContent='Voltar à sede';$('#cwNext').onclick=()=>{$('#campWin').hidden=true;$('#mHangar').onclick();raceOpen();};
+  paperFlush();return true;}
+function raceCrash(){if(!RACE||!RACE.cur||!RACE_FLAG)return'';raceAdvance(2);RACE.crash=(RACE.crash||0)+1;const ms=RMS.find(q=>q.id===RACE.cur),S0=RSIDE[RACE.side];
+  raceNews('fail','FALHA EM '+S0.base.toUpperCase(),'O teste da missão "'+ms.t.toLowerCase()+'" terminou mal. A investigação vai levar 2 meses.');raceSave();return ' · 🏁 A investigação do acidente custou 2 meses (agora é '+rDate(RACE.mo)+').';}
+// ------- sede do programa
 let RTAB='ms';
+function raceOpen(){if(!RACE){raceSelOpen();return;}if(!RACE.cur){CAMP_CUR=null;RACE_FLAG=null;setSite('alc');document.body.classList.remove('inRace');campBar();}renderRace();$('#race').hidden=false;paperFlush(()=>tutTick());}
 function renderRace(){const S0=RSIDE[RACE.side],R2=RSIDE[S0.rival],box=$('#rBody');
-  $('#rHead').innerHTML='<b>'+S0.f+' '+S0.n+'</b> × '+R2.f+' '+R2.n+'<span class="rDate">'+rDate(RACE.mo)+'</span><span class="rPts">🔬 '+RACE.pts+' pontos</span>';
+  $('#rHead').innerHTML='<span class="rFlag">'+S0.f+'</span><b>Programa espacial '+(RACE.side==='usa'?'americano':'soviético')+'</b><span class="rDate">'+rDateL(RACE.mo)+'</span><span class="rPts" title="Pontos de pesquisa">🔬 '+RACE.pts+' pts</span>';
   $('#rTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===RTAB));
-  const fm=(RACE.won!=null?'<p class="rWin">🏆 Vocês chegaram primeiro à Lua em '+rDate(RACE.won)+'!</p>':rRivalDone('land')?'<p class="rLose">Os '+R2.adj+' pousaram na Lua primeiro. Ainda dá para ir até lá e completar as conquistas.</p>':'<p class="cpSub">Objetivo: pousar gente na Lua antes dos '+R2.adj+'. Lançar e pesquisar gastam meses (e cada acidente, mais 2 de investigação); completar conquistas dá pontos de pesquisa (5 se for o primeiro, 3 se não, 2 num voo de teste).</p>');
-  if(RTAB==='ms'){box.innerHTML=fm+'<ol class="rList">'+RMS.map(ms=>{const mine=RACE.got[ms.id],rv=rRivalDone(ms.id),[rd,rn]=rRival(ms),miss=ms.req.filter(t=>!rHas(t)),lockAfter=ms.after&&!RACE.got[ms.after],ok=!miss.length&&!lockAfter;
-      const st=mine?(mine.first?'<i class="rc me">'+S0.f+' PRIMEIRO · '+rDate(mine.m)+'</i>':'<i class="rc ok">✓ '+rDate(mine.m)+'</i>'):rv?'<i class="rc rv">'+R2.f+' '+R2.n+' primeiro · '+rDate(rd)+'</i>':'<i class="rc open">em aberto</i>';
-      const why=lockAfter?'Depois de: '+RMS.find(q=>q.id===ms.after).t:miss.length?'Falta pesquisar: '+miss.map(t=>RTK[t].n).join(', '):(mine?'Voo de teste: +2 pontos':'Na história: '+R2.n+' em '+rDate(rd)+' ('+rn+')');
-      return '<li class="'+(ok?'':'lock ')+(mine?'done':'')+'"><div><b>'+ms.t+'</b>'+st+'<small><b class="rNm">'+ms.nm[RACE.side]+'</b> · '+why+'</small></div><button data-l="'+ms.id+'" '+(ok?'class="primary"':'disabled')+'>'+(ok?(mine?'Testar':'Lançar')+' · '+ms.mo+' m':'🔒')+'</button></li>';}).join('')+'</ol>';
+  const tk=RACE.news.slice(0,8).map(n=>'<span>'+rDate(n.m)+' · '+n.h+'</span>').join('');$('#rTicker').innerHTML='<b>📰 '+S0.paper+'</b><div><p>'+tk+tk+'</p></div>';
+  const top=RACE.won!=null?'<p class="rWin">🏆 Vocês chegaram primeiro à Lua em '+rDateL(RACE.won)+'!</p>':rRivalDone('land')?'<p class="rLose">Os '+R2.adj+' pousaram na Lua primeiro. Ainda dá para completar as outras conquistas.</p>':'';
+  if(RTAB==='ms'){box.innerHTML=top+'<ol class="rList">'+RMS.map(ms=>{const mine=RACE.got[ms.id],rv=rRivalDone(ms.id),[rd,rn]=rRival(ms),miss=ms.req.filter(t=>!rHas(t)),lockAfter=ms.after&&!RACE.got[ms.after],ok=!miss.length&&!lockAfter;
+      const st=mine?(mine.first?'<i class="rc me">'+S0.f+' primeiro · '+rDate(mine.m)+'</i>':'<i class="rc ok">✓ '+rDate(mine.m)+'</i>'):rv?'<i class="rc rv">'+R2.f+' '+R2.n+' primeiro</i>':ms.train?'<i class="rc open">treino</i>':'<i class="rc open">em aberto</i>';
+      const why=lockAfter?'Depois de: '+RMS.find(q=>q.id===ms.after).t:miss.length?'Falta pesquisar: '+miss.map(t=>RTK[t].n).join(', '):ms.train?'Sem rival: é o teste do seu primeiro foguete':mine?'Voo de teste: +2 pontos':'O rival faz em '+rDate(rd)+' ('+rn+')';
+      return '<li class="'+(ok?'':'lock ')+(mine?'done':'')+'"><div><b>'+ms.t+'</b>'+st+'<small><b class="rNm">'+ms.nm[RACE.side]+'</b> · '+why+'</small></div><button data-l="'+ms.id+'" '+(ok?'class="primary"':'disabled')+'>'+(ok?(mine?'Testar':'Montar e lançar')+' · '+ms.mo+' meses':'🔒')+'</button></li>';}).join('')+'</ol>';
     box.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>raceLaunch(b.dataset.l));}
-  else if(RTAB==='tec'){const brs=[...new Set(RTECH.map(t=>t[1]))];box.innerHTML=fm+'<div class="rTree">'+brs.map(br=>'<div class="rBr"><span class="eyebrow">'+br+'</span>'+RTECH.filter(t=>t[1]===br).map(([id])=>{const k=RTK[id],h=rHas(id),pre=k.pre.every(rHas),c=rCost(id),can=!h&&pre&&RACE.pts>=c;
-      const opens=RMS.filter(ms=>ms.req.includes(id)).map(ms=>ms.t).join(' · ');
-      return '<button class="rNode '+(h?'has':can?'can':pre?'need':'lock')+'" data-t="'+id+'" '+(can?'':'aria-disabled="true"')+'><b>'+k.n+'</b><small>'+k.d+(opens?'<br><em>Libera: '+opens+'</em>':'')+'</small><span>'+(h?'✓ pesquisado':pre?c+' pts · '+rMonths(c)+' meses':'🔒 '+k.pre.filter(p=>!rHas(p)).map(p=>RTK[p].n).join(', '))+'</span></button>';}).join('')+'</div>').join('')+'</div>';
-    box.querySelectorAll('.rNode.can').forEach(b=>b.onclick=()=>raceResearch(b.dataset.t));}
-  else box.innerHTML='<ul class="rNews">'+RACE.news.map(n=>'<li>'+n.t+'</li>').join('')+'</ul>';}
+  else{const brs=[...new Set(RTECH.map(t=>t[1]))];box.innerHTML=top+'<p class="rHint">Cada tecnologia custa pontos e meses. Ela libera <b>peças no hangar</b> e <b>conquistas</b>. Combustível máximo do foguete agora: <b>'+(raceFuelCap()>1e8?'sem limite':(raceFuelCap()/1000)+' t')+'</b>.</p><div class="rTree">'+brs.map(br=>'<div class="rBr"><span class="rBrN">'+br+'</span>'+RTECH.filter(t=>t[1]===br).map(([id])=>{const k=RTK[id],h=rHas(id),pre=k.pre.every(rHas),c=rCost(id),can=!h&&pre&&RACE.pts>=c;
+      const opens=RMS.filter(ms=>ms.req.includes(id)).map(ms=>ms.t).join(' · '),pl=k.parts.map(p=>PARTS[p].n).join(', ');
+      return '<button class="rNode '+(h?'has':can?'can':pre?'need':'lock')+'" data-t="'+id+'"><b>'+k.n+'</b><small>'+k.d+'</small>'+(pl?'<em>🔧 '+pl+'</em>':'')+(opens?'<em>🏁 '+opens+'</em>':'')+'<span>'+(h?'✓ pesquisado':pre?(RACE.pts>=c?'Pesquisar · ':'Faltam pontos · ')+c+' pts · '+rMonths(c)+' meses':'🔒 antes: '+k.pre.filter(p=>!rHas(p)).map(p=>RTK[p].n).join(', '))+'</span></button>';}).join('')+'</div>').join('')+'</div>';
+    box.querySelectorAll('.rNode.can').forEach(b=>b.onclick=()=>raceResearch(b.dataset.t));}}
+// ------- tela de escolha do país
+function raceSelOpen(){const el=$('#raceSel');el.hidden=false;el.classList.remove('picked');}
+// ------- tutorial: o conselheiro mostra uma coisa de cada vez, na hora em que ela é usada
+function engRect(){const q=V&&V.parts.find(p=>PT(p).t==='eng');if(!q)return{left:0,top:0,right:0,bottom:0,width:0,height:0};const P=PT(q),[a,b]=bodyToWorld(V,q.x,q.y-P.h/2),[c,d]=bodyToWorld(V,q.x,q.y+P.h/2),[sx,sy]=toScreen(a,b),[tx,ty]=toScreen(c,d),cv0=$('#sky').getBoundingClientRect(),w=Math.max(28,P.w*UNIT*z),x0=Math.min(sx,tx)+cv0.left,y0=Math.min(sy,ty)+cv0.top,h=Math.max(28,Math.abs(ty-sy));return{left:(sx+tx)/2+cv0.left-w/2,top:y0,width:w,height:h,right:(sx+tx)/2+cv0.left+w/2,bottom:y0+h};}
+const hqOn=()=>!$('#race').hidden&&$('#paper')?.hidden!==false,hang=()=>!flight.on&&$('#race').hidden&&$('#raceSel').hidden&&!!RACE&&RACE_FLAG;
+const TUT=[
+  {when:hqOn,sel:'#rHead',t:s=>'Eu sou '+s.adv.n+', '+s.adv.c+'. A partir de hoje você comanda o programa espacial '+(RACE.side==='usa'?'americano':'soviético')+'. Nosso objetivo: chegar primeiro à Lua.',next:1},
+  {when:hqOn,sel:'#rHead .rDate',t:s=>'Este é o calendário. Pesquisar e lançar gastam meses, e os '+RSIDE[s.rival].adj+' não esperam: eles fazem cada conquista na data em que fizeram na história.',next:1},
+  {when:()=>hqOn()&&RTAB==='ms',sel:'[data-l="snd"]',t:()=>'Primeira tarefa: um foguete de sondagem, só para passar dos 100 km. Toque em Montar e lançar.',done:()=>CAMP_CUR==='rm_snd'},
+  {when:hang,sel:'#catalog',t:()=>'Aqui não tem foguete pronto: você monta o seu. Só aparecem as peças que já pesquisamos, e o tamanho do foguete também é limitado. De cima para baixo: Ogiva, Sonda (aba Comando), Tanque M, Aletas e o Motor Jabuti. A Ogiva parece enfeite, mas sem ela o ar freia tanto que o foguete não chega aos 100 km. Dois Tanques M não cabem: passa do limite de 5 t.',done:()=>{try{return validate(parts).errs.length===0;}catch(e){return false;}}},
+  {when:hang,sel:'#btnLaunch',t:()=>'Foguete montado. Toque em IR PARA A BASE. O tempo de preparo passa agora: fique de olho no jornal.',done:()=>flight.on},
+  {when:()=>flight.on&&V&&V.clamped&&!S.count,rect:engRect,t:()=>'Na base. Primeiro toque no motor, embaixo do foguete: ele fica armado (marcado).',done:()=>!!(V&&propAct(V).some(i=>V.parts[i].on))||S.liftT>=0},
+  {when:()=>flight.on&&V&&V.clamped,sel:'#btnEng',t:()=>'Agora toque em LIGAR: começa a contagem e o acelerador vai no máximo sozinho.',done:()=>!!(S.count||S.liftT>=0)},
+  {when:()=>flight.on,sel:'#read',t:()=>'Suba reto e acompanhe a altitude aqui em cima. Passou dos 100 km, a missão está cumprida.',done:()=>!!(RACE.got&&RACE.got.snd)},
+  {when:hqOn,sel:'#rTabs [data-t="tec"]',t:()=>'Missão cumprida rende pontos de pesquisa. Abra a Tecnologia.',done:()=>RTAB==='tec'},
+  {when:()=>hqOn()&&RTAB==='tec',sel:'.rNode[data-t="n1"]',t:()=>'Cada tecnologia libera peças novas e novas conquistas. Pesquise Satélite e sonda: libera a carenagem e os painéis solares.',done:()=>rHas('n1')},
+  {when:()=>hqOn()&&RTAB==='tec',sel:'.rTree',t:s=>'Para pôr um satélite em órbita ainda faltam '+(rHas('f2')?'':'Estágios e ')+'Órbita. Os '+RSIDE[s.rival].adj+' lançam o primeiro satélite em '+rDate(RMS[1][s.rival][0])+'. Escolha bem: cada mês conta. Boa sorte!',next:1,last:1}];
+function tutTick(){const el=$('#tut');if(!RACE||RACE.tut==null||RACE.tut<0||RACE.tut>=TUT.length){el.hidden=true;return;}const st=TUT[RACE.tut],S0=RSIDE[RACE.side];
+  if(st.done&&st.done()){RACE.tut++;raceSave();return tutTick();}
+  const tg=st.rect?{getBoundingClientRect:st.rect,getClientRects:()=>[1]}:st.sel&&document.querySelector(st.sel),vis=st.when()&&tg&&tg.getClientRects().length&&$('#paper')?.hidden!==false&&$('#film')?.hidden!==false;
+  if(!vis){el.hidden=true;return;}el.hidden=false;const r=tg.getBoundingClientRect(),hole=$('#tutHole'),bx=$('#tutBox'),pad=6;
+  hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';
+  const txt=st.t(S0);if(bx.dataset.k!==RACE.tut+''){bx.dataset.k=RACE.tut;$('#tutAv').textContent=S0.adv.ini;$('#tutAv').style.background=S0.adv.col;$('#tutN').textContent=S0.adv.n;$('#tutT').textContent=txt;$('#tutNext').hidden=!st.next;$('#tutNext').textContent=st.last?'Entendi':'Próximo';$('#tutStep').textContent=(RACE.tut+1)+' de '+TUT.length;bx.classList.remove('pop');void bx.offsetWidth;bx.classList.add('pop');}
+  const bw=Math.min(380,innerWidth-24);bx.style.width=bw+'px';const h=bx.offsetHeight,W0=innerWidth,H0=innerHeight,cl=(v,a,b)=>Math.max(a,Math.min(b,v)),cx=cl(r.left+r.width/2-bw/2,12,W0-bw-12),cy=cl(r.top,12,H0-h-12);
+  // o balão nunca cobre o que está sendo apontado: tenta embaixo, em cima, à direita e à esquerda
+  const pos=[[cx,r.bottom+14,r.bottom+14+h<H0-8],[cx,r.top-14-h,r.top-14-h>8],[r.right+14,cy,r.right+14+bw<W0-8],[r.left-14-bw,cy,r.left-14-bw>8]].find(q=>q[2])||[cx,cl(r.bottom+14,12,H0-h-12)];
+  bx.style.left=pos[0]+'px';bx.style.top=pos[1]+'px';}
+setInterval(()=>{try{tutTick();}catch(e){}},250);
+$('#tutNext').onclick=e=>{e.stopPropagation();if(RACE){RACE.tut++;raceSave();tutTick();}};
+$('#tutSkip').onclick=e=>{e.stopPropagation();if(RACE){RACE.tut=-1;raceSave();tutTick();}};
 $('#rTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{RTAB=b.dataset.t;renderRace();});
-$('#rClose').onclick=()=>{$('#race').hidden=true;};$('#rFilm').onclick=()=>{$('#race').hidden=true;filmPlay(()=>raceOpen());};$('#rReset').onclick=()=>{if(!confirmReset())return;RACE=null;try{localStorage.removeItem('orbita.race');}catch(e){}$('#race').hidden=true;$('#raceSide').hidden=false;};
-function confirmReset(){const b=$('#rReset');if(b.dataset.k!=='1'){b.dataset.k='1';b.textContent='Toque de novo para apagar';setTimeout(()=>{b.dataset.k='';b.textContent='Recomeçar corrida';},3000);return false;}b.dataset.k='';b.textContent='Recomeçar corrida';return true;}
-$('#raceSide').querySelectorAll('[data-side]').forEach(b=>b.onclick=()=>{raceNew(b.dataset.side);$('#raceSide').hidden=true;RTAB='tec';raceOpen();});$('#rsClose').onclick=()=>{$('#raceSide').hidden=true;};
+$('#rClose').onclick=()=>{$('#race').hidden=true;};
+$('#rNews').onclick=()=>{if(RACE&&RACE.news.length)paperShow(RACE.news.slice(0,4),()=>{});};
+$('#rTut').onclick=()=>{if(RACE){RACE.tut=0;RTAB='ms';raceSave();renderRace();tutTick();}};
+$('#rReset').onclick=()=>{const b=$('#rReset');if(b.dataset.k!=='1'){b.dataset.k='1';b.textContent='Toque de novo para apagar a corrida';setTimeout(()=>{b.dataset.k='';b.textContent='Recomeçar corrida';},3000);return;}b.dataset.k='';RACE=null;try{localStorage.removeItem('orbita.race');}catch(e){}$('#race').hidden=true;raceSelOpen();};
+$('#raceSel').querySelectorAll('[data-side]').forEach(b=>b.onclick=()=>{const side=b.dataset.side,el=$('#raceSel');el.classList.add('picked');el.dataset.pick=side;audioInit();
+  setTimeout(()=>{el.hidden=true;raceNew(side);filmPlay(filmFor(side),()=>{try{musicStart();}catch(e){}RTAB='ms';raceOpen();});},650);});
+$('#rsBack').onclick=()=>{$('#raceSel').hidden=true;goHome();};
 
 let MS=null; // missões ativas do voo (campanha ou modo livre)
 const MISSIONS=[
@@ -1776,7 +1958,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=73;
+const GAME_VER=74;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
@@ -3131,7 +3313,7 @@ function textures(){if(TEX)return TEX;const sm=(a,b,v)=>{const t=Math.max(0,Math
 function planetDisc(B,x,y,rr,ang){if(B.earth){const at=g.createRadialGradient(x,y,rr*.95,x,y,rr*1.2);at.addColorStop(0,'rgba(110,175,255,.55)');at.addColorStop(1,'rgba(90,160,255,0)');g.fillStyle=at;g.beginPath();g.arc(x,y,rr*1.2,0,7);g.fill();}
   if(rr<3){g.fillStyle=B.col;g.beginPath();g.arc(x,y,Math.max(rr,2),0,7);g.fill();return;}const T=textures(),im=B.earth?T.earth:T.moon;if(ang){g.save();g.translate(x,y);g.rotate(ang);g.drawImage(im,-rr,-rr,2*rr,2*rr);g.restore();}else g.drawImage(im,x-rr,y-rr,2*rr,2*rr);}
 ['contextmenu','selectstart'].forEach(ev=>$('#flight').addEventListener(ev,e=>e.preventDefault()));
-$('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick=()=>$('#panel').classList.add('open');$('#btnSheetClose').onclick=()=>$('#panel').classList.remove('open');
+$('#btnLaunch').onclick=()=>raceGate(launch);$('#btnGo').onclick=()=>raceGate(launch);$('#btnSheet').onclick=()=>$('#panel').classList.add('open');$('#btnSheetClose').onclick=()=>$('#panel').classList.remove('open');
 (function intro(){const el=$('#intro'),c=$('#introC'),x=c.getContext('2d'),st=Array.from({length:260},()=>[Math.random(),Math.random(),Math.random()]);let t0=performance.now(),on=true,I0=null,iT=0,iL=null,skip=false;const ID=3.4;
   const skipI=()=>{if(!skip){skip=true;iT=ID;}};el.addEventListener('pointerdown',skipI);addEventListener('keydown',skipI,{once:true});
   const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -3179,11 +3361,11 @@ $('#btnLaunch').onclick=launch;$('#btnGo').onclick=launch;$('#btnSheet').onclick
     ringFx(W,H,ti);if(ti>2.95)el.classList.add('ttl');
     x.font='500 12px IBM Plex Sans,system-ui';x.textAlign='right';x.fillStyle='rgba(255,255,255,'+Math.min(.4,ti*.4)+')';x.fillText('toque para pular',W-16,H-16);}
   requestAnimationFrame(fr);
-  $('#btnStart').onclick=()=>{setSite('alc');audioInit();musicStart();el.classList.add('out');setTimeout(()=>{on=false;el.hidden=true;},950);};
+  $('#btnStart').onclick=()=>{setSite('alc');RACE_FLAG=null;document.body.classList.remove('inRace');audioInit();musicStart();el.classList.add('out');setTimeout(()=>{on=false;el.hidden=true;},950);};
   $('#btnCampI').onclick=()=>{$('#btnStart').onclick();renderCamp();$('#camp').hidden=false;};
-  $('#btnRaceI').onclick=()=>{audioInit();$('#btnStart').onclick();if(RACE){raceOpen();return;}filmPlay(()=>{try{musicStart();}catch(e){}raceOpen();});};
+  $('#btnRaceI').onclick=()=>{audioInit();if(!RACE){raceSelOpen();setTimeout(()=>{el.classList.add('out');setTimeout(()=>{on=false;el.hidden=true;},600);},50);return;}$('#btnStart').onclick();raceOpen();};
   // volta para a tela inicial (sai da missão e do hangar)
-  window.goHome=()=>{if(flight.on)$('#mHangar').onclick();['#campWin','#deadBox','#camp','#models','#brief','#race','#raceSide'].forEach(q=>{const e=$(q);if(e)e.hidden=true;});musicStop&&musicStop(true);el.hidden=false;el.classList.remove('out');if(!on){on=true;t0=performance.now();requestAnimationFrame(fr);}};})();
+  window.goHome=()=>{if(flight.on)$('#mHangar').onclick();['#campWin','#deadBox','#camp','#models','#brief','#race','#raceSel','#paper'].forEach(q=>{const e=$(q);if(e)e.hidden=true;});musicStop&&musicStop(true);el.hidden=false;el.classList.remove('out');if(!on){on=true;t0=performance.now();requestAnimationFrame(fr);}};})();
 cheatsUI();buildCatalog();{const c=lsGet('orbita.cur');if(Array.isArray(c)&&c.length)loadParts(c);else parts=presetTwo();}fitView();refresh();
 
 // ================= AUTO-TESTE DA FÍSICA =================
