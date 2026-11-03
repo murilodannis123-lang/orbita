@@ -234,7 +234,11 @@ button,.part{-webkit-user-select:none;user-select:none;-webkit-touch-callout:non
 .mdGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mdGrid button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;text-align:left}.mdGrid button b{font-size:14px;color:var(--ink)}.mdGrid button small{font-size:12px;color:var(--muted)}
 .brRow{display:flex;gap:10px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}.brRow canvas{flex:0 0 auto;width:48px;height:48px}.brRow b{display:block;font-size:14px}.brRow small{display:block;font-size:12px;color:var(--muted);line-height:1.35}#brList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .cpSub{margin:0;color:var(--muted);font-size:13px}#cpList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}#cpList li{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
-#race{width:min(760px,96vw);max-height:92vh}#rHead{gap:12px}#rHead .rFlag{font-size:22px}#rHead b{font-family:var(--display);font-size:16px}#rHead .rDate{text-transform:capitalize}
+#race{width:min(760px,96vw);max-height:92vh;overflow:hidden}#rBody{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}#race>*:not(#rBody){flex:0 0 auto}
+/* no iPhone em pé o painel não pode entrar embaixo do relógio/notch nem da barra de baixo */
+#models,#camp,#campWin,#brief,#race{top:calc(50% + (env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)) / 2)}
+#models,#camp,#campWin,#brief{max-height:min(86vh,calc(100% - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 20px))}
+#race{max-height:min(92vh,calc(100% - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 20px))}#rHead{gap:12px}#rHead .rFlag{font-size:22px}#rHead b{font-family:var(--display);font-size:16px}#rHead .rDate{display:inline-block}#rHead .rDate::first-letter{text-transform:uppercase}
 #rTicker{display:flex;align-items:center;gap:10px;overflow:hidden;background:#efe8d6;color:#2b2a27;border-radius:6px;padding:6px 10px;font-family:'Old Standard TT',Georgia,serif;font-size:13.5px}#rTicker b{flex:0 0 auto;font-weight:700}#rTicker div{overflow:hidden;flex:1;min-width:0}#rTicker p{margin:0;display:inline-flex;gap:34px;white-space:nowrap;animation:tick 60s linear infinite}@keyframes tick{to{transform:translateX(-50%)}}
 .rHint{margin:0 0 4px;font-size:13px;color:var(--muted)}.rBrN{font-family:var(--display);font-weight:700;font-size:13px;color:#cfd6e6;padding:2px 2px 4px;border-bottom:1px solid var(--line)}.rNode em{display:block;margin-top:2px}
 #raceSel{position:fixed;inset:0;z-index:260;display:grid;grid-template-columns:1fr 1fr;background:#05070d;bottom:calc(-1 * var(--gapB,0px))}#raceSel[hidden]{display:none}
@@ -388,7 +392,7 @@ body.inRace #btnCamp,body.inRace #btnModels,body.inRace #btnSaves,body.inRace #b
     <button id="btnCampI" class="inItem"><b>Campanha</b><small>Do primeiro salto, em 1961, até Marte</small></button>
     <button id="btnRaceI" class="inItem"><b>Corrida Espacial</b><small>EUA contra URSS, a partir de 1957</small></button>
   </nav>
-  <p class="hint">Melhor com fone de ouvido <span>versão 74</span></p></div></div>
+  <p class="hint">Melhor com fone de ouvido <span>versão 75</span></p></div></div>
 
 <div id="flight">
   <canvas id="sky"></canvas>
@@ -1958,7 +1962,7 @@ function restoreSnap(str){const o=JSON.parse(str);S={...o.S,done:new Set(o.S.don
 function rewind(){if(!snaps.length){toast('Nada para voltar','Ainda não passou tempo suficiente.');return;}const k=Math.max(0,snaps.length-30);restoreSnap(snaps[k]);snaps.length=k+1;snapT=0;toast('Voltou no tempo','Você está de novo uns 30 segundos atrás.');}
 async function saveGame(){try{const cur=(MS||MISSIONS).find(m=>!S.done.has(m.id));await stSaveGame({ver:GAME_VER,snap:snapshot(),design:JSON.stringify(S.padParts),savedAt:Date.now(),label:cur?'missão: '+cur.t:'todas as missões'});toast('Jogo salvo','Fica '+where()+'. Para continuar: Hangar → Salvos.');}
   catch(e){toast('Não salvou',e&&e.code==='quota_exceeded'?'Espaço de salvos cheio.':'Tente de novo em instantes.');}}
-const GAME_VER=74;
+const GAME_VER=75;
 function loadGame(gm){try{loadParts(JSON.parse(gm.design));launch();restoreSnap(gm.snap);snaps=[];if(gm.ver!==GAME_VER&&/miss/.test(gm.label||''))toast('Voo salvo numa versão antiga','Esse voo usa a nave do jeito que ela era quando você salvou. Para pegar o modelo novo da nave, saia e comece a missão de novo pela Campanha.');else toast('Voo carregado','Continuando de onde você salvou.');}catch(e){$('#hangar').style.display='';$('#flight').classList.remove('on');flight.on=false;refresh();$('#pinfo').textContent='Esse jogo salvo está corrompido.';}}
 $('#mRew').onclick=()=>{$('#drawer').classList.remove('open');rewind();};$('#btnRewind').onclick=rewind;$('#mSave').onclick=()=>{$('#drawer').classList.remove('open');saveGame();};
 function loop(ts){if(!flight.on)return;const real=Math.min(.05,lastTs?(ts-lastTs)/1000:.016);lastTs=ts;
